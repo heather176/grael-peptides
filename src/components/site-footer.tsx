@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.3.3";
+const VERSION = "1.3.4";
 
 export function SiteFooter() {
   return (

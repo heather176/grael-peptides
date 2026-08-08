@@ -2,12 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { DiscountCodeForm } from "@/components/discount-code-form";
 import { RuoBanner } from "@/components/ruo-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/lib/cart-store";
+import { unitPriceWithDiscount } from "@/lib/discount-codes";
+import { useDiscount } from "@/lib/discount-store";
 import { submitPreorder } from "@/lib/preorders";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
@@ -21,6 +24,7 @@ type Result = {
   subtotal: number;
   email: string;
   fullName: string;
+  discount: { code: string; label: string; percentOff: number } | null;
 };
 
 function PreorderPage() {
@@ -30,6 +34,8 @@ function PreorderPage() {
   const enriched = useCart((s) => s.enriched);
   const subtotal = useCart((s) => s.subtotal);
   const clear = useCart((s) => s.clear);
+  const def = useDiscount((s) => s.activeDef());
+  const wholesalePct = def?.percentOff ?? 0;
 
   useEffect(() => {
     if (useCart.persist.hasHydrated()) setHydrated(true);
@@ -39,7 +45,14 @@ function PreorderPage() {
 
   const ready = hydrated;
   const items = ready ? enriched() : [];
-  const total = ready ? subtotal() : 0;
+  const launchTotal = ready ? subtotal() : 0;
+  const total =
+    wholesalePct > 0
+      ? items.reduce(
+          (n, i) => n + unitPriceWithDiscount(i.product.price, wholesalePct) * i.qty,
+          0,
+        )
+      : launchTotal;
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -68,9 +81,22 @@ function PreorderPage() {
           notes: [shipNote, notes.trim()].filter(Boolean).join(" — ") || undefined,
           researchAck: true as const,
           lines: items.map((i) => ({ sku: i.sku, qty: i.qty })),
+          discountCode: def?.code || undefined,
         },
       });
-      setResult(res);
+      setResult({
+        id: res.id,
+        subtotal: res.subtotal,
+        email: res.email,
+        fullName: res.fullName,
+        discount: res.discount
+          ? {
+              code: res.discount.code,
+              label: res.discount.label,
+              percentOff: res.discount.percentOff,
+            }
+          : null,
+      });
       clear();
       toast.success("Next shipment reserved");
     } catch (err) {
@@ -92,15 +118,21 @@ function PreorderPage() {
           <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
             Thanks, {result.fullName}. We logged request{" "}
             <span className="font-mono text-[var(--color-fg)]">{result.id}</span> for{" "}
-            {formatUsd(result.subtotal)} estimated.
+            {formatUsd(result.subtotal)} estimated
+            {result.discount
+              ? ` with ${result.discount.label} code ${result.discount.code} (−${result.discount.percentOff}%)`
+              : ""}
+            .
           </p>
           <p className="mt-3 text-sm text-[var(--color-fg-muted)]">
             Estimated ship window:{" "}
             <span className="font-medium text-[var(--color-fg)]">
               {NEXT_SHIPMENT.estimatedShipLabel}
             </span>{" "}
-            (~{NEXT_SHIPMENT.daysEstimate} days). Confirmation and payment link will go to{" "}
-            <span className="text-[var(--color-fg)]">{result.email}</span> before fulfillment.
+            (~{NEXT_SHIPMENT.daysEstimate} days). You are{" "}
+            <strong className="text-[var(--color-fg)]">not charged now</strong> — we email a Stripe
+            invoice before ship. Confirmation goes to{" "}
+            <span className="text-[var(--color-fg)]">{result.email}</span>.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button asChild>
@@ -130,7 +162,8 @@ function PreorderPage() {
           <span className="text-[var(--color-fg)]">
             Estimated ship around {NEXT_SHIPMENT.estimatedShipLabel} (~{NEXT_SHIPMENT.daysEstimate}{" "}
             days).
-          </span>
+          </span>{" "}
+          No card charge today — you pay when we send the invoice before ship.
         </p>
       </div>
 
@@ -212,6 +245,8 @@ function PreorderPage() {
         </form>
 
         <aside className="space-y-4">
+          <DiscountCodeForm />
+
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold">Cart summary</h2>
@@ -236,40 +271,77 @@ function PreorderPage() {
               </div>
             ) : (
               <ul className="space-y-3">
-                {items.map(({ sku, qty, product }) => (
-                  <li key={sku} className="flex items-start justify-between gap-3 text-sm">
-                    <div>
-                      <p className="font-medium text-[var(--color-fg)]">{product.name}</p>
-                      <p className="font-mono text-xs text-[var(--color-fg-subtle)]">
-                        {sku} × {qty}
-                      </p>
-                    </div>
-                    <p className="tabular text-[var(--color-fg-muted)]">
-                      {formatUsd(product.price * qty)}
-                    </p>
-                  </li>
-                ))}
+                {items.map(({ sku, qty, product }) => {
+                  const unit =
+                    wholesalePct > 0
+                      ? unitPriceWithDiscount(product.price, wholesalePct)
+                      : product.price;
+                  return (
+                    <li key={sku} className="flex items-start justify-between gap-3 text-sm">
+                      <div>
+                        <p className="font-medium text-[var(--color-fg)]">{product.name}</p>
+                        <p className="font-mono text-xs text-[var(--color-fg-subtle)]">
+                          {sku} × {qty}
+                          {wholesalePct > 0 ? ` · −${wholesalePct}%` : ""}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="tabular text-[var(--color-fg-muted)]">
+                          {formatUsd(unit * qty)}
+                        </p>
+                        {wholesalePct > 0 ? (
+                          <p className="text-xs tabular text-[var(--color-fg-subtle)] line-through">
+                            {formatUsd(product.price * qty)}
+                          </p>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
 
             <div className="mt-5 flex items-center justify-between border-t border-[var(--color-border)] pt-4">
-              <span className="text-sm text-[var(--color-fg-muted)]">Estimated total</span>
-              <span className="font-display text-2xl font-semibold tabular">{formatUsd(total)}</span>
+              <span className="text-sm text-[var(--color-fg-muted)]">
+                {wholesalePct > 0 ? `${def?.label} estimate` : "Estimated total"}
+              </span>
+              <div className="text-right">
+                <span className="font-display text-2xl font-semibold tabular">
+                  {formatUsd(total)}
+                </span>
+                {wholesalePct > 0 && total < launchTotal ? (
+                  <p className="text-xs tabular text-[var(--color-fg-subtle)] line-through">
+                    {formatUsd(launchTotal)} launch
+                  </p>
+                ) : null}
+              </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
               {lines.length} line{lines.length === 1 ? "" : "s"} · no charge until invoice
+              {def ? ` · code ${def.code}` : ""}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--color-fg-muted)]">
+              <strong className="text-[var(--color-fg)]">No charge until invoice</strong> means this
+              form only reserves inventory for the next wave. Your card is not charged today. Before
+              we ship (~{NEXT_SHIPMENT.estimatedShipLabel}), we email a Stripe invoice at these
+              estimated prices
+              {def ? ` (including ${def.label} −${def.percentOff}%)` : ""}. You pay that invoice,
+              then we fulfill.
             </p>
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5 text-sm text-[var(--color-fg-muted)]">
             <p className="font-medium text-[var(--color-fg)]">What happens next</p>
             <ol className="mt-3 list-decimal space-y-2 pl-4">
-              <li>We log your next-shipment request against the catalog.</li>
+              <li>We log your next-shipment request (with any wholesale code).</li>
               <li>
                 Target ship window: <strong>{NEXT_SHIPMENT.estimatedShipLabel}</strong> (~
                 {NEXT_SHIPMENT.daysEstimate} days).
               </li>
-              <li>Traceabl COAs attach per batch; you get a final Stripe invoice before ship.</li>
+              <li>
+                Traceabl COAs attach per batch; you get a final Stripe invoice (wholesale code
+                honored) before ship — that is when you pay.
+              </li>
               <li>Vials ship with Traceabl QR labels and COAs.</li>
             </ol>
           </div>
