@@ -2,6 +2,7 @@ import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-r
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Grael Peptides";
+const SITE_URL = "https://graelpeptides.com";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -21,8 +22,12 @@ export const Route = createRootRoute({
         content: "Lab-tested research products. Traceabl COAs. Pre-sale open. RUO.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:site_name", content: APP_NAME },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "canonical", href: SITE_URL },
       { rel: "stylesheet", href: appCss },
       {
         rel: "stylesheet",
