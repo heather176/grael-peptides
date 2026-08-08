@@ -127,7 +127,7 @@ function ProductDetailPage() {
           ) : (
             <p className="text-sm text-[var(--color-fg-muted)]">
               Unbreakable <span className="font-medium text-[var(--color-fg)]">10-vial pack</span> only
-              · not sold as singles at launch.
+              · we order a pack from our supplier when you buy · not sold as singles.
             </p>
           )}
 

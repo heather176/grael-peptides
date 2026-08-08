@@ -41,7 +41,7 @@ export const LAUNCH = {
   label: "Launch open",
   discountLabel: "15% off list",
   suppliesLabel: "While supplies last",
-  note: "Launch pricing · while supplies last. Sold as unbreakable 10-vial packs only.",
+  note: "Launch pricing · unbreakable 10-vial packs. We order a pack from our supplier when you buy.",
   coaNote: "Traceabl COA turnaround: target 5–7 business days after receipt.",
 } as const;
 

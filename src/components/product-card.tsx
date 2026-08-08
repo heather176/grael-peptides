@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
             </Badge>
             <Badge
               className={
-                kitStock.status === "in_stock"
+                kitStock.status === "in_stock" || kitStock.status === "made_to_order"
                   ? "border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]"
                   : kitStock.status === "low" || kitStock.status === "kit_unavailable"
                     ? "border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 text-[10px] font-medium tracking-wide text-[var(--color-warning)]"

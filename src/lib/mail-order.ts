@@ -37,7 +37,7 @@ export const MAIL_ORDER = {
     "Browse catalog online or from this sheet",
     "Order on graelpeptides.com with card — or request an invoice for cash/wire wholesale",
     "Email wholesale@graelpeptides.com for invoice · settle cash as agreed · we mark paid",
-    "We place the supplier order and mail your vials (US only)",
+    "We order your 10-pack from the supplier when you buy, then mail vials (US only)",
   ],
   shippingNote: `US shipping ${SHIPPING.amount} flat · product minimum $${ORDER.minProductSubtotal}`,
   shipEstimate: "Typically 3–7 business days after fulfillment",
