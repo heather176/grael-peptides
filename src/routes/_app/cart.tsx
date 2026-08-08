@@ -137,8 +137,8 @@ function CartPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {LAUNCH.suppliesLabel}. Secure Stripe checkout for current stock. Shipping may be
-              billed separately if not included on the Stripe invoice.
+              {LAUNCH.suppliesLabel}. Secure Stripe checkout for current stock. US shipping
+              is a flat $15 per order at checkout (est. 3–7 business days after fulfillment).
             </p>
             <div className="mt-6 flex flex-col gap-3">
               {single ? (

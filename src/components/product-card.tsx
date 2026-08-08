@@ -62,6 +62,7 @@ export function ProductCard({ product }: { product: Product }) {
           {NEXT_SHIPMENT.active ? (
             <p className="text-[11px] text-[var(--color-fg-subtle)]">{NEXT_SHIPMENT.shortLabel}</p>
           ) : null}
+          <p className="text-[11px] text-[var(--color-fg-subtle)]">+ $15 US shipping / order</p>
         </div>
       </Link>
       <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
