@@ -251,7 +251,7 @@ function PreorderPage() {
           </Button>
           {items.length > 0 && total < ORDER.minProductSubtotal ? (
             <p className="text-center text-xs text-[var(--color-fg-muted)]">
-              Add {formatUsd(ORDER.minProductSubtotal - total)} more in kits (min{" "}
+              Add {formatUsd(ORDER.minProductSubtotal - total)} more in vials (min{" "}
               {formatUsd(ORDER.minProductSubtotal)} product).
             </p>
           ) : null}

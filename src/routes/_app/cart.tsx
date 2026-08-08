@@ -190,7 +190,7 @@ function CartPage() {
             {!meetsMin && items.length > 0 ? (
               <p className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-2 text-xs text-[var(--color-fg)]">
                 Minimum product order is {formatUsd(ORDER.minProductSubtotal)} (shipping is{" "}
-                {formatUsd(SHIPPING.amount)} extra). Add {formatUsd(remainingToMin)} more in kits to
+                {formatUsd(SHIPPING.amount)} extra). Add {formatUsd(remainingToMin)} more in vials to
                 checkout.
               </p>
             ) : null}
