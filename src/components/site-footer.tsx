@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
+const APP_VERSION = "1.2.0";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
@@ -33,8 +35,10 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-[var(--color-border)]">
         <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4 text-xs text-[var(--color-fg-subtle)] sm:flex-row sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Grael Peptides</p>
-          <p>Research use only. Not for human or veterinary use.</p>
+          <p>
+            © {new Date().getFullYear()} Grael Peptides · v{APP_VERSION}
+          </p>
+          <p>Research use only. Not for human or veterinary use. · graelpeptides.com</p>
         </div>
       </div>
     </footer>

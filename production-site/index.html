@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Grael Peptides — Research materials with Traceabl COAs</title>
+<meta name="description" content="Research-use peptides with Traceabl batch COAs. Launch pre-sale · 15% off list. RUO only."/>
+<link rel="canonical" href="https://graelpeptides.com"/>
+<meta property="og:title" content="Grael Peptides"/>
+<meta property="og:description" content="Lab-tested research products. Traceabl COAs. Pre-sale open. RUO."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://graelpeptides.com"/>
+<meta property="og:site_name" content="Grael Peptides"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="theme-color" content="#fafafa"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#fafafa;--elev:#fff;--subtle-bg:#f4f4f4;--fg:#141414;--muted:#5a5a5a;--subtle:#8a8a8a;
+  --border:#e5e5e5;--primary:#4d6b5c;--primary-fg:#fafafa;--primary-dim:#3d5649;
+  --radius:8px;--shadow:0 1px 2px rgb(20 20 20/.04),0 8px 24px -12px rgb(20 20 20/.08);
+  --font-sans:Inter,system-ui,sans-serif;--font-display:"Cormorant Garamond",Georgia,serif;--font-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--fg);line-height:1.6;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.top{background:#141414;color:#f5f5f5;font-size:12px;text-align:center;padding:9px 14px}
+.presale{background:var(--primary);color:var(--primary-fg);font-size:12px;text-align:center;padding:9px 14px;font-weight:500}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--elev) 92%,transparent);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:baseline;gap:8px}
+.logo strong{font-family:var(--font-display);font-size:28px;font-weight:600;letter-spacing:-.01em}
+.logo span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);font-weight:500}
+nav{display:flex;gap:6px;align-items:center}
+nav a{font-size:14px;color:var(--muted);padding:8px 12px;border-radius:6px}
+nav a:hover{background:var(--subtle-bg);color:var(--fg)}
+.hero{max-width:1100px;margin:0 auto;padding:56px 24px 36px;display:grid;gap:28px}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--primary)}
+.hero h1{font-family:var(--font-display);font-size:clamp(36px,6vw,56px);font-weight:600;line-height:1.06;letter-spacing:-.02em}
+.hero p{color:var(--muted);max-width:520px;font-size:16px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 18px;border-radius:6px;font-size:14px;font-weight:500;border:1px solid transparent;transition:background .15s ease}
+.btn.primary{background:var(--primary);color:var(--primary-fg)}
+.btn.primary:hover{background:var(--primary-dim)}
+.btn.ghost{border-color:var(--border);background:var(--elev)}
+.btn.ghost:hover{background:var(--subtle-bg)}
+.trust{max-width:1100px;margin:0 auto;padding:0 24px 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.trust div{background:var(--elev);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:13px;color:var(--muted)}
+.trust strong{display:block;color:var(--fg);font-size:13px;margin-bottom:2px}
+.section-head{max-width:1100px;margin:0 auto;padding:8px 24px 14px;display:flex;align-items:end;justify-content:space-between;gap:12px}
+.section-head h2{font-family:var(--font-display);font-size:clamp(26px,4vw,34px);font-weight:600}
+.section-head p{font-size:13px;color:var(--muted)}
+.grid{max-width:1100px;margin:0 auto;padding:4px 24px 72px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--elev);border:1px solid var(--border);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle)}
+.badge{color:var(--primary);font-weight:600}
+.card h3{font-family:var(--font-display);font-size:24px;font-weight:500;line-height:1.15}
+.strength{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.short{font-size:13px;color:var(--muted);flex:1;line-height:1.45}
+.price-row{display:flex;align-items:baseline;gap:8px;margin-top:8px;flex-wrap:wrap}
+.price{font-family:var(--font-mono);font-size:20px;font-weight:500}
+.list{font-family:var(--font-mono);font-size:13px;color:var(--subtle);text-decoration:line-through}
+.off{font-size:11px;color:var(--primary);font-weight:600}
+.card .btn{width:100%;margin-top:12px}
+footer{border-top:1px solid var(--border);background:var(--elev);padding:32px 24px 40px}
+.foot-inner{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+.ruo{font-size:13px;color:var(--muted);max-width:640px}
+.ruo strong{color:var(--fg)}
+.legal{font-size:12px;color:var(--subtle);display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between}
+@media(max-width:720px){
+  nav .hide-sm{display:none}
+  .trust{grid-template-columns:1fr}
+  .hero{padding:40px 16px 24px}
+  .grid,.section-head,.trust,header,footer{padding-left:16px;padding-right:16px}
+  .grid{padding-bottom:56px}
+}
+</style>
+</head>
+<body>
+<div class="top">Research use only — not for human or animal consumption</div>
+<div class="presale">Launch pre-sale · 15% off list · Traceabl COA turnaround target 5–7 business days</div>
+<header>
+  <a class="logo" href="/"><strong>Grael</strong><span>Peptides</span></a>
+  <nav>
+    <a class="hide-sm" href="#shop">Shop</a>
+    <a class="hide-sm" href="https://traceabl.us" target="_blank" rel="noopener">Traceabl</a>
+    <a class="btn primary" style="min-height:36px;padding:8px 14px" href="https://buy.stripe.com/4gM8wQ61sfx0fXPdKP3ks0e" target="_blank" rel="noopener">Multi-item checkout</a>
+  </nav>
+</header>
+<section class="hero">
+  <div>
+    <p class="eyebrow">Research products · Traceabl verified</p>
+    <h1>Quiet. Clear.<br/>Verified.</h1>
+    <p>Research peptides with batch COAs you can open. Pre-sale pricing locks in today. Every SKU ships with batch identity and Traceabl linkage. RUO only.</p>
+    <div class="cta">
+      <a class="btn primary" href="#shop">Shop research products</a>
+      <a class="btn ghost" href="https://buy.stripe.com/4gM8wQ61sfx0fXPdKP3ks0e" target="_blank" rel="noopener">Cart checkout</a>
+    </div>
+  </div>
+</section>
+<section class="trust" aria-label="Trust signals">
+  <div><strong>Traceabl batch COAs</strong>Identity + purity reports linked per lot.</div>
+  <div><strong>Launch pre-sale</strong>About 15% off list while inventory is prepared.</div>
+  <div><strong>Research use only</strong>Not for human or animal consumption.</div>
+</section>
+<div class="section-head">
+  <div>
+    <h2>Catalog</h2>
+    <p>12 research SKUs · Stripe secure checkout</p>
+  </div>
+</div>
+<section class="grid" id="shop">
+<article class="card"><div class="meta"><span class="badge">Core</span><span>TR15</span></div><h3>Tirzepatide</h3><p class="strength">15 mg × 10 vials</p><p class="short">Dual GLP-1 / GIP receptor research compound</p><div class="price-row"><span class="price">$164</span><span class="list">$193</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/00waEYblMdoSeTL4af3ks0f" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Core</span><span>SM15</span></div><h3>Semaglutide</h3><p class="strength">15 mg × 10 vials</p><p class="short">GLP-1 receptor agonist for metabolic research</p><div class="price-row"><span class="price">$142</span><span class="list">$168</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/aFa28sexYgB4cLD36b3ks0g" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Rising</span><span>RT10</span></div><h3>Retatrutide</h3><p class="strength">10 mg × 10 vials</p><p class="short">Triple agonist metabolic research compound</p><div class="price-row"><span class="price">$208</span><span class="list">$245</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/cNi14o2PgckO3b36in3ks0h" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Tissue</span><span>BC10</span></div><h3>BPC-157</h3><p class="strength">10 mg × 10 vials</p><p class="short">Body protection compound for tissue research</p><div class="price-row"><span class="price">$109</span><span class="list">$128</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/eVq28s61sfx026ZdKP3ks0i" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Tissue</span><span>BT5</span></div><h3>TB-500</h3><p class="strength">5 mg × 10 vials</p><p class="short">Thymosin Beta-4 fragment for recovery research</p><div class="price-row"><span class="price">$131</span><span class="list">$154</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/28E3cwahIfx0fXP9uz3ks0j" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Blend</span><span>BB10</span></div><h3>BPC-157 + TB-500</h3><p class="strength">5 mg + 5 mg × 10 vials</p><p class="short">Dual repair blend for co-administration research</p><div class="price-row"><span class="price">$175</span><span class="list">$206</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/eVq28sexYfx06nfcGL3ks0k" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Cellular</span><span>MS10</span></div><h3>MOTS-c</h3><p class="strength">10 mg × 10 vials</p><p class="short">Mitochondrial-derived peptide for metabolic research</p><div class="price-row"><span class="price">$120</span><span class="list">$141</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/14A5kEdtUgB4fXPbCH3ks0l" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Cellular</span><span>NJ100</span></div><h3>NAD+</h3><p class="strength">100 mg × 10 vials</p><p class="short">Nicotinamide adenine dinucleotide research stock</p><div class="price-row"><span class="price">$87</span><span class="list">$103</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/eVq7sM3TkckO4f70Y33ks0m" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Longevity</span><span>CU50</span></div><h3>GHK-Cu</h3><p class="strength">50 mg × 10 vials</p><p class="short">Copper peptide for extracellular matrix research</p><div class="price-row"><span class="price">$76</span><span class="list">$90</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/4gMeVe0H85WqcLD0Y33ks0n" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Cellular</span><span>GTT600</span></div><h3>Glutathione</h3><p class="strength">600 mg × 10 vials</p><p class="short">Master antioxidant tripeptide for redox research</p><div class="price-row"><span class="price">$98</span><span class="list">$116</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/5kQ14o4Xofx0dPH36b3ks0o" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Longevity</span><span>ET10</span></div><h3>Epitalon</h3><p class="strength">10 mg × 10 vials</p><p class="short">Tetrapeptide studied in telomere / aging models</p><div class="price-row"><span class="price">$65</span><span class="list">$76</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/4gM8wQ61sdoSh1TeOT3ks0p" target="_blank" rel="noopener">Buy now</a></article>
+<article class="card"><div class="meta"><span class="badge">Support</span><span>WA3</span></div><h3>Bacteriostatic Water</h3><p class="strength">3 ml × 10 vials</p><p class="short">0.9% benzyl alcohol bacteriostatic water</p><div class="price-row"><span class="price">$20</span><span class="list">$24</span><span class="off">15% off</span></div><a class="btn primary" href="https://buy.stripe.com/fZucN6ahI0C612V5ej3ks0q" target="_blank" rel="noopener">Buy now</a></article>
+</section>
+<footer>
+  <div class="foot-inner">
+    <p class="ruo"><strong>Research use only.</strong> Products are not for human or animal consumption, medical use, or clinical application. For laboratory research purposes only.</p>
+    <div class="legal">
+      <span>© 2026 Grael Peptides · Powered by Traceabl testing</span>
+      <span>v1.2.0 · graelpeptides.com</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
