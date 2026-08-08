@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* Scandinavian pharmacy aesthetic — pure white, cool grey, soft sage (no cream) */
+  --color-bg: #fafafa;
+  --color-bg-elevated: #ffffff;
+  --color-bg-subtle: #f4f4f4;
+  --color-surface: #ececec;
+  --color-fg: #141414;
+  --color-fg-muted: #5a5a5a;
+  --color-fg-subtle: #8a8a8a;
+  --color-border: #e5e5e5;
+  --color-border-strong: #cfcfcf;
+  --color-primary: #4d6b5c;
+  --color-primary-fg: #fafafa;
+  --color-primary-dim: #3d5649;
+  --color-accent: #a8b5ad;
+  --color-danger: #a65d57;
+  --color-warning: #9a7b3c;
+  --color-success: #4d6b5c;
+  --color-card: #ffffff;
+  --color-ring: #4d6b5c;
+  --color-parchment: #f4f4f4;
+  --color-stone: #f0f0f0;
+
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  --shadow-soft: 0 1px 2px rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(20 20 20 / 0.08);
+  --shadow-inset-stone: none;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 0.975rem;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 22%, transparent);
+    color: var(--color-fg);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stone-panel {
+    background: var(--color-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .parchment-chip {
+    background: #ffffff;
+    color: var(--color-fg-muted);
+    border: 1px solid var(--color-border);
+  }
+}

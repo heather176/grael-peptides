@@ -1,0 +1,88 @@
+import { Link } from "@tanstack/react-router";
+import { ExternalLink, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { PriceDisplay } from "@/components/price-display";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/lib/cart-store";
+import type { Product } from "@/lib/products";
+import { requireBatch } from "@/lib/traceabl-batches";
+
+export function ProductCard({ product }: { product: Product }) {
+  const add = useCart((s) => s.add);
+  const batch = requireBatch(product.sku);
+
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-border-strong)]">
+      <Link
+        to="/products/$sku"
+        params={{ sku: product.sku }}
+        className="flex flex-1 flex-col no-underline text-inherit"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden bg-white">
+          <img
+            src={product.image}
+            alt={`${product.name} ${product.vialLabel}`}
+            className="h-full w-full object-cover object-center transition-opacity duration-300 group-hover:opacity-95"
+            loading="lazy"
+          />
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-white/95 text-[10px] font-medium tracking-wide">
+              {product.vialLabel}
+            </Badge>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-0.5">
+              <h3 className="font-display text-xl font-semibold leading-tight tracking-tight text-[var(--color-fg)]">
+                {product.name}
+              </h3>
+              <p className="text-sm text-[var(--color-fg-muted)]">{product.strength}</p>
+            </div>
+            <PriceDisplay product={product} size="sm" className="shrink-0 justify-end text-right" />
+          </div>
+          <p className="font-mono text-xs text-[var(--color-fg-muted)]">
+            Batch {batch.batchId}
+            <span className="text-[var(--color-fg-subtle)]"> · </span>
+            <span className="tabular text-[var(--color-primary)]">
+              {batch.purityPercent.toFixed(1)}%
+            </span>
+          </p>
+          <p className="line-clamp-2 text-sm leading-relaxed text-[var(--color-fg-muted)]">
+            {product.short}
+          </p>
+        </div>
+      </Link>
+      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
+        <Button size="sm" className="h-8 px-3 text-xs" asChild>
+          <a href={product.paymentLink} target="_blank" rel="noreferrer">
+            Buy
+            <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+          </a>
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="h-8 px-3 text-xs"
+          onClick={() => {
+            add(product.sku);
+            toast.success(`${product.name} added`);
+          }}
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+          Cart
+        </Button>
+        <a
+          href={batch.coaUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="ml-auto text-xs font-medium text-[var(--color-primary)] no-underline hover:underline"
+        >
+          COA
+        </a>
+      </div>
+    </article>
+  );
+}

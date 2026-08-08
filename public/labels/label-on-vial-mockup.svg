@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100" viewBox="0 0 900 1100">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7f6f4"/>
+      <stop offset="100%" stop-color="#e5e2dc"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#b8b4ac" stop-opacity="0.15"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#6a665e" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <rect width="900" height="1100" fill="url(#bg)"/>
+  <text x="450" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#4a4a48" letter-spacing="4">GRAEL LABEL MOCKUP</text>
+  <text x="450" y="100" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" fill="#8a8780">50×28 mm wrap · cream matte · stone grey · Traceabl QR</text>
+
+  <g filter="url(#sh)" transform="translate(280, 140)">
+    <rect x="70" y="20" width="120" height="36" rx="8" fill="#f4f3f0"/>
+    <rect x="58" y="48" width="144" height="24" rx="3" fill="#c4c0b8"/>
+    <rect x="90" y="72" width="80" height="40" fill="url(#glass)" stroke="#c4c0b8" stroke-opacity="0.4"/>
+    <path d="M40 120 C40 100 60 85 90 85 H170 C200 85 220 100 220 120 V620 C220 650 196 670 166 670 H94 C64 670 40 650 40 620 Z" fill="url(#glass)" stroke="#b8b4ac" stroke-opacity="0.4"/>
+    <path d="M52 520 C60 485 80 470 130 470 C180 470 200 485 208 520 V620 C208 640 190 656 166 656 H94 C70 656 52 640 52 620 Z" fill="#f4f3f0"/>
+    <g transform="translate(28, 200)">
+      <rect width="204" height="210" rx="4" fill="#ffffff" stroke="#c4c0b8" stroke-width="1.5"/>
+      <rect x="8" y="10" width="5" height="190" rx="1" fill="#6e6c68"/>
+      <text x="22" y="36" font-family="Georgia, serif" font-size="14" letter-spacing="3" fill="#1c1b19">GRAEL</text>
+      <text x="22" y="52" font-family="ui-monospace, monospace" font-size="7" fill="#8a8780">GRAEL RESI</text>
+      <text x="22" y="90" font-family="Georgia, serif" font-size="18" fill="#1c1b19">BPC-157</text>
+      <text x="22" y="112" font-family="ui-monospace, monospace" font-size="11" fill="#5c5a55">10 mg · Lyophilized</text>
+      <text x="22" y="140" font-family="ui-monospace, monospace" font-size="9" fill="#8a8780">SKU BC10  LOT ______</text>
+      <text x="22" y="156" font-family="ui-monospace, monospace" font-size="9" fill="#8a8780">EXP ______  −20°C</text>
+      <rect x="22" y="168" width="160" height="18" rx="2" fill="#1c1b19"/>
+      <text x="28" y="181" font-family="ui-monospace, monospace" font-size="8" fill="#fafafa">RESEARCH USE ONLY</text>
+      <rect x="148" y="20" width="42" height="42" fill="#1c1b19"/>
+      <rect x="153" y="25" width="12" height="12" fill="#ffffff"/>
+      <rect x="173" y="25" width="12" height="12" fill="#ffffff"/>
+      <rect x="153" y="45" width="12" height="12" fill="#ffffff"/>
+    </g>
+    <path d="M58 130 C58 130 66 350 68 560" stroke="#fff" stroke-opacity="0.5" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(560, 220)" font-family="ui-monospace, monospace" fill="#5c5a55" font-size="14">
+    <text x="0" y="0" fill="#4a4a48" font-family="Georgia, serif" font-size="20">Order checklist</text>
+    <text x="0" y="40">1. Size 50 × 28 mm</text>
+    <text x="0" y="68">2. Cream matte stock</text>
+    <text x="0" y="96">3. Freezer-safe adhesive</text>
+    <text x="0" y="124">4. Stone grey ink</text>
+    <text x="0" y="152">5. Variable LOT / EXP</text>
+    <text x="0" y="180">6. Unique Traceabl QR</text>
+    <text x="0" y="208">7. RUO band mandatory</text>
+  </g>
+</svg>

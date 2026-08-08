@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.output/
+.vercel/
+.nitro/
+.vinxi/
+.tanstack/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+output/
+artifacts/
+attachments/
+screenshots/
+fontsource-*.tgz
+*.tgz
+.pglite/
+data/
+tmp/
+.grok/
+vendor/
+.node_modules.lock
+.project_id
+# broken HTML masquerading as fonts from bad downloads
+public/fonts/CormorantGaramond-*.ttf
