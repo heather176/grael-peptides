@@ -75,8 +75,11 @@ export const STRIPE_MULTI_CHECKOUT =
 export const ORDER = {
   payFirst: true,
   minProductSubtotal: 400,
+  mailOrder: true,
   flowNote:
-    "Pay first on in-stock checkout · next shipment prices reserved until the next order goes out",
+    "Mail-order: pay online (or partner invoice) → we place the supplier order → vials ship to you",
+  flowDetail:
+    "In-stock checkout charges now. Next shipment reserves prices and charges when the consolidated order goes out.",
 } as const;
 
 export const SHIPPING = {

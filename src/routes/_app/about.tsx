@@ -42,21 +42,34 @@ function AboutPage() {
           </Button>
         </section>
 
+        <section className="space-y-3">
+          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
+            Mail order
+          </h2>
+          <p>
+            Grael is a mail-order research catalog. Order on graelpeptides.com, pay by card
+            (or partner invoice for cash/wire wholesale), and we ship US only. Next-shipment
+            reserves lock prices until the consolidated order goes out.
+          </p>
+        </section>
+
         <section className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
-            Preorder launch
+            Launch
           </h2>
           <p className="mt-2">
-            This site is the launch surface for Grael. Preorders capture demand before wholesale
-            stock is ordered with testing funds. When batches clear Traceabl, invoices go out and
-            vials ship with full labeling.
+            While supplies last. 10-vial packs and single vials. Partner wholesale sheets are
+            printed without codes — codes go by text only.
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <Button asChild>
-              <Link to="/preorder">Start a preorder</Link>
+              <Link to="/catalog">View catalog</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/catalog">View catalog</Link>
+              <Link to="/preorder">Next shipment</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link to="/pamphlet">Print partner pamphlet</Link>
             </Button>
           </div>
         </section>

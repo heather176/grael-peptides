@@ -98,3 +98,24 @@
     border: 1px solid var(--color-border);
   }
 }
+
+
+/* Partner pamphlet — clean letter print */
+@media print {
+  body {
+    background: white !important;
+  }
+  header,
+  footer,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .pamphlet {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

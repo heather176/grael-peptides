@@ -16,6 +16,7 @@ import { Route as AppAboutRouteImport } from './routes/_app/about'
 import { Route as AppCartRouteImport } from './routes/_app/cart'
 import { Route as AppCatalogRouteImport } from './routes/_app/catalog'
 import { Route as AppLabelsRouteImport } from './routes/_app/labels'
+import { Route as AppPamphletRouteImport } from './routes/_app/pamphlet'
 import { Route as AppPreorderRouteImport } from './routes/_app/preorder'
 import { Route as AppTransparencyRouteImport } from './routes/_app/transparency'
 import { Route as AppProductsSkuRouteImport } from './routes/_app/products.$sku'
@@ -55,6 +56,11 @@ const AppLabelsRoute = AppLabelsRouteImport.update({
   path: '/labels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPamphletRoute = AppPamphletRouteImport.update({
+  id: '/pamphlet',
+  path: '/pamphlet',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPreorderRoute = AppPreorderRouteImport.update({
   id: '/preorder',
   path: '/preorder',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof AppCartRoute
   '/catalog': typeof AppCatalogRoute
   '/labels': typeof AppLabelsRoute
+  '/pamphlet': typeof AppPamphletRoute
   '/preorder': typeof AppPreorderRoute
   '/transparency': typeof AppTransparencyRoute
   '/products/$sku': typeof AppProductsSkuRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/cart': typeof AppCartRoute
   '/catalog': typeof AppCatalogRoute
   '/labels': typeof AppLabelsRoute
+  '/pamphlet': typeof AppPamphletRoute
   '/preorder': typeof AppPreorderRoute
   '/transparency': typeof AppTransparencyRoute
   '/': typeof AppIndexRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/_app/cart': typeof AppCartRoute
   '/_app/catalog': typeof AppCatalogRoute
   '/_app/labels': typeof AppLabelsRoute
+  '/_app/pamphlet': typeof AppPamphletRoute
   '/_app/preorder': typeof AppPreorderRoute
   '/_app/transparency': typeof AppTransparencyRoute
   '/_app/': typeof AppIndexRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/catalog'
     | '/labels'
+    | '/pamphlet'
     | '/preorder'
     | '/transparency'
     | '/products/$sku'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/catalog'
     | '/labels'
+    | '/pamphlet'
     | '/preorder'
     | '/transparency'
     | '/'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/_app/cart'
     | '/_app/catalog'
     | '/_app/labels'
+    | '/_app/pamphlet'
     | '/_app/preorder'
     | '/_app/transparency'
     | '/_app/'
@@ -211,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLabelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/pamphlet': {
+      id: '/_app/pamphlet'
+      path: '/pamphlet'
+      fullPath: '/pamphlet'
+      preLoaderRoute: typeof AppPamphletRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/preorder': {
       id: '/_app/preorder'
       path: '/preorder'
@@ -247,6 +266,7 @@ interface AppRouteChildren {
   AppCartRoute: typeof AppCartRoute
   AppCatalogRoute: typeof AppCatalogRoute
   AppLabelsRoute: typeof AppLabelsRoute
+  AppPamphletRoute: typeof AppPamphletRoute
   AppPreorderRoute: typeof AppPreorderRoute
   AppTransparencyRoute: typeof AppTransparencyRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -258,6 +278,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCartRoute: AppCartRoute,
   AppCatalogRoute: AppCatalogRoute,
   AppLabelsRoute: AppLabelsRoute,
+  AppPamphletRoute: AppPamphletRoute,
   AppPreorderRoute: AppPreorderRoute,
   AppTransparencyRoute: AppTransparencyRoute,
   AppIndexRoute: AppIndexRoute,
