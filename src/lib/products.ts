@@ -32,12 +32,40 @@ export type Product = {
   badge?: string;
 };
 
-/** ~15% off list during launch pre-sale */
-export const PRESALE = {
+/**
+ * Launch sale (Aug 2026).
+ * Current inventory: sell while supplies last.
+ * Backorder path: next shipment ~10 days out.
+ */
+export const LAUNCH = {
   active: true,
-  label: "Launch pre-sale",
+  label: "Launch open",
   discountLabel: "15% off list",
-  note: "Pre-sale price locks in today. Traceabl turnaround: target 5–7 business days after receipt.",
+  suppliesLabel: "While supplies last",
+  note: "Launch pricing · while supplies last. Some SKUs may ship on the next wave.",
+  coaNote: "Traceabl COA turnaround: target 5–7 business days after receipt.",
+} as const;
+
+/** Alias — existing components use PRESALE */
+export const PRESALE = {
+  active: LAUNCH.active,
+  label: LAUNCH.label,
+  discountLabel: LAUNCH.discountLabel,
+  note: `${LAUNCH.suppliesLabel}. ${LAUNCH.note}`,
+} as const;
+
+/** Next fulfillment wave for back-ordered / reserved lines */
+export const NEXT_SHIPMENT = {
+  active: true,
+  label: "Purchase next shipment",
+  /** ISO date ~10 days from launch day 2026-08-08 */
+  estimatedShipDate: "2026-08-18",
+  estimatedShipLabel: "August 18, 2026",
+  shortLabel: "Next ship ~Aug 18",
+  daysEstimate: 10,
+  note: "Reserve the next shipment wave. Estimated ship window around August 18, 2026 (about 10 days).",
+  cartNote:
+    "If current stock is short, choose Purchase next shipment — estimated ship around August 18, 2026.",
 } as const;
 
 export const STRIPE_MULTI_CHECKOUT =
@@ -333,7 +361,6 @@ export function discountPercent(product: Product) {
   if (product.listPrice <= product.price) return 0;
   return Math.round(((product.listPrice - product.price) / product.listPrice) * 100);
 }
-
 
 export const FORM_LABELS: Record<Product["form"], string> = {
   "lyophilized-white": "Lyophilized powder",

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { PRESALE } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 
 /** Single thin status strip — avoids stacked banners */
 function StatusStrip() {
@@ -14,11 +14,19 @@ function StatusStrip() {
           <span className="font-medium text-[var(--color-fg)]">Research use only.</span> Not for
           human or animal use.
         </p>
-        {PRESALE.active ? (
+        {LAUNCH.active ? (
           <p>
-            <span className="font-medium text-[var(--color-fg)]">{PRESALE.label}</span>
+            <span className="font-medium text-[var(--color-fg)]">{LAUNCH.label}</span>
             {" · "}
-            {PRESALE.discountLabel}. COA: 5–7 business days after receipt.
+            {LAUNCH.discountLabel}
+            {" · "}
+            <span className="font-medium text-[var(--color-fg)]">{LAUNCH.suppliesLabel}</span>
+            {NEXT_SHIPMENT.active ? (
+              <>
+                {" · "}
+                Next shipment ~{NEXT_SHIPMENT.estimatedShipLabel}
+              </>
+            ) : null}
           </p>
         ) : null}
       </div>

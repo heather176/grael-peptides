@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
-import { featuredProducts, PRESALE } from "@/lib/products";
+import { featuredProducts, LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { recentlyTested } from "@/lib/traceabl-batches";
 
 export const Route = createFileRoute("/_app/")({
@@ -19,7 +19,7 @@ function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:py-20">
           <div className="space-y-6">
             <p className="text-[11px] font-medium tracking-[0.2em] text-[var(--color-primary)] uppercase">
-              Research products · Traceabl verified
+              Research products · Traceabl verified · {LAUNCH.suppliesLabel}
             </p>
             <h1 className="font-display text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-[var(--color-fg)] sm:text-5xl lg:text-[3.5rem]">
               Quiet. Clear.
@@ -28,15 +28,12 @@ function HomePage() {
             </h1>
             <p className="max-w-md text-[var(--color-fg-muted)] leading-relaxed">
               Research peptides with batch COAs you can open. Each product lists the LOT you will
-              receive and links to its Traceabl report.
-              {PRESALE.active ? (
-                <>
-                  {" "}
-                  <span className="text-[var(--color-fg)]">
-                    {PRESALE.label} — {PRESALE.discountLabel}.
-                  </span>
-                </>
-              ) : null}
+              receive and links to its Traceabl report.{" "}
+              <span className="text-[var(--color-fg)]">
+                {LAUNCH.label} — {LAUNCH.discountLabel}. {LAUNCH.suppliesLabel}.
+              </span>{" "}
+              Some items may be short; reserve the next shipment estimated around{" "}
+              {NEXT_SHIPMENT.estimatedShipLabel}.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" asChild>
@@ -46,7 +43,7 @@ function HomePage() {
                 </Link>
               </Button>
               <Button size="lg" variant="ghost" asChild>
-                <Link to="/transparency">Traceabl Testing</Link>
+                <Link to="/preorder">Purchase next shipment</Link>
               </Button>
             </div>
           </div>

@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const nav = [
   { to: "/catalog" as const, label: "Shop" },
   { to: "/transparency" as const, label: "Traceabl Testing" },
-  { to: "/labels" as const, label: "Labels" },
-  { to: "/preorder" as const, label: "Cart" },
+  { to: "/preorder" as const, label: "Next shipment" },
+  { to: "/cart" as const, label: "Cart" },
 ];
 
 export function SiteHeader() {
@@ -43,7 +43,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" asChild className="relative h-9 px-2.5">
-            <Link to="/preorder" aria-label="Cart">
+            <Link to="/cart" aria-label="Cart">
               <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
               {hydrated && count > 0 ? (
                 <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-primary)] px-1 text-[10px] font-medium text-[var(--color-primary-fg)]">

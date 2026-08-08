@@ -4,7 +4,8 @@ import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import {
   CATEGORY_LABELS,
-  PRESALE,
+  LAUNCH,
+  NEXT_SHIPMENT,
   products,
   type ProductCategory,
 } from "@/lib/products";
@@ -32,13 +33,14 @@ function CatalogPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-8 max-w-lg space-y-2">
+      <div className="mb-8 max-w-xl space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
           Research products
         </h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
           {products.length} compounds
-          {PRESALE.active ? ` · ${PRESALE.label}, ${PRESALE.discountLabel}` : null}
+          {LAUNCH.active ? ` · ${LAUNCH.discountLabel} · ${LAUNCH.suppliesLabel}` : null}
+          {NEXT_SHIPMENT.active ? ` · Next shipment ~${NEXT_SHIPMENT.estimatedShipLabel}` : null}
         </p>
       </div>
 

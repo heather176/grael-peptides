@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
 import type { Product } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -26,10 +27,15 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full object-cover object-center transition-opacity duration-300 group-hover:opacity-95"
             loading="lazy"
           />
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             <Badge className="bg-white/95 text-[10px] font-medium tracking-wide">
               {product.vialLabel}
             </Badge>
+            {LAUNCH.active ? (
+              <Badge className="border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]">
+                {LAUNCH.suppliesLabel}
+              </Badge>
+            ) : null}
           </div>
         </div>
 
@@ -53,12 +59,15 @@ export function ProductCard({ product }: { product: Product }) {
           <p className="line-clamp-2 text-sm leading-relaxed text-[var(--color-fg-muted)]">
             {product.short}
           </p>
+          {NEXT_SHIPMENT.active ? (
+            <p className="text-[11px] text-[var(--color-fg-subtle)]">{NEXT_SHIPMENT.shortLabel}</p>
+          ) : null}
         </div>
       </Link>
       <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
         <Button size="sm" className="h-8 px-3 text-xs" asChild>
           <a href={product.paymentLink} target="_blank" rel="noreferrer">
-            Buy
+            Buy now
             <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
           </a>
         </Button>
@@ -74,6 +83,23 @@ export function ProductCard({ product }: { product: Product }) {
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
           Cart
         </Button>
+        {NEXT_SHIPMENT.active ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 text-xs text-[var(--color-primary)]"
+            asChild
+          >
+            <Link
+              to="/preorder"
+              onClick={() => {
+                add(product.sku);
+              }}
+            >
+              Next shipment
+            </Link>
+          </Button>
+        ) : null}
         <a
           href={batch.coaUrl}
           target="_blank"

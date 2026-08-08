@@ -1,12 +1,19 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, Plus } from "lucide-react";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, ExternalLink, Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BatchCoaPanel } from "@/components/batch-coa";
 import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
-import { CATEGORY_LABELS, FORM_LABELS, getProduct, PRESALE } from "@/lib/products";
+import {
+  CATEGORY_LABELS,
+  FORM_LABELS,
+  getProduct,
+  LAUNCH,
+  NEXT_SHIPMENT,
+  PRESALE,
+} from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
 
 export const Route = createFileRoute("/_app/products/$sku")({
@@ -17,6 +24,7 @@ function ProductDetailPage() {
   const { sku } = Route.useParams();
   const product = getProduct(sku);
   const add = useCart((s) => s.add);
+  const navigate = useNavigate();
 
   if (!product) throw notFound();
 
@@ -53,16 +61,15 @@ function ProductDetailPage() {
               <Badge className="border-[var(--color-primary)]/25 bg-[var(--color-primary)]/8 text-[var(--color-primary)]">
                 {product.vialLabel}
               </Badge>
-              {PRESALE.active ? (
+              {LAUNCH.active ? (
                 <Badge className="border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                  {PRESALE.label}
+                  {LAUNCH.suppliesLabel}
                 </Badge>
               ) : null}
             </div>
             <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
               {product.name}
             </h1>
-            {/* strength already includes per-vial amount + pack size — don't repeat vialLabel */}
             <p className="text-[var(--color-fg-muted)]">{product.strength}</p>
             <p className="text-[var(--color-fg-muted)]">{product.short}</p>
           </div>
@@ -70,15 +77,19 @@ function ProductDetailPage() {
           <BatchCoaPanel batch={batch} />
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-            <p className="text-sm text-[var(--color-fg-muted)]">Pre-sale price</p>
+            <p className="text-sm text-[var(--color-fg-muted)]">Launch price</p>
             <PriceDisplay product={product} size="lg" className="mt-1" />
-            {PRESALE.active ? (
+            {LAUNCH.active ? (
+              <p className="mt-2 text-xs text-[var(--color-fg-muted)]">
+                {LAUNCH.suppliesLabel}. {LAUNCH.coaNote}
+              </p>
+            ) : PRESALE.active ? (
               <p className="mt-2 text-xs text-[var(--color-fg-muted)]">{PRESALE.note}</p>
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
               <Button size="sm" className="h-9 px-4" asChild>
                 <a href={product.paymentLink} target="_blank" rel="noreferrer">
-                  Buy
+                  Buy now
                   <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </a>
               </Button>
@@ -96,6 +107,41 @@ function ProductDetailPage() {
               </Button>
             </div>
           </div>
+
+          {NEXT_SHIPMENT.active ? (
+            <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] p-5">
+              <div className="flex items-start gap-3">
+                <Package
+                  className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]"
+                  strokeWidth={1.5}
+                />
+                <div className="min-w-0 space-y-2">
+                  <p className="font-medium text-[var(--color-fg)]">{NEXT_SHIPMENT.label}</p>
+                  <p className="text-sm text-[var(--color-fg-muted)]">{NEXT_SHIPMENT.note}</p>
+                  <p className="text-xs text-[var(--color-fg-subtle)]">
+                    Estimated ship:{" "}
+                    <span className="font-medium text-[var(--color-fg)]">
+                      {NEXT_SHIPMENT.estimatedShipLabel}
+                    </span>{" "}
+                    (~{NEXT_SHIPMENT.daysEstimate} days)
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-1"
+                    onClick={() => {
+                      add(product.sku);
+                      toast.success(`${product.name} reserved for next shipment`);
+                      void navigate({ to: "/preorder" });
+                    }}
+                  >
+                    Purchase next shipment
+                    <Package className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">{product.description}</p>
 

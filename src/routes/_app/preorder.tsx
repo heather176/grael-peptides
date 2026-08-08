@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/lib/cart-store";
 import { submitPreorder } from "@/lib/preorders";
+import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/preorder")({
@@ -31,7 +32,6 @@ function PreorderPage() {
   const clear = useCart((s) => s.clear);
 
   useEffect(() => {
-    // If persist already finished before mount, mark hydrated.
     if (useCart.persist.hasHydrated()) setHydrated(true);
     const unsub = useCart.persist.onFinishHydration(() => setHydrated(true));
     return unsub;
@@ -59,21 +59,22 @@ function PreorderPage() {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
+      const shipNote = `Next shipment request · est. ship ${NEXT_SHIPMENT.estimatedShipLabel}`;
       const res = await submitPreorder({
         data: {
           fullName: fullName.trim(),
           email: email.trim(),
           institution: institution.trim() || undefined,
-          notes: notes.trim() || undefined,
+          notes: [shipNote, notes.trim()].filter(Boolean).join(" — ") || undefined,
           researchAck: true as const,
           lines: items.map((i) => ({ sku: i.sku, qty: i.qty })),
         },
       });
       setResult(res);
       clear();
-      toast.success("Preorder submitted");
+      toast.success("Next shipment reserved");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Could not submit preorder";
+      const message = err instanceof Error ? err.message : "Could not submit request";
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -85,22 +86,28 @@ function PreorderPage() {
       <main className="mx-auto max-w-xl px-4 py-16 sm:px-6">
         <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-8 text-center shadow-[var(--shadow-soft)]">
           <CheckCircle2 className="mx-auto h-12 w-12 text-[var(--color-success)]" strokeWidth={1.5} />
-          <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight">Preorder received</h1>
+          <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight">
+            Next shipment reserved
+          </h1>
           <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
             Thanks, {result.fullName}. We logged request{" "}
             <span className="font-mono text-[var(--color-fg)]">{result.id}</span> for{" "}
             {formatUsd(result.subtotal)} estimated.
           </p>
           <p className="mt-3 text-sm text-[var(--color-fg-muted)]">
-            Confirmation details will go to <span className="text-[var(--color-fg)]">{result.email}</span>{" "}
-            when fulfillment opens. No payment has been charged.
+            Estimated ship window:{" "}
+            <span className="font-medium text-[var(--color-fg)]">
+              {NEXT_SHIPMENT.estimatedShipLabel}
+            </span>{" "}
+            (~{NEXT_SHIPMENT.daysEstimate} days). Confirmation and payment link will go to{" "}
+            <span className="text-[var(--color-fg)]">{result.email}</span> before fulfillment.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button asChild>
               <Link to="/catalog">Back to catalog</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/transparency">Traceable info</Link>
+              <Link to="/transparency">Traceabl Testing</Link>
             </Button>
           </div>
         </div>
@@ -112,14 +119,18 @@ function PreorderPage() {
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div className="mb-8 max-w-2xl space-y-3">
         <p className="text-xs font-medium tracking-[0.14em] text-[var(--color-primary)] uppercase">
-          Preorder
+          {NEXT_SHIPMENT.label}
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          Reserve launch inventory
+          Reserve next shipment
         </h1>
         <p className="text-[var(--color-fg-muted)]">
-          Submit research contact details and your cart. We confirm batches after Traceable testing
-          and send a final invoice before shipping.
+          Current launch inventory is sold {LAUNCH.suppliesLabel.toLowerCase()}. If a SKU is short
+          or on back order, reserve the next wave here.{" "}
+          <span className="text-[var(--color-fg)]">
+            Estimated ship around {NEXT_SHIPMENT.estimatedShipLabel} (~{NEXT_SHIPMENT.daysEstimate}{" "}
+            days).
+          </span>
         </p>
       </div>
 
@@ -168,7 +179,7 @@ function PreorderPage() {
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Desired ship window, special handling, related SKUs…"
+              placeholder="SKUs on back order, preferred ship notes…"
             />
           </div>
 
@@ -195,7 +206,7 @@ function PreorderPage() {
                 Submitting…
               </>
             ) : (
-              "Submit research preorder"
+              `Reserve next shipment (~${NEXT_SHIPMENT.estimatedShipLabel})`
             )}
           </Button>
         </form>
@@ -246,16 +257,19 @@ function PreorderPage() {
               <span className="font-display text-2xl font-semibold tabular">{formatUsd(total)}</span>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {lines.length} line{lines.length === 1 ? "" : "s"} in session cart
+              {lines.length} line{lines.length === 1 ? "" : "s"} · no charge until invoice
             </p>
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5 text-sm text-[var(--color-fg-muted)]">
             <p className="font-medium text-[var(--color-fg)]">What happens next</p>
             <ol className="mt-3 list-decimal space-y-2 pl-4">
-              <li>We log demand against the launch catalog.</li>
-              <li>Wholesale stock is ordered when testing funds clear.</li>
-              <li>Traceable COAs attach per batch; you get a final invoice.</li>
+              <li>We log your next-shipment request against the catalog.</li>
+              <li>
+                Target ship window: <strong>{NEXT_SHIPMENT.estimatedShipLabel}</strong> (~
+                {NEXT_SHIPMENT.daysEstimate} days).
+              </li>
+              <li>Traceabl COAs attach per batch; you get a final Stripe invoice before ship.</li>
               <li>Vials ship with Traceabl QR labels and COAs.</li>
             </ol>
           </div>

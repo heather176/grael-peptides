@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ExternalLink, Minus, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { PriceDisplay } from "@/components/price-display";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
-import { PRESALE, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, PRESALE, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/cart")({
@@ -36,9 +36,11 @@ function CartPage() {
       <div className="mb-8 space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight">Cart</h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
-          {PRESALE.active
-            ? "Launch pre-sale prices · pay securely with Stripe · ships after Traceabl batch COA."
-            : "Pay securely with Stripe. Research use only."}
+          {LAUNCH.active
+            ? `${LAUNCH.suppliesLabel} · pay with Stripe for current stock · or reserve next shipment (~${NEXT_SHIPMENT.estimatedShipLabel}).`
+            : PRESALE.active
+              ? "Launch prices · pay securely with Stripe · ships after Traceabl batch COA."
+              : "Pay securely with Stripe. Research use only."}
         </p>
       </div>
 
@@ -103,11 +105,7 @@ function CartPage() {
                   <p className="w-20 text-right font-semibold tabular">
                     {formatUsd(product.price * qty)}
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                  >
+                  <Button variant="outline" size="sm" asChild>
                     <a href={product.paymentLink} target="_blank" rel="noreferrer">
                       Pay
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -128,7 +126,7 @@ function CartPage() {
 
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-[var(--color-fg-muted)]">Pre-sale subtotal</span>
+              <span className="text-sm text-[var(--color-fg-muted)]">Launch subtotal</span>
               <div className="text-right">
                 <span className="font-display text-2xl font-semibold tabular">{formatUsd(total)}</span>
                 {listTotal > total ? (
@@ -139,9 +137,8 @@ function CartPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              Secure Stripe checkout. US shipping address collected at payment. Orders fulfill after
-              Traceabl testing. Shipping may be billed separately if not included on the Stripe
-              invoice.
+              {LAUNCH.suppliesLabel}. Secure Stripe checkout for current stock. Shipping may be
+              billed separately if not included on the Stripe invoice.
             </p>
             <div className="mt-6 flex flex-col gap-3">
               {single ? (
@@ -166,10 +163,21 @@ function CartPage() {
                   </p>
                 </>
               )}
+              {NEXT_SHIPMENT.active ? (
+                <Button className="w-full" size="lg" variant="outline" asChild>
+                  <Link to="/preorder">
+                    <Package className="h-4 w-4" strokeWidth={1.5} />
+                    Purchase next shipment (~{NEXT_SHIPMENT.estimatedShipLabel})
+                  </Link>
+                </Button>
+              ) : null}
               <Button className="w-full" size="lg" variant="secondary" asChild>
                 <Link to="/catalog">Add more</Link>
               </Button>
             </div>
+            {NEXT_SHIPMENT.active ? (
+              <p className="mt-4 text-xs text-[var(--color-fg-muted)]">{NEXT_SHIPMENT.cartNote}</p>
+            ) : null}
           </div>
         </div>
       )}
