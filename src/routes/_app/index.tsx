@@ -51,7 +51,7 @@ function HomePage() {
           <div className="mx-auto w-full max-w-xs">
             <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white">
               <img
-                src="/products/vial-nad.jpg"
+                src="/products/vial-unlabeled.jpg"
                 alt="Grael research vial"
                 className="aspect-[4/5] w-full object-cover object-center"
               />
