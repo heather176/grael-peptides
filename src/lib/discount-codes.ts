@@ -41,7 +41,7 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
     note: "40% off list (not stacked with pre-sale). $100 ship · $400 min product.",
-    stripePromoId: "promo_1U2GlTDi3y8Lwmj8iFt123Rl",
+    stripePromoId: "promo_1U2GoYDi3y8Lwmj8ZBFhDxL1",
     stripeCouponId: "grael_ws_list40",
   },
   {
@@ -120,8 +120,8 @@ export function unitPriceForProduct(
 export function stripeCheckoutCode(code: string | null | undefined) {
   const n = code ? normalizeCode(code) : "";
   if (!n) return null;
-  // Site code WHOLESALEJASON → Stripe promo WHOLESALEJASON40 (40% list). Old 50% code still named WHOLESALEJASON in Stripe — deactivate it in Dashboard.
-  if (n === "WHOLESALEJASON" || n === "WHOLESALEJASON25") return "WHOLESALEJASON40";
+  // Aliases → live WHOLESALEJASON (40% off list, $400 min on Stripe)
+  if (n === "WHOLESALEJASON25" || n === "WHOLESALEJASON40") return "WHOLESALEJASON";
   return n;
 }
 
