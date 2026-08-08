@@ -27,3 +27,12 @@ Place approved photos in `public/products/vial-*.jpg` matching paths in `src/lib
 
 ## Research use only
 Not for human or animal consumption.
+
+## Production deploy (Vercel)
+
+1. Open [Import on Vercel](https://vercel.com/new/import?s=https://github.com/heather176/grael-peptides) (team **Traceabl**).
+2. Framework: auto / Vite. Build: `npm run build`.
+3. Deploy production.
+4. Optional: attach `graelpeptides.com` under Project → Domains.
+
+Repo: https://github.com/heather176/grael-peptides
