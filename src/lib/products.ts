@@ -41,7 +41,7 @@ export const LAUNCH = {
   label: "Launch open",
   discountLabel: "15% off list",
   suppliesLabel: "While supplies last",
-  note: "Launch pricing · while supplies last. Choose 10-vial pack or single vial per compound.",
+  note: "Launch pricing · while supplies last. Sold as unbreakable 10-vial packs only.",
   coaNote: "Traceabl COA turnaround: target 5–7 business days after receipt.",
 } as const;
 
@@ -105,6 +105,9 @@ export const FORM_LABELS: Record<Product["form"], string> = {
   "lyophilized-amber": "Lyophilized powder",
   "liquid-clear": "Liquid",
 };
+
+/** Launch: unbreakable 10-vial packs only (single SKUs kept, not sold). */
+export const SELL_SINGLES = false;
 
 export const products: Product[] = [
   {
@@ -708,7 +711,13 @@ export const products: Product[] = [
 ];
 
 export function getProduct(sku: string) {
-  return products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+  const found = products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+  if (!found) return undefined;
+  // Singles not sold at launch — resolve to the 10-pack
+  if (!SELL_SINGLES && found.pack === "vial") {
+    return products.find((p) => p.baseSku === found.baseSku && p.pack === "kit10") ?? found;
+  }
+  return found;
 }
 
 /** Primary catalog cards: one per compound (10-vial pack). */
@@ -720,16 +729,24 @@ export function featuredProducts() {
   return products.filter((p) => p.featured && p.pack === "kit10");
 }
 
+/** Packs shown on product page (kits only while SELL_SINGLES is false). */
 export function siblingPacks(product: Product) {
-  return products.filter((p) => p.baseSku === product.baseSku);
+  const sibs = products.filter((p) => p.baseSku === product.baseSku);
+  if (!SELL_SINGLES) return sibs.filter((p) => p.pack === "kit10");
+  return sibs;
 }
 
 export function vialPack(baseSku: string) {
+  if (!SELL_SINGLES) return undefined;
   return products.find((p) => p.baseSku === baseSku && p.pack === "vial");
 }
 
 export function kitPack(baseSku: string) {
   return products.find((p) => p.baseSku === baseSku && p.pack === "kit10");
+}
+
+export function sellableProducts() {
+  return SELL_SINGLES ? products : products.filter((p) => p.pack === "kit10");
 }
 
 export function discountPercent(product: Product) {

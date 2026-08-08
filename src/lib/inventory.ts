@@ -3,7 +3,7 @@
  * Unit of record: vials on hand. Kits need 10 vials.
  *
  * As of launch post:
- * - BPC-157 (BC10): 8 vials
+ * - BPC-157 (BC10): 8 vials — not enough for a 10-pack (kits only at launch)
  * - Everything else: 10 boxes × 10-vial kits = 100 vials each
  */
 
@@ -55,9 +55,9 @@ export function stockForProduct(product: Product): {
         status: vials > 0 ? "kit_unavailable" : "out",
         label:
           vials > 0
-            ? `${vials} vial${vials === 1 ? "" : "s"} on hand — not enough for a 10-pack (buy singles or next shipment)`
+            ? `${vials} vial${vials === 1 ? "" : "s"} on hand — not enough for a full 10-pack (kits only · reserve next shipment)`
             : "10-packs sold out · reserve next shipment",
-        shortLabel: vials > 0 ? "No full kits" : "Sold out",
+        shortLabel: vials > 0 ? "Need 10 for kit" : "Sold out",
       };
     }
     const low = kits <= 2;

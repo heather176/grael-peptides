@@ -84,7 +84,7 @@ function AboutPage() {
             Launch
           </h2>
           <p className="mt-2">
-            While supplies last. 10-vial packs and single vials. Partner wholesale sheets are
+            While supplies last. Unbreakable 10-vial packs only (no singles at launch). Partner wholesale sheets are
             printed without codes — codes go by text only.
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">

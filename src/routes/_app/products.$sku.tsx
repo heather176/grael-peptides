@@ -92,37 +92,44 @@ function ProductDetailPage() {
 
           <BatchCoaPanel batch={batch} />
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
-            <p className="mb-2 text-xs font-medium tracking-[0.12em] text-[var(--color-fg-subtle)] uppercase">
-              Choose pack size
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {packs.map((pack) => {
-                const active = pack.sku === product.sku;
-                return (
-                  <button
-                    key={pack.sku}
-                    type="button"
-                    onClick={() => void navigate({ to: "/products/$sku", params: { sku: pack.sku } })}
-                    className={
-                      active
-                        ? "rounded-[var(--radius-md)] border border-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-3 text-left"
-                        : "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-3 text-left hover:border-[var(--color-border-strong)]"
-                    }
-                  >
-                    <p className="text-sm font-medium text-[var(--color-fg)]">{pack.packLabel}</p>
-                    <p className="mt-0.5 font-mono text-sm tabular text-[var(--color-fg-muted)]">
-                      {formatUsd(pack.price)}
-                    </p>
-                    <p className="text-[11px] text-[var(--color-fg-subtle)]">{pack.strength}</p>
-                    <p className="mt-1 text-[11px] text-[var(--color-primary)]">
-                      {stockForProduct(pack).shortLabel}
-                    </p>
-                  </button>
-                );
-              })}
+          {packs.length > 1 ? (
+            <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
+              <p className="mb-2 text-xs font-medium tracking-[0.12em] text-[var(--color-fg-subtle)] uppercase">
+                Choose pack size
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {packs.map((pack) => {
+                  const active = pack.sku === product.sku;
+                  return (
+                    <button
+                      key={pack.sku}
+                      type="button"
+                      onClick={() => void navigate({ to: "/products/$sku", params: { sku: pack.sku } })}
+                      className={
+                        active
+                          ? "rounded-[var(--radius-md)] border border-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-3 text-left"
+                          : "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-3 text-left hover:border-[var(--color-border-strong)]"
+                      }
+                    >
+                      <p className="text-sm font-medium text-[var(--color-fg)]">{pack.packLabel}</p>
+                      <p className="mt-0.5 font-mono text-sm tabular text-[var(--color-fg-muted)]">
+                        {formatUsd(pack.price)}
+                      </p>
+                      <p className="text-[11px] text-[var(--color-fg-subtle)]">{pack.strength}</p>
+                      <p className="mt-1 text-[11px] text-[var(--color-primary)]">
+                        {stockForProduct(pack).shortLabel}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-sm text-[var(--color-fg-muted)]">
+              Unbreakable <span className="font-medium text-[var(--color-fg)]">10-vial pack</span> only
+              · not sold as singles at launch.
+            </p>
+          )}
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5">
             <p className="text-sm text-[var(--color-fg-muted)]">
@@ -166,7 +173,7 @@ function ProductDetailPage() {
             </div>
             {!buyable ? (
               <p className="mt-2 text-xs text-[var(--color-fg-muted)]">
-                Not enough stock for this pack right now. Singles may still be available, or reserve the next shipment.
+                Not enough stock for a full 10-vial pack right now. Reserve the next shipment to hold a kit.
               </p>
             ) : null}
           </div>

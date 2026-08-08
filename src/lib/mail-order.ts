@@ -72,17 +72,17 @@ export function partnerPrice(listPrice: number) {
 
 export function pamphletRows(): PamphletRow[] {
   return catalogProducts().map((kit) => {
-    const vial = products.find((p) => p.baseSku === kit.baseSku && p.pack === "vial")!;
+    const vial = products.find((p) => p.baseSku === kit.baseSku && p.pack === "vial");
     return {
       baseSku: kit.baseSku,
       name: kit.name,
-      strength: kit.vialLabel,
+      strength: kit.vialLabel + " × 10",
       kitLaunch: kit.price,
       kitList: kit.listPrice,
       kitPartner: partnerPrice(kit.listPrice),
-      vialLaunch: vial.price,
-      vialList: vial.listPrice,
-      vialPartner: partnerPrice(vial.listPrice),
+      vialLaunch: vial?.price ?? 0,
+      vialList: vial?.listPrice ?? 0,
+      vialPartner: vial ? partnerPrice(vial.listPrice) : 0,
     };
   });
 }

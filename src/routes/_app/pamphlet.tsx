@@ -129,7 +129,7 @@ function PamphletPage() {
                 {MAIL_ORDER.partnerLabel}
               </h2>
               <p className="text-sm text-[var(--color-fg-muted)]">
-                {MAIL_ORDER.partnerDiscountLabel} · card checkout or invoice
+                {MAIL_ORDER.partnerDiscountLabel} · unbreakable 10-packs only · card or invoice
               </p>
             </div>
             <p className="text-xs text-[var(--color-fg-subtle)]">
@@ -138,18 +138,14 @@ function PamphletPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[480px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border-strong)] text-[11px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
                   <th className="py-2 pr-2 font-medium">Compound</th>
                   <th className="py-2 pr-2 font-medium">Size</th>
                   <th className="py-2 pr-2 text-right font-medium">10-pack public</th>
-                  <th className="py-2 pr-2 text-right font-medium text-[var(--color-primary)]">
-                    10-pack partner
-                  </th>
-                  <th className="py-2 pr-2 text-right font-medium">1 vial public</th>
                   <th className="py-2 text-right font-medium text-[var(--color-primary)]">
-                    1 vial partner
+                    10-pack partner
                   </th>
                 </tr>
               </thead>
@@ -166,14 +162,8 @@ function PamphletPage() {
                     <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
                       {formatMoney(r.kitLaunch)}
                     </td>
-                    <td className="py-2.5 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
-                      {formatMoney(r.kitPartner)}
-                    </td>
-                    <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
-                      {formatMoney(r.vialLaunch)}
-                    </td>
                     <td className="py-2.5 text-right font-medium tabular text-[var(--color-primary)]">
-                      {formatMoney(r.vialPartner)}
+                      {formatMoney(r.kitPartner)}
                     </td>
                   </tr>
                 ))}

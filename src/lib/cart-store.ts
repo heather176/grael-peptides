@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getProduct, type Product } from "@/lib/products";
+import { getProduct, SELL_SINGLES, products, type Product } from "@/lib/products";
 
 export type CartLine = {
   sku: string;
@@ -20,6 +20,16 @@ type CartState = {
   enriched: () => Array<CartLine & { product: Product }>;
 };
 
+function resolveSellableSku(sku: string): string | null {
+  const raw = products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+  if (!raw) return null;
+  if (!SELL_SINGLES && raw.pack === "vial") {
+    const kit = products.find((p) => p.baseSku === raw.baseSku && p.pack === "kit10");
+    return kit?.sku ?? null;
+  }
+  return raw.sku;
+}
+
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
@@ -27,17 +37,18 @@ export const useCart = create<CartState>()(
       hydrated: false,
       setHydrated: (v) => set({ hydrated: v }),
       add: (sku, qty = 1) => {
-        if (!getProduct(sku)) return;
+        const resolved = resolveSellableSku(sku);
+        if (!resolved || !getProduct(resolved)) return;
         set((state) => {
-          const existing = state.lines.find((l) => l.sku === sku);
+          const existing = state.lines.find((l) => l.sku === resolved);
           if (existing) {
             return {
               lines: state.lines.map((l) =>
-                l.sku === sku ? { ...l, qty: Math.min(20, l.qty + qty) } : l,
+                l.sku === resolved ? { ...l, qty: Math.min(20, l.qty + qty) } : l,
               ),
             };
           }
-          return { lines: [...state.lines, { sku, qty: Math.min(20, qty) }] };
+          return { lines: [...state.lines, { sku: resolved, qty: Math.min(20, qty) }] };
         });
       },
       setQty: (sku, qty) => {
@@ -63,8 +74,9 @@ export const useCart = create<CartState>()(
       enriched: () =>
         get()
           .lines.map((l) => {
-            const product = getProduct(l.sku);
-            return product ? { ...l, product } : null;
+            const resolved = resolveSellableSku(l.sku);
+            const product = resolved ? getProduct(resolved) : undefined;
+            return product && resolved ? { ...l, sku: resolved, product } : null;
           })
           .filter((x): x is CartLine & { product: Product } => x !== null),
     }),
