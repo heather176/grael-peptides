@@ -3,7 +3,7 @@ import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.5.3";
+const VERSION = "1.5.4";
 
 export function SiteFooter() {
   return (

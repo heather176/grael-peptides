@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
 import { withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
+import { canBuyNow, stockForProduct } from "@/lib/inventory";
 import type { Product } from "@/lib/products";
 import { LAUNCH, NEXT_SHIPMENT, vialPack } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
@@ -18,6 +19,9 @@ export function ProductCard({ product }: { product: Product }) {
   const batch = requireBatch(product.sku);
   const buyHref = withPromoCode(product.paymentLink, code);
   const single = vialPack(product.baseSku);
+  const kitStock = stockForProduct(product);
+  const singleStock = single ? stockForProduct(single) : null;
+  const kitBuyable = canBuyNow(product);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-border-strong)]">
@@ -37,8 +41,16 @@ export function ProductCard({ product }: { product: Product }) {
             <Badge className="bg-white/95 text-[10px] font-medium tracking-wide">
               {product.vialLabel}
             </Badge>
-            <Badge className="border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]">
-              10-pack + single
+            <Badge
+              className={
+                kitStock.status === "in_stock"
+                  ? "border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]"
+                  : kitStock.status === "low" || kitStock.status === "kit_unavailable"
+                    ? "border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 text-[10px] font-medium tracking-wide text-[var(--color-warning)]"
+                    : "border-[var(--color-danger)]/25 bg-[var(--color-danger)]/10 text-[10px] font-medium tracking-wide text-[var(--color-danger)]"
+              }
+            >
+              {kitStock.shortLabel}
             </Badge>
           </div>
         </div>
@@ -53,9 +65,10 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
             <PriceDisplay product={product} size="sm" className="shrink-0 justify-end text-right" />
           </div>
-          {single ? (
+          <p className="text-[11px] text-[var(--color-fg-subtle)]">{kitStock.label}</p>
+          {single && singleStock ? (
             <p className="text-[11px] text-[var(--color-fg-subtle)]">
-              Single vial from {formatUsd(single.price)}
+              Single from {formatUsd(single.price)} · {singleStock.shortLabel}
             </p>
           ) : null}
           <p className="font-mono text-xs text-[var(--color-fg-muted)]">
@@ -79,25 +92,33 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
       <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
-        <Button size="sm" className="h-8 px-3 text-xs" asChild>
-          <a href={buyHref} target="_blank" rel="noreferrer">
-            Buy 10-pack
-            <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
-          </a>
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          className="h-8 px-3 text-xs"
-          onClick={() => {
-            add(product.sku);
-            toast.success(`${product.name} 10-pack added`);
-          }}
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-          Cart
-        </Button>
-        {single ? (
+        {kitBuyable ? (
+          <Button size="sm" className="h-8 px-3 text-xs" asChild>
+            <a href={buyHref} target="_blank" rel="noreferrer">
+              Buy 10-pack
+              <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+            </a>
+          </Button>
+        ) : (
+          <Button size="sm" className="h-8 px-3 text-xs" variant="secondary" asChild>
+            <Link to="/preorder">Next shipment</Link>
+          </Button>
+        )}
+        {kitBuyable ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-8 px-3 text-xs"
+            onClick={() => {
+              add(product.sku);
+              toast.success(`${product.name} 10-pack added`);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Cart
+          </Button>
+        ) : null}
+        {single && singleStock && singleStock.unitsAvailable > 0 ? (
           <Button
             size="sm"
             variant="ghost"
@@ -107,7 +128,7 @@ export function ProductCard({ product }: { product: Product }) {
               toast.success(`${product.name} single vial added`);
             }}
           >
-            + Single
+            + Single ({singleStock.unitsAvailable})
           </Button>
         ) : null}
         <a

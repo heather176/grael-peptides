@@ -39,7 +39,7 @@ function CatalogPage() {
           Research products
         </h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
-          {all.length} compounds · 10-vial packs + single vials
+          {all.length} compounds · live stock · 10-packs + singles
           {LAUNCH.active ? ` · ${LAUNCH.discountLabel} · ${LAUNCH.suppliesLabel}` : null}
           {NEXT_SHIPMENT.active ? ` · Next shipment ~${NEXT_SHIPMENT.estimatedShipLabel}` : null}
         </p>

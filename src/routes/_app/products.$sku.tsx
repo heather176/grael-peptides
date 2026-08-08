@@ -21,6 +21,7 @@ import {
   vialPack,
 } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
+import { canBuyNow, stockForProduct } from "@/lib/inventory";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/products/$sku")({
@@ -41,6 +42,8 @@ function ProductDetailPage() {
   const packs = siblingPacks(product);
   const batch = requireBatch(product.baseSku);
   const buyHref = withPromoCode(product.paymentLink, code);
+  const stock = stockForProduct(product);
+  const buyable = canBuyNow(product);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -83,6 +86,7 @@ function ProductDetailPage() {
               {product.name}
             </h1>
             <p className="text-[var(--color-fg-muted)]">{product.strength}</p>
+            <p className="text-sm font-medium text-[var(--color-primary)]">{stock.label}</p>
             <p className="text-[var(--color-fg-muted)]">{product.short}</p>
           </div>
 
@@ -111,6 +115,9 @@ function ProductDetailPage() {
                       {formatUsd(pack.price)}
                     </p>
                     <p className="text-[11px] text-[var(--color-fg-subtle)]">{pack.strength}</p>
+                    <p className="mt-1 text-[11px] text-[var(--color-primary)]">
+                      {stockForProduct(pack).shortLabel}
+                    </p>
                   </button>
                 );
               })}
@@ -130,25 +137,38 @@ function ProductDetailPage() {
               <p className="mt-2 text-xs text-[var(--color-fg-muted)]">{PRESALE.note}</p>
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button size="sm" className="h-9 px-4" asChild>
-                <a href={buyHref} target="_blank" rel="noreferrer">
-                  Buy {product.packLabel}
-                  <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
-                </a>
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                className="h-9 px-4"
-                onClick={() => {
-                  add(product.sku);
-                  toast.success(`${product.name} added`);
-                }}
-              >
-                <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-                Cart
-              </Button>
+              {buyable ? (
+                <>
+                  <Button size="sm" className="h-9 px-4" asChild>
+                    <a href={buyHref} target="_blank" rel="noreferrer">
+                      Buy {product.packLabel}
+                      <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    </a>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-9 px-4"
+                    onClick={() => {
+                      add(product.sku);
+                      toast.success(`${product.name} · ${product.packLabel} added`);
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    Cart
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" className="h-9 px-4" asChild>
+                  <Link to="/preorder">Reserve next shipment</Link>
+                </Button>
+              )}
             </div>
+            {!buyable ? (
+              <p className="mt-2 text-xs text-[var(--color-fg-muted)]">
+                Not enough stock for this pack right now. Singles may still be available, or reserve the next shipment.
+              </p>
+            ) : null}
           </div>
 
           <DiscountCodeForm />
