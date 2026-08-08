@@ -1,31 +1,27 @@
 /**
  * Wholesale / partner discount codes for Grael Peptides.
  *
- * Toggle a code on or off with `active`. Set `expiresAt` (ISO) for expiry.
- * Must stay in sync with Stripe Promotion Codes on the Grael account
- * (same code string + percentOff). Checkout pre-fills the code via
- * ?prefilled_promo_code= when the customer pays.
+ * percentOff = % off LIST price (not launch). Pre-sale 15% does NOT stack.
+ * Final unit = listPrice × (1 − percentOff/100).
+ * Never apply percentOff to product.price (that double-counts pre-sale).
  *
- * To add a code for a customer:
- * 1. Tell me the code, %, and expiry — I'll create it in Stripe + here.
- * 2. Or edit this file: set active: true and a future expiresAt.
+ * Stripe: checkout uses launch prices; stripePercentOff maps list% → launch%.
  */
 
 export type DiscountTier = "wholesale" | "partner" | "vip";
 
 export type DiscountCodeDef = {
-  /** Customer-facing code (case-insensitive match) */
   code: string;
   label: string;
   tier: DiscountTier;
-  /** Additional % off current launch/checkout unit price */
+  /** % off list price — replaces pre-sale, never stacks with it */
   percentOff: number;
-  /** Master switch — false = code rejected even if not expired */
-  active: boolean;
   /**
-   * ISO timestamp (end of validity). null = no expiry on site.
-   * Stripe may enforce its own expires_at independently.
+   * Stripe coupon % off launch (checkout) prices so net ≈ list% off.
+   * launch ≈ 85% of list → stripe% = 1 − (1 − list%/100) / 0.85
    */
+  stripePercentOff: number;
+  active: boolean;
   expiresAt: string | null;
   note?: string;
   stripePromoId?: string;
@@ -33,10 +29,8 @@ export type DiscountCodeDef = {
 };
 
 /**
- * Registry of codes. Flip `active` or `expiresAt` to turn codes on/off.
- * WHOLESALEJASON = 50% for Jason (primary wholesale).
- * GRAELWS = 20% general wholesale.
- * GRAELPARTNER = 30% partner (off until enabled).
+ * WHOLESALEJASON temporarily kept at 50% off list as requested — see pricing
+ * analysis: this loses money on Retatrutide vs wholesale cost. Recommend 20–25%.
  */
 export const DISCOUNT_CODES: DiscountCodeDef[] = [
   {
@@ -44,9 +38,10 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     label: "Wholesale Jason",
     tier: "wholesale",
     percentOff: 50,
+    stripePercentOff: 41, // ~50% off list when charged at launch prices
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "Wholesale Jason — 50% off launch unit prices. $100 US shipping · $400 min product order.",
+    note: "50% off list (not stacked with pre-sale). $100 ship · $400 min product.",
     stripePromoId: "promo_1U2GIgDi3y8Lwmj8mC10L83l",
     stripeCouponId: "grael_wholesale_50",
   },
@@ -55,9 +50,10 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     label: "Wholesale",
     tier: "wholesale",
     percentOff: 20,
+    stripePercentOff: 6, // ~20% off list vs ~15% launch
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "Wholesale pricing — 20% off launch unit prices. $100 US shipping · $400 min product order.",
+    note: "20% off list (replaces pre-sale 15%, does not stack).",
     stripePromoId: "promo_1U2F6uDi3y8Lwmj8jdiVTQbY",
     stripeCouponId: "grael_wholesale_20",
   },
@@ -66,9 +62,10 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     label: "Partner",
     tier: "partner",
     percentOff: 30,
+    stripePercentOff: 18, // ~30% off list
     active: false,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "Partner pricing — 30% off launch unit prices.",
+    note: "30% off list (replaces pre-sale). Currently off.",
     stripePromoId: "promo_1U2F72Di3y8Lwmj87F3opHkY",
     stripeCouponId: "grael_partner_30",
   },
@@ -98,12 +95,26 @@ export function lookupDiscountCode(raw: string, now = new Date()): DiscountLooku
   return { ok: true, def };
 }
 
+/** Apply % off a base amount (use listPrice for wholesale — never launch). */
 export function unitPriceWithDiscount(basePrice: number, percentOff: number) {
   const p = Math.max(0, Math.min(100, percentOff));
   return Math.round(basePrice * (1 - p / 100) * 100) / 100;
 }
 
-/** Append Stripe prefilled promo so checkout applies the same code. */
+/**
+ * Final charged unit when a code is active: % off LIST only.
+ * Public (no code): launch price (already ~15% off list).
+ */
+export function unitPriceForProduct(
+  product: { price: number; listPrice: number },
+  percentOffList: number | null | undefined,
+) {
+  if (percentOffList && percentOffList > 0) {
+    return unitPriceWithDiscount(product.listPrice, percentOffList);
+  }
+  return product.price;
+}
+
 export function withPromoCode(paymentUrl: string, code: string | null | undefined) {
   if (!code) return paymentUrl;
   try {

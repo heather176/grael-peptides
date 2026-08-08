@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import {
   lookupDiscountCode,
-  unitPriceWithDiscount,
+  unitPriceForProduct,
 } from "@/lib/discount-codes";
 import { getProduct } from "@/lib/products";
 
@@ -56,7 +56,7 @@ export const submitPreorder = createServerFn({ method: "POST" })
       if (!product) throw new Error(`Unknown SKU: ${line.sku}`);
       const launchPrice = product.price;
       const unitPrice = discount
-        ? unitPriceWithDiscount(launchPrice, discount.percentOff)
+        ? unitPriceForProduct(product, discount.percentOff)
         : launchPrice;
       return {
         sku: product.sku,

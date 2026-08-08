@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/lib/cart-store";
-import { unitPriceWithDiscount } from "@/lib/discount-codes";
+import { unitPriceForProduct } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import { submitPreorder } from "@/lib/preorders";
 import { LAUNCH, NEXT_SHIPMENT, ORDER, SHIPPING } from "@/lib/products";
@@ -49,7 +49,7 @@ function PreorderPage() {
   const total =
     wholesalePct > 0
       ? items.reduce(
-          (n, i) => n + unitPriceWithDiscount(i.product.price, wholesalePct) * i.qty,
+          (n, i) => n + unitPriceForProduct(i.product, wholesalePct) * i.qty,
           0,
         )
       : launchTotal;
@@ -287,7 +287,7 @@ function PreorderPage() {
                 {items.map(({ sku, qty, product }) => {
                   const unit =
                     wholesalePct > 0
-                      ? unitPriceWithDiscount(product.price, wholesalePct)
+                      ? unitPriceForProduct(product, wholesalePct)
                       : product.price;
                   return (
                     <li key={sku} className="flex items-start justify-between gap-3 text-sm">

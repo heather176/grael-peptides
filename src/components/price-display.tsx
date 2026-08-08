@@ -1,11 +1,11 @@
 import { discountPercent, PRESALE, type Product } from "@/lib/products";
-import { unitPriceWithDiscount } from "@/lib/discount-codes";
+import { unitPriceForProduct } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import { cn, formatUsd } from "@/lib/utils";
 
 /**
- * Prices use IBM Plex Mono — lab/ledger feel, high numeral clarity.
- * Shows wholesale unit price when a valid discount code is applied.
+ * Public: launch price (pre-sale off list).
+ * Wholesale code: % off LIST only — never stacked on top of pre-sale.
  */
 export function PriceDisplay({
   product,
@@ -19,8 +19,7 @@ export function PriceDisplay({
   const def = useDiscount((s) => s.activeDef());
   const off = discountPercent(product);
   const wholesalePct = def?.percentOff ?? 0;
-  const displayPrice =
-    wholesalePct > 0 ? unitPriceWithDiscount(product.price, wholesalePct) : product.price;
+  const displayPrice = unitPriceForProduct(product, wholesalePct || null);
 
   const priceCls =
     size === "lg"
@@ -48,10 +47,10 @@ export function PriceDisplay({
               listCls,
             )}
           >
-            {formatUsd(product.price)}
+            {formatUsd(product.listPrice)}
           </span>
           <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
-            −{wholesalePct}% {def?.label ?? "wholesale"}
+            −{wholesalePct}% off list
           </span>
         </>
       ) : PRESALE.active && product.listPrice > product.price ? (

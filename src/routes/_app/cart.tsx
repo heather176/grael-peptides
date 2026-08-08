@@ -5,7 +5,7 @@ import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
-import { unitPriceWithDiscount, withPromoCode } from "@/lib/discount-codes";
+import { unitPriceForProduct, withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import { LAUNCH, NEXT_SHIPMENT, ORDER, PRESALE, SHIPPING, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
@@ -38,7 +38,7 @@ function CartPage() {
   const wholesaleTotal =
     wholesalePct > 0
       ? items.reduce(
-          (n, i) => n + unitPriceWithDiscount(i.product.price, wholesalePct) * i.qty,
+          (n, i) => n + unitPriceForProduct(i.product, wholesalePct) * i.qty,
           0,
         )
       : launchTotal;
@@ -87,7 +87,7 @@ function CartPage() {
             {items.map(({ sku, qty, product }) => {
               const unit =
                 wholesalePct > 0
-                  ? unitPriceWithDiscount(product.price, wholesalePct)
+                  ? unitPriceForProduct(product, wholesalePct)
                   : product.price;
               return (
                 <li

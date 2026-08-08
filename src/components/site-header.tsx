@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/catalog" as const, label: "Shop" },
-  { to: "/transparency" as const, label: "Traceabl Testing" },
   { to: "/preorder" as const, label: "Next shipment" },
   { to: "/cart" as const, label: "Cart" },
+  { to: "/about" as const, label: "About" },
 ];
 
 export function SiteHeader() {
