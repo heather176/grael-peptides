@@ -28,6 +28,12 @@ Place approved photos in `public/products/vial-*.jpg` matching paths in `src/lib
 ## Research use only
 Not for human or animal consumption.
 
+## Live production
+
+**https://grael-peptides.vercel.app** — catalog + Stripe checkout (Traceabl team).
+
+Full TanStack app source is this repo (`main`). Import the GitHub repo into the Vercel project for continuous deploys of the full app (cart, Traceabl page, labels, etc.).
+
 ## Production deploy (Vercel)
 
 1. Open [Import on Vercel](https://vercel.com/new/import?s=https://github.com/heather176/grael-peptides) (team **Traceabl**).
