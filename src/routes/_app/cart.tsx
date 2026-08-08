@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
 import { unitPriceForProduct, withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
+import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT, ORDER, PRESALE, SHIPPING, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
@@ -179,7 +180,14 @@ function CartPage() {
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
               {LAUNCH.suppliesLabel}. In-stock checkout: pay now — we place the supplier order
               after payment. {SHIPPING.note}. Minimum product subtotal{" "}
-              {formatUsd(ORDER.minProductSubtotal)}
+              {formatUsd(ORDER.minProductSubtotal)}. Wholesale cash/wire: email{" "}
+              <a
+                href={CONTACT.emailMailto}
+                className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
+              >
+                {CONTACT.email}
+              </a>{" "}
+              for an invoice
               {promoCode
                 ? ` · Code ${promoCode} prefilled at Stripe (−${wholesalePct}%).`
                 : "."}

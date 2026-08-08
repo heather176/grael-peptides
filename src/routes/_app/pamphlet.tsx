@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  CONTACT,
   formatMoney,
   MAIL_ORDER,
   pamphletRows,
@@ -18,7 +19,6 @@ function PamphletPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 print:max-w-none print:px-0 print:py-0">
-      {/* Screen-only controls */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div>
           <p className="text-xs font-medium tracking-[0.14em] text-[var(--color-primary)] uppercase">
@@ -28,29 +28,24 @@ function PamphletPage() {
             Partner pamphlet
           </h1>
           <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Mail-order sheet for Jason (and partners). Code is{" "}
-            <strong className="text-[var(--color-fg)]">not</strong> printed — text it
-            separately.
+            Mail-order sheet · invoice contact · cash option. Code stays off the print — text it.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            onClick={() => window.print()}
-            className="gap-2"
-          >
+          <Button size="sm" onClick={() => window.print()} className="gap-2">
             <Printer className="h-4 w-4" strokeWidth={1.5} />
             Print pamphlet
           </Button>
           <Button size="sm" variant="secondary" asChild>
+            <a href={CONTACT.emailMailto}>Email invoice contact</a>
+          </Button>
+          <Button size="sm" variant="ghost" asChild>
             <Link to="/catalog">Shop</Link>
           </Button>
         </div>
       </div>
 
-      {/* Printable sheet */}
       <article className="pamphlet space-y-0 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] print:rounded-none print:border-0 print:shadow-none">
-        {/* Panel 1 — cover / how mail order works */}
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--color-border)] pb-5">
             <div>
@@ -62,10 +57,11 @@ function PamphletPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="font-mono text-sm font-medium text-[var(--color-fg)]">
-                {SITE_HOST}
-              </p>
+              <p className="font-mono text-sm font-medium text-[var(--color-fg)]">{SITE_HOST}</p>
               <p className="text-xs text-[var(--color-fg-subtle)]">{SITE_URL}</p>
+              <p className="mt-1 font-mono text-xs font-medium text-[var(--color-primary)]">
+                {CONTACT.email}
+              </p>
             </div>
           </div>
 
@@ -77,9 +73,7 @@ function PamphletPage() {
               <ol className="mt-3 space-y-2 text-sm text-[var(--color-fg-muted)]">
                 {MAIL_ORDER.howItWorks.map((step, i) => (
                   <li key={step} className="flex gap-2">
-                    <span className="font-mono text-[var(--color-primary)]">
-                      {i + 1}.
-                    </span>
+                    <span className="font-mono text-[var(--color-primary)]">{i + 1}.</span>
                     <span>{step}</span>
                   </li>
                 ))}
@@ -87,32 +81,47 @@ function PamphletPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-4">
               <h2 className="text-xs font-medium tracking-[0.14em] text-[var(--color-fg-subtle)] uppercase">
-                Terms
+                {CONTACT.cashInvoice.title}
               </h2>
-              <ul className="mt-3 space-y-1.5 text-sm text-[var(--color-fg-muted)]">
-                <li>{MAIL_ORDER.shippingNote}</li>
-                <li>{MAIL_ORDER.shipEstimate}</li>
-                <li>{MAIL_ORDER.nextShip}</li>
-                <li>10-vial packs + single vials available</li>
-                <li>Prices reserved on next-shipment orders</li>
-              </ul>
-              <p className="mt-4 border-t border-[var(--color-border)] pt-3 text-xs leading-relaxed text-[var(--color-fg-subtle)]">
-                {MAIL_ORDER.ruo}
+              <ol className="mt-3 space-y-2 text-sm text-[var(--color-fg-muted)]">
+                {CONTACT.cashInvoice.steps.map((step, i) => (
+                  <li key={step} className="flex gap-2">
+                    <span className="font-mono text-[var(--color-primary)]">{i + 1}.</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-3 text-xs leading-relaxed text-[var(--color-fg-subtle)]">
+                {CONTACT.cashInvoice.note}
               </p>
             </div>
           </div>
 
-          <div className="mt-6 rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-4 py-3">
-            <p className="text-sm font-medium text-[var(--color-fg)]">
-              Wholesale partners
-            </p>
-            <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-              {MAIL_ORDER.partnerCodeNote}
-            </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-4 py-3">
+              <p className="text-sm font-medium text-[var(--color-fg)]">Invoice contact</p>
+              <p className="mt-1 font-mono text-sm text-[var(--color-primary)]">{CONTACT.email}</p>
+              <p className="mt-1 text-xs text-[var(--color-fg-muted)]">
+                {MAIL_ORDER.invoiceContactLine}
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
+              <p className="text-sm font-medium text-[var(--color-fg)]">Terms</p>
+              <ul className="mt-2 space-y-1 text-xs text-[var(--color-fg-muted)]">
+                <li>{MAIL_ORDER.shippingNote}</li>
+                <li>{MAIL_ORDER.shipEstimate}</li>
+                <li>{MAIL_ORDER.nextShip}</li>
+                <li>10-vial packs + single vials</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-3">
+            <p className="text-sm text-[var(--color-fg-muted)]">{MAIL_ORDER.partnerCodeNote}</p>
+            <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.ruo}</p>
           </div>
         </section>
 
-        {/* Panel 2 — wholesale price table */}
         <section className="p-6 sm:p-8 print:p-6">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
@@ -120,11 +129,11 @@ function PamphletPage() {
                 {MAIL_ORDER.partnerLabel}
               </h2>
               <p className="text-sm text-[var(--color-fg-muted)]">
-                {MAIL_ORDER.partnerDiscountLabel} · compared to public launch
+                {MAIL_ORDER.partnerDiscountLabel} · card checkout or invoice
               </p>
             </div>
             <p className="text-xs text-[var(--color-fg-subtle)]">
-              Enter partner code at checkout · {SITE_HOST}
+              {CONTACT.email} · {SITE_HOST}
             </p>
           </div>
 
@@ -174,34 +183,34 @@ function PamphletPage() {
 
           <div className="mt-6 grid gap-4 border-t border-[var(--color-border)] pt-5 text-xs text-[var(--color-fg-subtle)] sm:grid-cols-3">
             <p>
-              <span className="font-medium text-[var(--color-fg-muted)]">Order online</span>
+              <span className="font-medium text-[var(--color-fg-muted)]">Order online (card)</span>
               <br />
               {SITE_URL}
             </p>
             <p>
-              <span className="font-medium text-[var(--color-fg-muted)]">Mail order</span>
+              <span className="font-medium text-[var(--color-fg-muted)]">Invoice / cash wholesale</span>
               <br />
-              Pay online or by invoice · we ship US only
+              {CONTACT.email}
             </p>
             <p>
               <span className="font-medium text-[var(--color-fg-muted)]">Partner code</span>
               <br />
-              By text only · never written on this sheet
+              By text only · never on this sheet
             </p>
           </div>
 
           <p className="mt-6 text-center font-display text-lg tracking-wide text-[var(--color-fg)]">
             {SITE_HOST}
           </p>
-          <p className="text-center text-[11px] text-[var(--color-fg-subtle)]">
+          <p className="text-center font-mono text-sm text-[var(--color-primary)]">{CONTACT.email}</p>
+          <p className="mt-1 text-center text-[11px] text-[var(--color-fg-subtle)]">
             {MAIL_ORDER.ruo}
           </p>
         </section>
       </article>
 
       <p className="mt-4 text-center text-xs text-[var(--color-fg-subtle)] print:hidden">
-        Tip: Print → Save as PDF if you want a digital copy to hand off. Hide browser
-        headers in print settings for a clean sheet.
+        Create the mailbox {CONTACT.email} (or forward it) so partner requests land in your inbox.
       </p>
     </main>
   );

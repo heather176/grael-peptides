@@ -8,28 +8,47 @@ import { catalogProducts, products, SHIPPING, ORDER } from "@/lib/products";
 export const SITE_URL = "https://graelpeptides.com";
 export const SITE_HOST = "graelpeptides.com";
 
+/** Invoice / cash wholesale — printed on pamphlet & site */
+export const CONTACT = {
+  /** Primary for wholesale invoices & cash settlement */
+  email: "wholesale@graelpeptides.com",
+  emailMailto:
+    "mailto:wholesale@graelpeptides.com?subject=Wholesale%20invoice%20request%20%E2%80%94%20Grael",
+  label: "Wholesale & invoices",
+  /** How cash wholesale works */
+  cashInvoice: {
+    title: "Wholesale cash / invoice",
+    steps: [
+      "Email wholesale@graelpeptides.com with SKUs, pack size (10-pack or single), and quantities",
+      "We send a Stripe invoice at your partner prices",
+      "Pay cash, wire, or Zelle as agreed — then we mark the invoice paid out of band",
+      "We place the supplier order and mail your vials (US)",
+    ],
+    note: "Card checkout is always available online with your partner code. Cash is invoice-only — do not mail cash.",
+  },
+} as const;
+
 export const MAIL_ORDER = {
   mode: "mail-order" as const,
   title: "Grael Peptides",
   tagline: "Mail-order research peptides",
   pamphletTitle: "Mail-order catalog · Partner wholesale sheet",
-  /** How fulfillment works for every buyer */
   howItWorks: [
     "Browse catalog online or from this sheet",
-    "Place order on graelpeptides.com (or reserve next shipment)",
-    "Pay by card online — or cash/wire by invoice for wholesale partners",
-    "We place the supplier order and mail your vials USPS / courier",
+    "Order on graelpeptides.com with card — or request an invoice for cash/wire wholesale",
+    "Email wholesale@graelpeptides.com for invoice · settle cash as agreed · we mark paid",
+    "We place the supplier order and mail your vials (US only)",
   ],
   shippingNote: `US shipping ${SHIPPING.amount} flat · product minimum $${ORDER.minProductSubtotal}`,
   shipEstimate: "Typically 3–7 business days after fulfillment",
   nextShip: "Next consolidated order ~ August 18, 2026",
   ruo: "Research use only. Not for human or veterinary use. Not a drug, food, or cosmetic.",
-  /** Printed on pamphlet — no code */
   partnerCodeNote:
-    "Your wholesale access code is provided separately by text. Do not share. Enter it at checkout.",
+    "Your wholesale access code is provided separately by text. Do not share. Enter it at card checkout — or skip the code and request an invoice by email.",
   partnerLabel: "Wholesale partner pricing",
   partnerDiscountLabel: "25% off list",
   publicLabel: "Public launch",
+  invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
 } as const;
 
 /** 25% off list — Jason / wholesale partner sheet (matches WHOLESALEJASON25) */

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { CONTACT } from "@/lib/mail-order";
 
 export const Route = createFileRoute("/_app/about")({
   component: AboutPage,
@@ -51,6 +52,31 @@ function AboutPage() {
             (or partner invoice for cash/wire wholesale), and we ship US only. Next-shipment
             reserves lock prices until the consolidated order goes out.
           </p>
+        </section>
+
+        <section className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 space-y-3">
+          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
+            {CONTACT.cashInvoice.title}
+          </h2>
+          <p className="text-[var(--color-fg-muted)]">
+            Wholesale partners who want to pay cash, wire, or Zelle: request a Stripe invoice.
+            Do not mail cash. After settlement we mark the invoice paid and place your order.
+          </p>
+          <p className="font-mono text-sm text-[var(--color-primary)]">{CONTACT.email}</p>
+          <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--color-fg-muted)]">
+            {CONTACT.cashInvoice.steps.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ol>
+          <p className="text-xs text-[var(--color-fg-subtle)]">{CONTACT.cashInvoice.note}</p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button asChild>
+              <a href={CONTACT.emailMailto}>Request an invoice</a>
+            </Button>
+            <Button variant="secondary" asChild>
+              <Link to="/pamphlet">Partner price sheet</Link>
+            </Button>
+          </div>
         </section>
 
         <section className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6">

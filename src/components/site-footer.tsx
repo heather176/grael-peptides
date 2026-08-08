@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
+import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.5.1";
+const VERSION = "1.5.2";
 
 export function SiteFooter() {
   return (
@@ -30,11 +31,17 @@ export function SiteFooter() {
             Next shipment
           </Link>
           <Link
-            to="/transparency"
+            to="/pamphlet"
             className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
           >
-            Traceabl Testing
+            Partner sheet
           </Link>
+          <a
+            href={CONTACT.emailMailto}
+            className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
+          >
+            Invoices
+          </a>
           <a
             href={TRACEABL_SITE}
             target="_blank"
@@ -50,7 +57,7 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} Grael Peptides · v{VERSION}
           </p>
-          <p>Research use only. Not for human or veterinary use. · graelpeptides.com</p>
+          <p>Research use only · {CONTACT.email} · graelpeptides.com</p>
         </div>
       </div>
     </footer>
