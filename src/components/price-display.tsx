@@ -1,9 +1,11 @@
 import { discountPercent, PRESALE, type Product } from "@/lib/products";
+import { unitPriceWithDiscount } from "@/lib/discount-codes";
+import { useDiscount } from "@/lib/discount-store";
 import { cn, formatUsd } from "@/lib/utils";
 
 /**
  * Prices use IBM Plex Mono — lab/ledger feel, high numeral clarity.
- * (Display serif was hard to read for $ amounts.)
+ * Shows wholesale unit price when a valid discount code is applied.
  */
 export function PriceDisplay({
   product,
@@ -14,7 +16,12 @@ export function PriceDisplay({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
+  const def = useDiscount((s) => s.activeDef());
   const off = discountPercent(product);
+  const wholesalePct = def?.percentOff ?? 0;
+  const displayPrice =
+    wholesalePct > 0 ? unitPriceWithDiscount(product.price, wholesalePct) : product.price;
+
   const priceCls =
     size === "lg"
       ? "text-[1.75rem] sm:text-[2rem] leading-none"
@@ -31,9 +38,23 @@ export function PriceDisplay({
           priceCls,
         )}
       >
-        {formatUsd(product.price)}
+        {formatUsd(displayPrice)}
       </span>
-      {PRESALE.active && product.listPrice > product.price ? (
+      {wholesalePct > 0 ? (
+        <>
+          <span
+            className={cn(
+              "font-mono tabular-nums text-[var(--color-fg-subtle)] line-through",
+              listCls,
+            )}
+          >
+            {formatUsd(product.price)}
+          </span>
+          <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
+            −{wholesalePct}% {def?.label ?? "wholesale"}
+          </span>
+        </>
+      ) : PRESALE.active && product.listPrice > product.price ? (
         <>
           <span
             className={cn(

@@ -2,10 +2,13 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { ArrowLeft, ExternalLink, Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BatchCoaPanel } from "@/components/batch-coa";
+import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
+import { withPromoCode } from "@/lib/discount-codes";
+import { useDiscount } from "@/lib/discount-store";
 import {
   CATEGORY_LABELS,
   FORM_LABELS,
@@ -25,10 +28,12 @@ function ProductDetailPage() {
   const product = getProduct(sku);
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
+  const code = useDiscount((s) => s.activeDef()?.code ?? null);
 
   if (!product) throw notFound();
 
   const batch = requireBatch(product.sku);
+  const buyHref = withPromoCode(product.paymentLink, code);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -88,7 +93,7 @@ function ProductDetailPage() {
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
               <Button size="sm" className="h-9 px-4" asChild>
-                <a href={product.paymentLink} target="_blank" rel="noreferrer">
+                <a href={buyHref} target="_blank" rel="noreferrer">
                   Buy now
                   <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </a>
@@ -107,6 +112,8 @@ function ProductDetailPage() {
               </Button>
             </div>
           </div>
+
+          <DiscountCodeForm />
 
           {NEXT_SHIPMENT.active ? (
             <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] p-5">

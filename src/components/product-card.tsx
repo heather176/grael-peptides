@@ -5,13 +5,17 @@ import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
+import { withPromoCode } from "@/lib/discount-codes";
+import { useDiscount } from "@/lib/discount-store";
 import type { Product } from "@/lib/products";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
 
 export function ProductCard({ product }: { product: Product }) {
   const add = useCart((s) => s.add);
+  const code = useDiscount((s) => s.activeDef()?.code ?? null);
   const batch = requireBatch(product.sku);
+  const buyHref = withPromoCode(product.paymentLink, code);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-border-strong)]">
@@ -67,7 +71,7 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
       <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
         <Button size="sm" className="h-8 px-3 text-xs" asChild>
-          <a href={product.paymentLink} target="_blank" rel="noreferrer">
+          <a href={buyHref} target="_blank" rel="noreferrer">
             Buy now
             <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
           </a>

@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
+import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
+import { unitPriceWithDiscount, withPromoCode } from "@/lib/discount-codes";
+import { useDiscount } from "@/lib/discount-store";
 import { LAUNCH, NEXT_SHIPMENT, PRESALE, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
@@ -19,6 +22,9 @@ function CartPage() {
   const setQty = useCart((s) => s.setQty);
   const remove = useCart((s) => s.remove);
   const subtotal = useCart((s) => s.subtotal);
+  const def = useDiscount((s) => s.activeDef());
+  const promoCode = def?.code ?? null;
+  const wholesalePct = def?.percentOff ?? 0;
 
   useEffect(() => {
     if (useCart.persist.hasHydrated()) setHydrated(true);
@@ -27,9 +33,19 @@ function CartPage() {
 
   const ready = hydrated;
   const items = ready ? enriched() : [];
-  const total = ready ? subtotal() : 0;
+  const launchTotal = ready ? subtotal() : 0;
   const listTotal = items.reduce((n, i) => n + i.product.listPrice * i.qty, 0);
+  const wholesaleTotal =
+    wholesalePct > 0
+      ? items.reduce(
+          (n, i) => n + unitPriceWithDiscount(i.product.price, wholesalePct) * i.qty,
+          0,
+        )
+      : launchTotal;
   const single = items.length === 1 ? items[0] : null;
+  const checkoutHref = single
+    ? withPromoCode(single.product.paymentLink, promoCode)
+    : withPromoCode(STRIPE_MULTI_CHECKOUT, promoCode);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
@@ -50,86 +66,108 @@ function CartPage() {
           <div className="h-16 animate-pulse rounded-[var(--radius-md)] bg-[var(--color-bg-subtle)]" />
         </div>
       ) : lines.length === 0 ? (
-        <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-card)] px-6 py-16 text-center">
-          <p className="font-display text-lg font-semibold">Your cart is empty</p>
-          <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
-            Add research products from the catalog to checkout.
-          </p>
-          <Button className="mt-6" asChild>
-            <Link to="/catalog">Browse catalog</Link>
-          </Button>
+        <div className="space-y-4">
+          <DiscountCodeForm />
+          <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-card)] px-6 py-16 text-center">
+            <p className="font-display text-lg font-semibold">Your cart is empty</p>
+            <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
+              Add research products from the catalog to checkout.
+            </p>
+            <Button className="mt-6" asChild>
+              <Link to="/catalog">Browse catalog</Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
+          <DiscountCodeForm />
           <ul className="space-y-3">
-            {items.map(({ sku, qty, product }) => (
-              <li
-                key={sku}
-                className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <Link
-                    to="/products/$sku"
-                    params={{ sku }}
-                    className="font-display text-base font-semibold text-[var(--color-fg)] no-underline hover:text-[var(--color-primary)]"
-                  >
-                    {product.name}
-                  </Link>
-                  <p className="mt-1 font-mono text-xs text-[var(--color-fg-subtle)]">
-                    {product.sku} · {product.strength}
-                  </p>
-                  <PriceDisplay product={product} size="sm" className="mt-1" />
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center rounded-[var(--radius-sm)] border border-[var(--color-border)]">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10"
-                      aria-label="Decrease"
-                      onClick={() => setQty(sku, qty - 1)}
+            {items.map(({ sku, qty, product }) => {
+              const unit =
+                wholesalePct > 0
+                  ? unitPriceWithDiscount(product.price, wholesalePct)
+                  : product.price;
+              return (
+                <li
+                  key={sku}
+                  className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <Link
+                      to="/products/$sku"
+                      params={{ sku }}
+                      className="font-display text-base font-semibold text-[var(--color-fg)] no-underline hover:text-[var(--color-primary)]"
                     >
-                      <Minus className="h-4 w-4" />
+                      {product.name}
+                    </Link>
+                    <p className="mt-1 font-mono text-xs text-[var(--color-fg-subtle)]">
+                      {product.sku} · {product.strength}
+                    </p>
+                    <PriceDisplay product={product} size="sm" className="mt-1" />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center rounded-[var(--radius-sm)] border border-[var(--color-border)]">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10"
+                        aria-label="Decrease"
+                        onClick={() => setQty(sku, qty - 1)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center text-sm tabular">{qty}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10"
+                        aria-label="Increase"
+                        onClick={() => setQty(sku, qty + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="w-20 text-right font-semibold tabular">
+                      {formatUsd(unit * qty)}
+                    </p>
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={withPromoCode(product.paymentLink, promoCode)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Pay
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
                     </Button>
-                    <span className="w-8 text-center text-sm tabular">{qty}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10"
-                      aria-label="Increase"
-                      onClick={() => setQty(sku, qty + 1)}
+                      aria-label="Remove"
+                      onClick={() => remove(sku)}
                     >
-                      <Plus className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-[var(--color-fg-subtle)]" />
                     </Button>
                   </div>
-                  <p className="w-20 text-right font-semibold tabular">
-                    {formatUsd(product.price * qty)}
-                  </p>
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={product.paymentLink} target="_blank" rel="noreferrer">
-                      Pay
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Remove"
-                    onClick={() => remove(sku)}
-                  >
-                    <Trash2 className="h-4 w-4 text-[var(--color-fg-subtle)]" />
-                  </Button>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-[var(--color-fg-muted)]">Launch subtotal</span>
+              <span className="text-sm text-[var(--color-fg-muted)]">
+                {wholesalePct > 0 ? `${def?.label} subtotal` : "Launch subtotal"}
+              </span>
               <div className="text-right">
-                <span className="font-display text-2xl font-semibold tabular">{formatUsd(total)}</span>
-                {listTotal > total ? (
+                <span className="font-display text-2xl font-semibold tabular">
+                  {formatUsd(wholesaleTotal)}
+                </span>
+                {wholesalePct > 0 && wholesaleTotal < launchTotal ? (
+                  <p className="text-xs text-[var(--color-fg-subtle)] line-through tabular">
+                    {formatUsd(launchTotal)} launch
+                  </p>
+                ) : listTotal > launchTotal ? (
                   <p className="text-xs text-[var(--color-fg-subtle)] line-through tabular">
                     {formatUsd(listTotal)} list
                   </p>
@@ -139,11 +177,14 @@ function CartPage() {
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
               {LAUNCH.suppliesLabel}. Secure Stripe checkout for current stock. US shipping
               is a flat $15 per order at checkout (est. 3–7 business days after fulfillment).
+              {promoCode
+                ? ` Code ${promoCode} is prefilled at Stripe (−${wholesalePct}% on products; shipping may also discount).`
+                : null}
             </p>
             <div className="mt-6 flex flex-col gap-3">
               {single ? (
                 <Button className="w-full" size="lg" asChild>
-                  <a href={single.product.paymentLink} target="_blank" rel="noreferrer">
+                  <a href={checkoutHref} target="_blank" rel="noreferrer">
                     Checkout with Stripe — {single.product.name}
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -151,7 +192,7 @@ function CartPage() {
               ) : (
                 <>
                   <Button className="w-full" size="lg" asChild>
-                    <a href={STRIPE_MULTI_CHECKOUT} target="_blank" rel="noreferrer">
+                    <a href={checkoutHref} target="_blank" rel="noreferrer">
                       Multi-product Stripe checkout
                       <ExternalLink className="h-4 w-4" />
                     </a>
