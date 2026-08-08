@@ -46,13 +46,13 @@ export const MAIL_ORDER = {
   partnerCodeNote:
     "Your wholesale access code is provided separately by text. Do not share. Enter it at card checkout — or skip the code and request an invoice by email.",
   partnerLabel: "Wholesale partner pricing",
-  partnerDiscountLabel: "25% off list",
+  partnerDiscountLabel: "40% off list",
   publicLabel: "Public launch",
   invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
 } as const;
 
-/** 25% off list — Jason / wholesale partner sheet (matches WHOLESALEJASON25) */
-export const PARTNER_LIST_OFF = 0.25;
+/** 25% off list — Jason / wholesale partner sheet (matches WHOLESALEJASON · 40% off list) */
+export const PARTNER_LIST_OFF = 0.40;
 
 export type PamphletRow = {
   baseSku: string;

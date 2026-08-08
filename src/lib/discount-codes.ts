@@ -29,21 +29,20 @@ export type DiscountCodeDef = {
 };
 
 /**
- * WHOLESALEJASON temporarily kept at 25% off list as requested — see pricing
- * analysis: this loses money on Retatrutide vs wholesale cost. Recommend 20–25%.
+ * WHOLESALEJASON — 40% off list, $400 min product (site-enforced + ship $100).
  */
 export const DISCOUNT_CODES: DiscountCodeDef[] = [
   {
-    code: "WHOLESALEJASON25",
-    label: "Wholesale Jason (25%)",
+    code: "WHOLESALEJASON",
+    label: "Wholesale Jason (40%)",
     tier: "wholesale",
-    percentOff: 25,
-    stripePercentOff: 12, // ~25% off list when charged at launch prices
+    percentOff: 40,
+    stripePercentOff: 29, // ~40% off list when charged at launch prices
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "25% off list (not stacked with pre-sale). $100 ship · $400 min product.",
-    stripePromoId: "promo_1U2GYADi3y8Lwmj8XT1VTluX",
-    stripeCouponId: "grael_ws_list25",
+    note: "40% off list (not stacked with pre-sale). $100 ship · $400 min product.",
+    stripePromoId: "promo_1U2GlTDi3y8Lwmj8iFt123Rl",
+    stripeCouponId: "grael_ws_list40",
   },
   {
     code: "GRAELWS",
@@ -82,8 +81,8 @@ export function normalizeCode(raw: string) {
 export function lookupDiscountCode(raw: string, now = new Date()): DiscountLookupResult {
   let code = normalizeCode(raw);
   if (!code) return { ok: false, reason: "not_found" };
-  // Accept WHOLESALEJASON as alias of WHOLESALEJASON25
-  if (code === "WHOLESALEJASON") code = "WHOLESALEJASON25";
+  // Accept WHOLESALEJASON25 as alias of WHOLESALEJASON (40%)
+  if (code === "WHOLESALEJASON25") code = "WHOLESALEJASON";
 
   const def = DISCOUNT_CODES.find((d) => normalizeCode(d.code) === code);
   if (!def) return { ok: false, reason: "not_found" };
@@ -117,15 +116,25 @@ export function unitPriceForProduct(
   return product.price;
 }
 
+/** Stripe promotion code string (may differ from site code if renamed). */
+export function stripeCheckoutCode(code: string | null | undefined) {
+  const n = code ? normalizeCode(code) : "";
+  if (!n) return null;
+  // Site code WHOLESALEJASON → Stripe promo WHOLESALEJASON40 (40% list). Old 50% code still named WHOLESALEJASON in Stripe — deactivate it in Dashboard.
+  if (n === "WHOLESALEJASON" || n === "WHOLESALEJASON25") return "WHOLESALEJASON40";
+  return n;
+}
+
 export function withPromoCode(paymentUrl: string, code: string | null | undefined) {
-  if (!code) return paymentUrl;
+  const stripeCode = stripeCheckoutCode(code);
+  if (!stripeCode) return paymentUrl;
   try {
     const u = new URL(paymentUrl);
-    u.searchParams.set("prefilled_promo_code", normalizeCode(code));
+    u.searchParams.set("prefilled_promo_code", stripeCode);
     return u.toString();
   } catch {
     const sep = paymentUrl.includes("?") ? "&" : "?";
-    return `${paymentUrl}${sep}prefilled_promo_code=${encodeURIComponent(normalizeCode(code))}`;
+    return `${paymentUrl}${sep}prefilled_promo_code=${encodeURIComponent(stripeCode)}`;
   }
 }
 
