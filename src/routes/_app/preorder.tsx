@@ -12,7 +12,7 @@ import { useCart } from "@/lib/cart-store";
 import { unitPriceWithDiscount } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import { submitPreorder } from "@/lib/preorders";
-import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, ORDER, SHIPPING } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/preorder")({
@@ -63,8 +63,14 @@ function PreorderPage() {
   const [result, setResult] = useState<Result | null>(null);
 
   const canSubmit = useMemo(
-    () => items.length > 0 && fullName.trim().length >= 2 && email.includes("@") && ack && !submitting,
-    [items.length, fullName, email, ack, submitting],
+    () =>
+      items.length > 0 &&
+      fullName.trim().length >= 2 &&
+      email.includes("@") &&
+      ack &&
+      !submitting &&
+      total >= ORDER.minProductSubtotal,
+    [items.length, fullName, email, ack, submitting, total],
   );
 
   async function onSubmit(e: React.FormEvent) {
@@ -72,7 +78,7 @@ function PreorderPage() {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      const shipNote = `Next shipment request · est. ship ${NEXT_SHIPMENT.estimatedShipLabel}`;
+      const shipNote = `Next shipment · prices reserved · charge when next order goes out · est. ${NEXT_SHIPMENT.estimatedShipLabel}`;
       const res = await submitPreorder({
         data: {
           fullName: fullName.trim(),
@@ -98,7 +104,7 @@ function PreorderPage() {
           : null,
       });
       clear();
-      toast.success("Next shipment reserved");
+      toast.success("Prices reserved for next order");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not submit request";
       toast.error(message);
@@ -113,25 +119,21 @@ function PreorderPage() {
         <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-8 text-center shadow-[var(--shadow-soft)]">
           <CheckCircle2 className="mx-auto h-12 w-12 text-[var(--color-success)]" strokeWidth={1.5} />
           <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight">
-            Next shipment reserved
+            Prices reserved
           </h1>
           <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
-            Thanks, {result.fullName}. We logged request{" "}
-            <span className="font-mono text-[var(--color-fg)]">{result.id}</span> for{" "}
-            {formatUsd(result.subtotal)} estimated
+            Thanks, {result.fullName}. Request{" "}
+            <span className="font-mono text-[var(--color-fg)]">{result.id}</span> locks{" "}
+            <strong className="text-[var(--color-fg)]">{formatUsd(result.subtotal)}</strong>
             {result.discount
-              ? ` with ${result.discount.label} code ${result.discount.code} (−${result.discount.percentOff}%)`
-              : ""}
-            .
+              ? ` with ${result.discount.label} (${result.discount.code} −${result.discount.percentOff}%)`
+              : ""}{" "}
+            for the next order.
           </p>
           <p className="mt-3 text-sm text-[var(--color-fg-muted)]">
-            Estimated ship window:{" "}
-            <span className="font-medium text-[var(--color-fg)]">
-              {NEXT_SHIPMENT.estimatedShipLabel}
-            </span>{" "}
-            (~{NEXT_SHIPMENT.daysEstimate} days). You are{" "}
-            <strong className="text-[var(--color-fg)]">not charged now</strong> — we email a Stripe
-            invoice before ship. Confirmation goes to{" "}
+            <strong className="text-[var(--color-fg)]">You are not charged today.</strong> When the
+            next order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge this reserved total
+            + {formatUsd(SHIPPING.amount)} shipping and place the supplier order. Confirmation to{" "}
             <span className="text-[var(--color-fg)]">{result.email}</span>.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -158,12 +160,16 @@ function PreorderPage() {
         </h1>
         <p className="text-[var(--color-fg-muted)]">
           Current launch inventory is sold {LAUNCH.suppliesLabel.toLowerCase()}. If a SKU is short
-          or on back order, reserve the next wave here.{" "}
+          or on back order, reserve the next wave here. Estimated ship around{" "}
           <span className="text-[var(--color-fg)]">
-            Estimated ship around {NEXT_SHIPMENT.estimatedShipLabel} (~{NEXT_SHIPMENT.daysEstimate}{" "}
-            days).
-          </span>{" "}
-          No card charge today — you pay when we send the invoice before ship.
+            {NEXT_SHIPMENT.estimatedShipLabel} (~{NEXT_SHIPMENT.daysEstimate} days)
+          </span>
+          .
+        </p>
+        <p className="rounded-[var(--radius-md)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/8 px-4 py-3 text-sm text-[var(--color-fg)]">
+          <strong>{NEXT_SHIPMENT.reserveHeadline}.</strong> {NEXT_SHIPMENT.chargeWhen} Shipping{" "}
+          {formatUsd(SHIPPING.amount)} flat US when charged · min product{" "}
+          {formatUsd(ORDER.minProductSubtotal)}.
         </p>
       </div>
 
@@ -226,7 +232,8 @@ function PreorderPage() {
             <span>
               I confirm these materials are ordered strictly for laboratory research use only, not
               for human or animal consumption, clinical use, or compounding, and I accept all
-              applicable laws for research chemicals.
+              applicable laws for research chemicals. I understand prices are reserved now and I
+              will be charged when the next order goes out.
             </span>
           </label>
 
@@ -239,9 +246,15 @@ function PreorderPage() {
                 Submitting…
               </>
             ) : (
-              `Reserve next shipment (~${NEXT_SHIPMENT.estimatedShipLabel})`
+              `Reserve prices · charge on next order`
             )}
           </Button>
+          {items.length > 0 && total < ORDER.minProductSubtotal ? (
+            <p className="text-center text-xs text-[var(--color-fg-muted)]">
+              Add {formatUsd(ORDER.minProductSubtotal - total)} more in kits (min{" "}
+              {formatUsd(ORDER.minProductSubtotal)} product).
+            </p>
+          ) : null}
         </form>
 
         <aside className="space-y-4">
@@ -249,7 +262,7 @@ function PreorderPage() {
 
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold">Cart summary</h2>
+              <h2 className="font-display text-lg font-semibold">Reserved pricing</h2>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/cart">Edit</Link>
               </Button>
@@ -303,7 +316,7 @@ function PreorderPage() {
 
             <div className="mt-5 flex items-center justify-between border-t border-[var(--color-border)] pt-4">
               <span className="text-sm text-[var(--color-fg-muted)]">
-                {wholesalePct > 0 ? `${def?.label} estimate` : "Estimated total"}
+                {wholesalePct > 0 ? `${def?.label} reserved total` : "Reserved product total"}
               </span>
               <div className="text-right">
                 <span className="font-display text-2xl font-semibold tabular">
@@ -317,32 +330,35 @@ function PreorderPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {lines.length} line{lines.length === 1 ? "" : "s"} · no charge until invoice
+              {lines.length} line{lines.length === 1 ? "" : "s"} · prices reserved · charge when next
+              order goes out
               {def ? ` · code ${def.code}` : ""}
             </p>
             <p className="mt-2 text-xs leading-relaxed text-[var(--color-fg-muted)]">
-              <strong className="text-[var(--color-fg)]">No charge until invoice</strong> means this
-              form only reserves inventory for the next wave. Your card is not charged today. Before
-              we ship (~{NEXT_SHIPMENT.estimatedShipLabel}), we email a Stripe invoice at these
-              estimated prices
-              {def ? ` (including ${def.label} −${def.percentOff}%)` : ""}. You pay that invoice,
-              then we fulfill.
+              <strong className="text-[var(--color-fg)]">{NEXT_SHIPMENT.reserveHeadline}.</strong>{" "}
+              This form locks today's unit prices
+              {def ? ` with ${def.label} (−${def.percentOff}%)` : ""}. Your card is{" "}
+              <strong className="text-[var(--color-fg)]">not charged now</strong>. When the next
+              order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge the reserved total +{" "}
+              {formatUsd(SHIPPING.amount)} shipping and place the supplier order.
             </p>
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5 text-sm text-[var(--color-fg-muted)]">
             <p className="font-medium text-[var(--color-fg)]">What happens next</p>
             <ol className="mt-3 list-decimal space-y-2 pl-4">
-              <li>We log your next-shipment request (with any wholesale code).</li>
               <li>
-                Target ship window: <strong>{NEXT_SHIPMENT.estimatedShipLabel}</strong> (~
-                {NEXT_SHIPMENT.daysEstimate} days).
+                We log your request and <strong>reserve today's prices</strong>
+                {def ? " (wholesale code included)" : ""}.
               </li>
               <li>
-                Traceabl COAs attach per batch; you get a final Stripe invoice (wholesale code
-                honored) before ship — that is when you pay.
+                You are <strong>not charged today</strong>.
               </li>
-              <li>Vials ship with Traceabl QR labels and COAs.</li>
+              <li>
+                When the next order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge the
+                reserved total + shipping and place the supplier order.
+              </li>
+              <li>Traceabl COAs attach per batch; vials ship with QR labels.</li>
             </ol>
           </div>
         </aside>

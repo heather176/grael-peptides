@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
 import { unitPriceWithDiscount, withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
-import { LAUNCH, NEXT_SHIPMENT, PRESALE, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, ORDER, PRESALE, SHIPPING, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/cart")({
@@ -43,6 +43,8 @@ function CartPage() {
         )
       : launchTotal;
   const single = items.length === 1 ? items[0] : null;
+  const meetsMin = wholesaleTotal >= ORDER.minProductSubtotal;
+  const remainingToMin = Math.max(0, ORDER.minProductSubtotal - wholesaleTotal);
   const checkoutHref = single
     ? withPromoCode(single.product.paymentLink, promoCode)
     : withPromoCode(STRIPE_MULTI_CHECKOUT, promoCode);
@@ -175,28 +177,51 @@ function CartPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {LAUNCH.suppliesLabel}. Secure Stripe checkout for current stock. US shipping
-              is a flat $15 per order at checkout (est. 3–7 business days after fulfillment).
+              {LAUNCH.suppliesLabel}. In-stock checkout: pay now — we place the supplier order
+              after payment. {SHIPPING.note}. Minimum product subtotal{" "}
+              {formatUsd(ORDER.minProductSubtotal)}
               {promoCode
-                ? ` Code ${promoCode} is prefilled at Stripe (−${wholesalePct}% on products; shipping may also discount).`
-                : null}
+                ? ` · Code ${promoCode} prefilled at Stripe (−${wholesalePct}%).`
+                : "."}
             </p>
+            <p className="mt-2 text-xs font-medium text-[var(--color-primary)]">
+              {NEXT_SHIPMENT.reserveHeadline}. {NEXT_SHIPMENT.chargeWhen}
+            </p>
+            {!meetsMin && items.length > 0 ? (
+              <p className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-2 text-xs text-[var(--color-fg)]">
+                Minimum product order is {formatUsd(ORDER.minProductSubtotal)} (shipping is{" "}
+                {formatUsd(SHIPPING.amount)} extra). Add {formatUsd(remainingToMin)} more in kits to
+                checkout.
+              </p>
+            ) : null}
             <div className="mt-6 flex flex-col gap-3">
               {single ? (
-                <Button className="w-full" size="lg" asChild>
-                  <a href={checkoutHref} target="_blank" rel="noreferrer">
-                    Checkout with Stripe — {single.product.name}
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              ) : (
-                <>
+                meetsMin ? (
                   <Button className="w-full" size="lg" asChild>
                     <a href={checkoutHref} target="_blank" rel="noreferrer">
-                      Multi-product Stripe checkout
+                      Checkout with Stripe — {single.product.name}
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
+                ) : (
+                  <Button className="w-full" size="lg" disabled>
+                    Checkout · min {formatUsd(ORDER.minProductSubtotal)} product
+                  </Button>
+                )
+              ) : (
+                <>
+                  {meetsMin ? (
+                    <Button className="w-full" size="lg" asChild>
+                      <a href={checkoutHref} target="_blank" rel="noreferrer">
+                        Multi-product Stripe checkout
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button className="w-full" size="lg" disabled>
+                      Checkout · min {formatUsd(ORDER.minProductSubtotal)} product
+                    </Button>
+                  )}
                   <p className="text-xs text-[var(--color-fg-muted)]">
                     Multi-product checkout opens the full Grael catalog in Stripe — set quantities for
                     the products you want (zero out the rest). Or use <strong>Pay</strong> on each

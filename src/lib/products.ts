@@ -63,20 +63,39 @@ export const NEXT_SHIPMENT = {
   estimatedShipLabel: "August 18, 2026",
   shortLabel: "Next ship ~Aug 18",
   daysEstimate: 10,
-  note: "Reserve the next shipment wave. Estimated ship window around August 18, 2026 (about 10 days).",
+  note:
+    "Reserve the next shipment wave. Your prices are locked at reserve — you are not charged today. When the next order goes out (~August 18, 2026), we charge the reserved total and place the supplier order.",
   cartNote:
-    "If current stock is short, choose Purchase next shipment — estimated ship around August 18, 2026.",
+    "Next shipment: prices reserved now · charged when the next order goes out (~Aug 18) · not charged today.",
+  reserveHeadline: "Prices reserved · charged when next order goes out",
+  chargeWhen:
+    "Charged when the next order goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
+  shortCharge: "Reserved price · charge on next order",
 } as const;
 
 export const STRIPE_MULTI_CHECKOUT =
-  "https://buy.stripe.com/28EaEXdSLbL0g5h5fwfAc0p";
+  "https://buy.stripe.com/6oU5kD2a35mC7yL6jAfAc0C";
 
-/** Flat US shipping charged at Stripe checkout ($15 / order). */
+/**
+ * Order economics:
+ * - In-stock Buy now: pay first on Stripe → we place the supplier order.
+ * - Next shipment reserve: prices locked now → charged when next order goes out.
+ * - Flat US shipping $100 / order · $400 min product subtotal.
+ */
+export const ORDER = {
+  payFirst: true,
+  minProductSubtotal: 400,
+  flowNote:
+    "Pay first on in-stock checkout · next shipment prices reserved until the next order goes out",
+} as const;
+
+/** Flat US shipping charged at Stripe checkout ($100 / order). */
 export const SHIPPING = {
-  amount: 15,
+  amount: 100,
   label: "US standard shipping",
-  note: "US only · $15 flat per order · est. 3–7 business days after fulfillment",
-  short: "+ $15 US shipping",
+  note: "US only · $100 flat per order · $400 min product subtotal · est. 3–7 business days after fulfillment",
+  short: "+ $100 US shipping",
+  stripePriceId: "price_1U2GImDi3y8Lwmj8sWNPzC0q",
 };
 
 export const CATEGORY_LABELS: Record<ProductCategory, string> = {
@@ -104,7 +123,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_tr15",
     stripePriceId: "price_1U2EWIDi3y8Lwmj8ZAKN36yz",
-    paymentLink: "https://buy.stripe.com/14AcN5eWP9CS6uH7nEfAc0d",
+    paymentLink: "https://buy.stripe.com/3cI14ndSL7uKaKX0ZgfAc0q",
     form: "lyophilized-cream",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "15 mg",
@@ -127,7 +146,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_sm15",
     stripePriceId: "price_1U2EWNDi3y8Lwmj8mEnjM4XS",
-    paymentLink: "https://buy.stripe.com/fZu14nbKDg1gcT5bDUfAc0e",
+    paymentLink: "https://buy.stripe.com/cNieVdbKD16m6uH9vMfAc0r",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "15 mg",
@@ -150,7 +169,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_rt10",
     stripePriceId: "price_1U2EWQDi3y8Lwmj8Ci0LavTz",
-    paymentLink: "https://buy.stripe.com/9B6fZh4ib6qGf1deQ6fAc0f",
+    paymentLink: "https://buy.stripe.com/3cI7sLdSLaGW5qDbDUfAc0s",
     form: "lyophilized-cream",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "10 mg",
@@ -173,7 +192,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_bc10",
     stripePriceId: "price_1U2EWSDi3y8Lwmj8FzjkgCZZ",
-    paymentLink: "https://buy.stripe.com/aFa8wP15ZdT8g5hgYefAc0g",
+    paymentLink: "https://buy.stripe.com/eVqcN52a316mcT58rIfAc0t",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "10 mg",
@@ -195,7 +214,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_bt5",
     stripePriceId: "price_1U2EWVDi3y8Lwmj8v5yZmSzd",
-    paymentLink: "https://buy.stripe.com/9B66oHaGz16m6uHdM2fAc0h",
+    paymentLink: "https://buy.stripe.com/9B68wP4ibbL0g5h5fwfAc0u",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "5 mg",
@@ -216,7 +235,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_bb10",
     stripePriceId: "price_1U2EWYDi3y8Lwmj8R4WJSFvg",
-    paymentLink: "https://buy.stripe.com/aFafZh7ung1gf1dfUafAc0i",
+    paymentLink: "https://buy.stripe.com/bJe8wP7un3eu2er37ofAc0v",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "5 mg + 5 mg",
@@ -239,7 +258,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_ms10",
     stripePriceId: "price_1U2EWaDi3y8Lwmj8d6iuCbuz",
-    paymentLink: "https://buy.stripe.com/14A00jg0Tg1gg5h7nEfAc0j",
+    paymentLink: "https://buy.stripe.com/6oU5kD6qj9CS2er37ofAc0w",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "10 mg",
@@ -260,7 +279,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% identity (Traceabl COA per batch)",
     stripeProductId: "grael_nj100",
     stripePriceId: "price_1U2EWdDi3y8Lwmj8kgpTjMET",
-    paymentLink: "https://buy.stripe.com/eVq3cv01VeXc06j8rIfAc0k",
+    paymentLink: "https://buy.stripe.com/cNi14n9CvaGW4mzazQfAc0x",
     form: "lyophilized-amber",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "100 mg",
@@ -281,7 +300,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_cu50",
     stripePriceId: "price_1U2EWfDi3y8Lwmj8EMNGSUrr",
-    paymentLink: "https://buy.stripe.com/7sY5kD5mfbL09GT0ZgfAc0l",
+    paymentLink: "https://buy.stripe.com/5kQ3cv3e77uK6uH0ZgfAc0y",
     form: "lyophilized-blue",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "50 mg",
@@ -302,7 +321,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% identity (Traceabl COA per batch)",
     stripeProductId: "grael_gtt600",
     stripePriceId: "price_1U2EWiDi3y8Lwmj8w7P8Teb7",
-    paymentLink: "https://buy.stripe.com/4gMdR92a3eXcaKX9vMfAc0m",
+    paymentLink: "https://buy.stripe.com/7sY3cv5mf2aqdX99vMfAc0z",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "600 mg",
@@ -323,7 +342,7 @@ export const products: Product[] = [
     purityClaim: "Target ≥99% HPLC identity (Traceabl COA per batch)",
     stripeProductId: "grael_et10",
     stripePriceId: "price_1U2EWlDi3y8Lwmj8riVosSMn",
-    paymentLink: "https://buy.stripe.com/cNibJ1eWP3eu6uH6jAfAc0n",
+    paymentLink: "https://buy.stripe.com/9B67sLdSL8yO5qD37ofAc0A",
     form: "lyophilized-white",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "10 mg",
@@ -344,7 +363,7 @@ export const products: Product[] = [
     purityClaim: "USP-grade research solvent",
     stripeProductId: "grael_wa3",
     stripePriceId: "price_1U2EWoDi3y8Lwmj8eYNG9aHN",
-    paymentLink: "https://buy.stripe.com/14A28r01Vg1g06j23kfAc0o",
+    paymentLink: "https://buy.stripe.com/bJe00j01VeXc5qD8rIfAc0B",
     form: "liquid-clear",
     image: "/products/vial-unlabeled.jpg",
     vialLabel: "3 ml",

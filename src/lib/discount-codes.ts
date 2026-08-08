@@ -34,10 +34,22 @@ export type DiscountCodeDef = {
 
 /**
  * Registry of codes. Flip `active` or `expiresAt` to turn codes on/off.
- * GRAELWS is the default wholesale code (live in Stripe, expires end of 2026).
- * GRAELPARTNER is created but OFF — flip active when you want to hand it out.
+ * WHOLESALEJASON = 50% for Jason (primary wholesale).
+ * GRAELWS = 20% general wholesale.
+ * GRAELPARTNER = 30% partner (off until enabled).
  */
 export const DISCOUNT_CODES: DiscountCodeDef[] = [
+  {
+    code: "WHOLESALEJASON",
+    label: "Wholesale Jason",
+    tier: "wholesale",
+    percentOff: 50,
+    active: true,
+    expiresAt: "2026-12-31T23:59:59.000Z",
+    note: "Wholesale Jason — 50% off launch unit prices. $100 US shipping · $400 min product order.",
+    stripePromoId: "promo_1U2GIgDi3y8Lwmj8mC10L83l",
+    stripeCouponId: "grael_wholesale_50",
+  },
   {
     code: "GRAELWS",
     label: "Wholesale",
@@ -45,7 +57,7 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     percentOff: 20,
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "Wholesale pricing — 20% off launch unit prices. US shipping still applies.",
+    note: "Wholesale pricing — 20% off launch unit prices. $100 US shipping · $400 min product order.",
     stripePromoId: "promo_1U2F6uDi3y8Lwmj8jdiVTQbY",
     stripeCouponId: "grael_wholesale_20",
   },
@@ -54,7 +66,7 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     label: "Partner",
     tier: "partner",
     percentOff: 30,
-    active: false, // turn on when you want this live
+    active: false,
     expiresAt: "2026-12-31T23:59:59.000Z",
     note: "Partner pricing — 30% off launch unit prices.",
     stripePromoId: "promo_1U2F72Di3y8Lwmj87F3opHkY",

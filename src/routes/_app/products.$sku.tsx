@@ -124,6 +124,9 @@ function ProductDetailPage() {
                 />
                 <div className="min-w-0 space-y-2">
                   <p className="font-medium text-[var(--color-fg)]">{NEXT_SHIPMENT.label}</p>
+                  <p className="text-sm font-medium text-[var(--color-primary)]">
+                    {NEXT_SHIPMENT.reserveHeadline}
+                  </p>
                   <p className="text-sm text-[var(--color-fg-muted)]">{NEXT_SHIPMENT.note}</p>
                   <p className="text-xs text-[var(--color-fg-subtle)]">
                     Estimated ship:{" "}
@@ -138,11 +141,11 @@ function ProductDetailPage() {
                     className="mt-1"
                     onClick={() => {
                       add(product.sku);
-                      toast.success(`${product.name} reserved for next shipment`);
+                      toast.success(`${product.name} — prices reserved for next order`);
                       void navigate({ to: "/preorder" });
                     }}
                   >
-                    Purchase next shipment
+                    Reserve prices · charge on next order
                     <Package className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </Button>
                 </div>
