@@ -13,11 +13,15 @@ import {
   CATEGORY_LABELS,
   FORM_LABELS,
   getProduct,
+  kitPack,
   LAUNCH,
   NEXT_SHIPMENT,
   PRESALE,
+  siblingPacks,
+  vialPack,
 } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
+import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/products/$sku")({
   component: ProductDetailPage,
@@ -25,14 +29,17 @@ export const Route = createFileRoute("/_app/products/$sku")({
 
 function ProductDetailPage() {
   const { sku } = Route.useParams();
-  const product = getProduct(sku);
+  const resolved =
+    getProduct(sku) ?? kitPack(sku) ?? vialPack(sku) ?? getProduct(sku + "V");
+  const product = resolved;
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
   const code = useDiscount((s) => s.activeDef()?.code ?? null);
 
   if (!product) throw notFound();
 
-  const batch = requireBatch(product.sku);
+  const packs = siblingPacks(product);
+  const batch = requireBatch(product.baseSku);
   const buyHref = withPromoCode(product.paymentLink, code);
 
   return (
@@ -81,8 +88,39 @@ function ProductDetailPage() {
 
           <BatchCoaPanel batch={batch} />
 
+          <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
+            <p className="mb-2 text-xs font-medium tracking-[0.12em] text-[var(--color-fg-subtle)] uppercase">
+              Choose pack size
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {packs.map((pack) => {
+                const active = pack.sku === product.sku;
+                return (
+                  <button
+                    key={pack.sku}
+                    type="button"
+                    onClick={() => void navigate({ to: "/products/$sku", params: { sku: pack.sku } })}
+                    className={
+                      active
+                        ? "rounded-[var(--radius-md)] border border-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-3 text-left"
+                        : "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-3 text-left hover:border-[var(--color-border-strong)]"
+                    }
+                  >
+                    <p className="text-sm font-medium text-[var(--color-fg)]">{pack.packLabel}</p>
+                    <p className="mt-0.5 font-mono text-sm tabular text-[var(--color-fg-muted)]">
+                      {formatUsd(pack.price)}
+                    </p>
+                    <p className="text-[11px] text-[var(--color-fg-subtle)]">{pack.strength}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-            <p className="text-sm text-[var(--color-fg-muted)]">Launch price</p>
+            <p className="text-sm text-[var(--color-fg-muted)]">
+              {product.packLabel} · launch price
+            </p>
             <PriceDisplay product={product} size="lg" className="mt-1" />
             {LAUNCH.active ? (
               <p className="mt-2 text-xs text-[var(--color-fg-muted)]">
@@ -94,7 +132,7 @@ function ProductDetailPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               <Button size="sm" className="h-9 px-4" asChild>
                 <a href={buyHref} target="_blank" rel="noreferrer">
-                  Buy now
+                  Buy {product.packLabel}
                   <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </a>
               </Button>

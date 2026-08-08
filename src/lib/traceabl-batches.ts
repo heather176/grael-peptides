@@ -208,8 +208,14 @@ export function batchForSku(sku: string): BatchRecord | undefined {
   return PRODUCT_BATCHES.find((b) => b.sku.toLowerCase() === sku.toLowerCase());
 }
 
+export function batchSku(sku: string) {
+  // Single-vial SKUs end with V (TR15V) — share kit batch
+  if (sku.endsWith("V") && sku.length > 1) return sku.slice(0, -1);
+  return sku;
+}
+
 export function requireBatch(sku: string): BatchRecord {
-  const b = batchForSku(sku);
+  const b = batchForSku(batchSku(sku));
   if (!b) {
     return {
       sku,

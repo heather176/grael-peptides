@@ -3,10 +3,10 @@ import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import {
+  catalogProducts,
   CATEGORY_LABELS,
   LAUNCH,
   NEXT_SHIPMENT,
-  products,
   type ProductCategory,
 } from "@/lib/products";
 import { cn } from "@/lib/utils";
@@ -26,9 +26,10 @@ const filters: Array<"all" | ProductCategory> = [
 
 function CatalogPage() {
   const [filter, setFilter] = useState<"all" | ProductCategory>("all");
+  const all = catalogProducts();
   const list = useMemo(
-    () => (filter === "all" ? products : products.filter((p) => p.category === filter)),
-    [filter],
+    () => (filter === "all" ? all : all.filter((p) => p.category === filter)),
+    [filter, all],
   );
 
   return (
@@ -38,7 +39,7 @@ function CatalogPage() {
           Research products
         </h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
-          {products.length} compounds
+          {all.length} compounds · 10-vial packs + single vials
           {LAUNCH.active ? ` · ${LAUNCH.discountLabel} · ${LAUNCH.suppliesLabel}` : null}
           {NEXT_SHIPMENT.active ? ` · Next shipment ~${NEXT_SHIPMENT.estimatedShipLabel}` : null}
         </p>

@@ -29,21 +29,21 @@ export type DiscountCodeDef = {
 };
 
 /**
- * WHOLESALEJASON temporarily kept at 50% off list as requested — see pricing
+ * WHOLESALEJASON temporarily kept at 25% off list as requested — see pricing
  * analysis: this loses money on Retatrutide vs wholesale cost. Recommend 20–25%.
  */
 export const DISCOUNT_CODES: DiscountCodeDef[] = [
   {
-    code: "WHOLESALEJASON",
-    label: "Wholesale Jason",
+    code: "WHOLESALEJASON25",
+    label: "Wholesale Jason (25%)",
     tier: "wholesale",
-    percentOff: 50,
-    stripePercentOff: 41, // ~50% off list when charged at launch prices
+    percentOff: 25,
+    stripePercentOff: 12, // ~25% off list when charged at launch prices
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "50% off list (not stacked with pre-sale). $100 ship · $400 min product.",
-    stripePromoId: "promo_1U2GIgDi3y8Lwmj8mC10L83l",
-    stripeCouponId: "grael_wholesale_50",
+    note: "25% off list (not stacked with pre-sale). $100 ship · $400 min product.",
+    stripePromoId: "promo_1U2GYADi3y8Lwmj8XT1VTluX",
+    stripeCouponId: "grael_ws_list25",
   },
   {
     code: "GRAELWS",
@@ -80,8 +80,10 @@ export function normalizeCode(raw: string) {
 }
 
 export function lookupDiscountCode(raw: string, now = new Date()): DiscountLookupResult {
-  const code = normalizeCode(raw);
+  let code = normalizeCode(raw);
   if (!code) return { ok: false, reason: "not_found" };
+  // Accept WHOLESALEJASON as alias of WHOLESALEJASON25
+  if (code === "WHOLESALEJASON") code = "WHOLESALEJASON25";
 
   const def = DISCOUNT_CODES.find((d) => normalizeCode(d.code) === code);
   if (!def) return { ok: false, reason: "not_found" };

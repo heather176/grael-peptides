@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { featuredProducts, products, type Product } from "@/lib/products";
+import { catalogProducts, featuredProducts, type Product } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
 import { formatUsd } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export function ShopProductsCard({
   subtitle?: string;
 }) {
   const featured = featuredProducts();
-  const rest = products.filter((p) => !featured.some((f) => f.sku === p.sku));
+  const rest = catalogProducts().filter((p) => !featured.some((f) => f.sku === p.sku));
   const list: Product[] = [...featured, ...rest].slice(0, limit);
 
   return (

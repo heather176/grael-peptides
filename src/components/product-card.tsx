@@ -8,20 +8,22 @@ import { useCart } from "@/lib/cart-store";
 import { withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import type { Product } from "@/lib/products";
-import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, vialPack } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
+import { formatUsd } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const add = useCart((s) => s.add);
   const code = useDiscount((s) => s.activeDef()?.code ?? null);
   const batch = requireBatch(product.sku);
   const buyHref = withPromoCode(product.paymentLink, code);
+  const single = vialPack(product.baseSku);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-border-strong)]">
       <Link
         to="/products/$sku"
-        params={{ sku: product.sku }}
+        params={{ sku: product.baseSku }}
         className="flex flex-1 flex-col no-underline text-inherit"
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-white">
@@ -35,11 +37,9 @@ export function ProductCard({ product }: { product: Product }) {
             <Badge className="bg-white/95 text-[10px] font-medium tracking-wide">
               {product.vialLabel}
             </Badge>
-            {LAUNCH.active ? (
-              <Badge className="border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]">
-                {LAUNCH.suppliesLabel}
-              </Badge>
-            ) : null}
+            <Badge className="border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]">
+              10-pack + single
+            </Badge>
           </div>
         </div>
 
@@ -49,10 +49,15 @@ export function ProductCard({ product }: { product: Product }) {
               <h3 className="font-display text-xl font-semibold leading-tight tracking-tight text-[var(--color-fg)]">
                 {product.name}
               </h3>
-              <p className="text-sm text-[var(--color-fg-muted)]">{product.strength}</p>
+              <p className="text-sm text-[var(--color-fg-muted)]">{product.packLabel}</p>
             </div>
             <PriceDisplay product={product} size="sm" className="shrink-0 justify-end text-right" />
           </div>
+          {single ? (
+            <p className="text-[11px] text-[var(--color-fg-subtle)]">
+              Single vial from {formatUsd(single.price)}
+            </p>
+          ) : null}
           <p className="font-mono text-xs text-[var(--color-fg-muted)]">
             Batch {batch.batchId}
             <span className="text-[var(--color-fg-subtle)]"> · </span>
@@ -64,15 +69,19 @@ export function ProductCard({ product }: { product: Product }) {
             {product.short}
           </p>
           {NEXT_SHIPMENT.active ? (
-            <p className="text-[11px] text-[var(--color-fg-subtle)]">{NEXT_SHIPMENT.shortLabel} · {NEXT_SHIPMENT.shortCharge}</p>
+            <p className="text-[11px] text-[var(--color-fg-subtle)]">
+              {NEXT_SHIPMENT.shortLabel} · {NEXT_SHIPMENT.shortCharge}
+            </p>
           ) : null}
-          <p className="text-[11px] text-[var(--color-fg-subtle)]">+ $100 US shipping / order · $400 min</p>
+          <p className="text-[11px] text-[var(--color-fg-subtle)]">
+            + $100 US shipping / order · $400 min
+          </p>
         </div>
       </Link>
       <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
         <Button size="sm" className="h-8 px-3 text-xs" asChild>
           <a href={buyHref} target="_blank" rel="noreferrer">
-            Buy now
+            Buy 10-pack
             <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
           </a>
         </Button>
@@ -82,27 +91,23 @@ export function ProductCard({ product }: { product: Product }) {
           className="h-8 px-3 text-xs"
           onClick={() => {
             add(product.sku);
-            toast.success(`${product.name} added`);
+            toast.success(`${product.name} 10-pack added`);
           }}
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
           Cart
         </Button>
-        {NEXT_SHIPMENT.active ? (
+        {single ? (
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 px-2 text-xs text-[var(--color-primary)]"
-            asChild
+            className="h-8 px-2 text-xs"
+            onClick={() => {
+              add(single.sku);
+              toast.success(`${product.name} single vial added`);
+            }}
           >
-            <Link
-              to="/preorder"
-              onClick={() => {
-                add(product.sku);
-              }}
-            >
-              Next shipment
-            </Link>
+            + Single
           </Button>
         ) : null}
         <a
