@@ -1,5 +1,6 @@
 /**
  * Client-side PDF for Lab wholesale partner sheet.
+ * Two charts: 10-pack + single vial. Client name + sheet date.
  */
 import { jsPDF } from "jspdf";
 import {
@@ -10,6 +11,64 @@ import {
   type PamphletOptions,
   type PamphletRow,
 } from "@/lib/mail-order";
+
+function drawTable(
+  doc: jsPDF,
+  y: number,
+  headers: string[],
+  rows: string[][],
+  colW: number[],
+  margin: number,
+  pageW: number,
+  pageH: number,
+  footerDate: string,
+  title: string,
+): number {
+  const ensureSpace = (need: number) => {
+    if (y + need > pageH - 48) {
+      doc.addPage();
+      y = margin;
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      doc.text(`${title} · continued · ${footerDate}`, margin, y);
+      y += 16;
+    }
+  };
+
+  ensureSpace(40);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  let x = margin;
+  headers.forEach((h, i) => {
+    const right = i > 0;
+    doc.text(h, right ? x + colW[i]! : x, y, { align: right ? "right" : "left" });
+    x += colW[i]!;
+  });
+  y += 6;
+  doc.setDrawColor(180);
+  doc.line(margin, y, pageW - margin, y);
+  y += 12;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(30);
+
+  for (const cells of rows) {
+    ensureSpace(16);
+    x = margin;
+    cells.forEach((text, i) => {
+      const right = i > 0;
+      doc.text(String(text), right ? x + colW[i]! : x, y, {
+        align: right ? "right" : "left",
+        maxWidth: colW[i]! - 4,
+      });
+      x += colW[i]!;
+    });
+    y += 13;
+  }
+  return y;
+}
 
 export function downloadWholesalePdf(
   rows: PamphletRow[],
@@ -24,6 +83,7 @@ export function downloadWholesalePdf(
 
   const dateLabel = formatSheetDate(opts.sheetDate);
   const offPct = Math.round(opts.listOff * 100);
+  const client = opts.clientName.trim();
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
@@ -34,115 +94,125 @@ export function downloadWholesalePdf(
   doc.setTextColor(80);
   doc.text(opts.tagline, margin, y);
   y += 14;
+
+  if (client) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(20);
+    doc.text(`Prepared for: ${client}`, margin, y);
+    y += 14;
+  }
+
   doc.setFont("helvetica", "bold");
   doc.setTextColor(30);
+  doc.setFontSize(10);
   doc.text(`Sheet date: ${dateLabel}`, margin, y);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(90);
   doc.text(SITE_HOST, pageW - margin, y, { align: "right" });
   y += 12;
   doc.text(opts.contactEmail, pageW - margin, y, { align: "right" });
-  y += 18;
+  y += 16;
 
   doc.setDrawColor(200);
   doc.line(margin, y, pageW - margin, y);
-  y += 16;
+  y += 14;
 
   doc.setFontSize(9);
   doc.setTextColor(60);
   doc.text(
-    `Partner wholesale: ${offPct}% off list · rounded to nearest $${opts.roundMode === "ten" ? "10" : "1"}`,
+    `Partner wholesale: ${offPct}% off list (defaults) · round nearest $${opts.roundMode === "ten" ? "10" : "1"} · prices may be custom for this client`,
     margin,
     y,
+    { maxWidth: pageW - margin * 2 },
   );
   y += 12;
   doc.text(opts.nextShipNote, margin, y);
   y += 12;
-  doc.text(`US shipping · product minimum applies · ${SITE_URL}`, margin, y);
-  y += 18;
+  doc.text(`${SITE_URL} · ${opts.contactEmail}`, margin, y);
+  y += 20;
 
-  // Table header
-  const cols = opts.includeSingles
-    ? [
-        { k: "name", w: 120, label: "Compound" },
-        { k: "size", w: 90, label: "Size" },
-        { k: "wh", w: 70, label: "10-pack WS", align: "right" as const },
-        { k: "sr", w: 70, label: "10-pack RR", align: "right" as const },
-        { k: "swh", w: 60, label: "1v WS", align: "right" as const },
-        { k: "ssr", w: 60, label: "1v RR", align: "right" as const },
-      ]
-    : [
-        { k: "name", w: 150, label: "Compound" },
-        { k: "size", w: 110, label: "Size" },
-        { k: "wh", w: 80, label: "Your wholesale", align: "right" as const },
-        { k: "sr", w: 90, label: "Recommended retail", align: "right" as const },
-        ...(opts.showMargin
-          ? [{ k: "mg", w: 70, label: "Margin", align: "right" as const }]
-          : []),
-      ];
-
+  // —— 10-pack chart ——
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20);
+  doc.text("10-vial pack pricing", margin, y);
+  y += 6;
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(100);
-  let x = margin;
-  for (const c of cols) {
-    doc.text(c.label, c.align === "right" ? x + c.w : x, y, {
-      align: c.align === "right" ? "right" : "left",
-    });
-    x += c.w;
+  y += 10;
+  doc.text(
+    "Your wholesale = what the partner pays · Recommended retail = public catalog price",
+    margin,
+    y,
+  );
+  y += 14;
+
+  const packHeaders = opts.showMargin
+    ? ["Compound", "Size", "Wholesale", "Rec. retail", "Margin"]
+    : ["Compound", "Size", "Wholesale", "Rec. retail"];
+  const packColW = opts.showMargin ? [140, 110, 80, 90, 70] : [150, 130, 100, 100];
+  const packRows = rows.map((r) => {
+    const base = [
+      r.name,
+      r.strength,
+      formatMoney(r.wholesale, opts.roundMode),
+      formatMoney(r.suggestedRetail, opts.roundMode),
+    ];
+    if (opts.showMargin) base.push(formatMoney(r.margin, opts.roundMode));
+    return base;
+  });
+  y = drawTable(doc, y, packHeaders, packRows, packColW, margin, pageW, pageH, dateLabel, opts.title);
+
+  y += 22;
+
+  // —— Single vial chart ——
+  if (y > pageH - 120) {
+    doc.addPage();
+    y = margin;
   }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20);
+  doc.text("Single vial pricing", margin, y);
   y += 6;
-  doc.setDrawColor(180);
-  doc.line(margin, y, pageW - margin, y);
-  y += 12;
-
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(30);
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  y += 10;
+  doc.text("Easy reference for partners who sell singles when stock allows.", margin, y);
+  y += 14;
 
-  for (const r of rows) {
-    if (y > pageH - 72) {
-      doc.addPage();
-      y = margin;
-      doc.setFontSize(8);
-      doc.setTextColor(100);
-      doc.text(`${opts.title} · continued · ${dateLabel}`, margin, y);
-      y += 18;
-      doc.setFontSize(9);
-      doc.setTextColor(30);
-    }
+  const singleHeaders = opts.showMargin
+    ? ["Compound", "Size", "Wholesale", "Rec. retail", "Margin"]
+    : ["Compound", "Size", "Wholesale", "Rec. retail"];
+  const singleColW = opts.showMargin ? [140, 110, 80, 90, 70] : [150, 130, 100, 100];
+  const singleRows = rows.map((r) => {
+    const base = [
+      r.name,
+      r.singleStrength,
+      formatMoney(r.singleWholesale, opts.roundMode),
+      formatMoney(r.singleRetail, opts.roundMode),
+    ];
+    if (opts.showMargin) base.push(formatMoney(r.singleMargin, opts.roundMode));
+    return base;
+  });
+  y = drawTable(
+    doc,
+    y,
+    singleHeaders,
+    singleRows,
+    singleColW,
+    margin,
+    pageW,
+    pageH,
+    dateLabel,
+    opts.title,
+  );
 
-    const cells = opts.includeSingles
-      ? [
-          r.name,
-          r.strength,
-          formatMoney(r.wholesale, opts.roundMode),
-          formatMoney(r.suggestedRetail, opts.roundMode),
-          formatMoney(r.singleWholesale ?? 0, opts.roundMode),
-          formatMoney(r.singleRetail ?? 0, opts.roundMode),
-        ]
-      : [
-          r.name,
-          r.strength,
-          formatMoney(r.wholesale, opts.roundMode),
-          formatMoney(r.suggestedRetail, opts.roundMode),
-          ...(opts.showMargin ? [formatMoney(r.margin, opts.roundMode)] : []),
-        ];
-
-    x = margin;
-    cells.forEach((text, i) => {
-      const c = cols[i]!;
-      doc.text(String(text), c.align === "right" ? x + c.w : x, y, {
-        align: c.align === "right" ? "right" : "left",
-        maxWidth: c.w - 4,
-      });
-      x += c.w;
-    });
-    y += 14;
-  }
-
-  y += 16;
-  if (y > pageH - 90) {
+  y += 18;
+  if (y > pageH - 80) {
     doc.addPage();
     y = margin;
   }
@@ -156,7 +226,7 @@ export function downloadWholesalePdf(
       y,
       { maxWidth: pageW - margin * 2 },
     );
-    y += 14;
+    y += 12;
   }
   doc.text("Partner code: by text only — never printed on this sheet.", margin, y);
   y += 12;
@@ -168,20 +238,20 @@ export function downloadWholesalePdf(
       y,
       { maxWidth: pageW - margin * 2 },
     );
-    y += 12;
   }
 
   doc.setFontSize(8);
   doc.setTextColor(120);
-  doc.text(
-    `Generated ${dateLabel} · ${opts.contactEmail} · ${SITE_HOST}`,
-    pageW / 2,
-    pageH - 28,
-    { align: "center" },
-  );
+  const foot = client
+    ? `Prepared for ${client} · ${dateLabel} · ${opts.contactEmail}`
+    : `Generated ${dateLabel} · ${opts.contactEmail} · ${SITE_HOST}`;
+  doc.text(foot, pageW / 2, pageH - 28, { align: "center" });
 
   const safeDate = opts.sheetDate.replace(/-/g, "");
-  const name = filename ?? `grael-wholesale-${safeDate}.pdf`;
+  const safeClient = client
+    ? `-${client.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 32)}`
+    : "";
+  const name = filename ?? `grael-wholesale${safeClient}-${safeDate}.pdf`;
   doc.save(name);
   return name;
 }

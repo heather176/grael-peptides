@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Printer, RotateCcw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import {
   SITE_HOST,
   SITE_URL,
   type PamphletOptions,
+  type PriceOverride,
 } from "@/lib/mail-order";
 import { downloadWholesalePdf } from "@/lib/wholesale-pdf";
 import { cn } from "@/lib/utils";
@@ -23,12 +24,65 @@ export const Route = createFileRoute("/_app/lab/wholesale")({
   component: LabWholesalePage,
 });
 
+const STORAGE_KEY = "grael-lab-wholesale-studio-v1";
+
+function loadStored(): PamphletOptions | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return { ...DEFAULT_PAMPHLET_OPTIONS, ...JSON.parse(raw) } as PamphletOptions;
+  } catch {
+    return null;
+  }
+}
+
 function LabWholesalePage() {
   const [opts, setOpts] = useState<PamphletOptions>({ ...DEFAULT_PAMPHLET_OPTIONS });
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const stored = loadStored();
+    if (stored) setOpts(stored);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(opts));
+    } catch {
+      /* ignore quota */
+    }
+  }, [opts, hydrated]);
+
   const rows = useMemo(() => pamphletRows(opts), [opts]);
+  const offPct = Math.round(opts.listOff * 100);
 
   function patch(p: Partial<PamphletOptions>) {
     setOpts((o) => ({ ...o, ...p }));
+  }
+
+  function setOverride(baseSku: string, field: keyof PriceOverride, value: string) {
+    setOpts((o) => {
+      const next = { ...o.overrides };
+      const row = { ...(next[baseSku] ?? {}) };
+      if (value.trim() === "") {
+        delete row[field];
+      } else {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return o;
+        row[field] = Math.round(n);
+      }
+      if (Object.keys(row).length === 0) delete next[baseSku];
+      else next[baseSku] = row;
+      return { ...o, overrides: next };
+    });
+  }
+
+  function clearOverrides() {
+    patch({ overrides: {} });
+    toast.message("Manual prices cleared — back to calculated defaults");
   }
 
   function onPdf() {
@@ -40,23 +94,28 @@ function LabWholesalePage() {
     }
   }
 
-  const offPct = Math.round(opts.listOff * 100);
+  function resetAll() {
+    setOpts({ ...DEFAULT_PAMPHLET_OPTIONS, sheetDate: new Date().toISOString().slice(0, 10) });
+    toast.message("Studio reset");
+  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 print:max-w-none print:px-0 print:py-0">
-      {/* Controls — screen only */}
+      {/* —— Studio controls —— */}
       <div className="mb-6 space-y-4 print:hidden">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-medium tracking-[0.14em] text-[var(--color-primary)] uppercase">
-              Lab
+            <p className="text-[10px] font-medium tracking-[0.18em] text-[var(--color-fg-subtle)] uppercase">
+              Lab · Pricing studio
             </p>
             <h1 className="font-display text-2xl font-semibold tracking-tight">
-              Wholesale partner sheet
+              Wholesale pricing studio
             </h1>
             <p className="mt-1 max-w-xl text-sm text-[var(--color-fg-muted)]">
-              Adjust options, preview the sheet, then download a PDF with the sheet date on it.
-              Partner codes stay off the print — text them separately.
+              Set client name, tweak any price by hand, then download a dated PDF with both{" "}
+              <strong className="font-medium text-[var(--color-fg)]">10-pack</strong> and{" "}
+              <strong className="font-medium text-[var(--color-fg)]">single vial</strong> charts.
+              Saves in this browser until you reset.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -68,21 +127,28 @@ function LabWholesalePage() {
               <Printer className="h-4 w-4" strokeWidth={1.5} />
               Print
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setOpts({ ...DEFAULT_PAMPHLET_OPTIONS })}
-              className="gap-2"
-            >
+            <Button size="sm" variant="ghost" onClick={clearOverrides}>
+              Clear manual prices
+            </Button>
+            <Button size="sm" variant="ghost" onClick={resetAll} className="gap-2">
               <RotateCcw className="h-4 w-4" strokeWidth={1.5} />
-              Reset
+              Reset studio
             </Button>
           </div>
         </div>
 
         <div className="grid gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+            <Label htmlFor="clientName">Client / partner name (on sheet & PDF)</Label>
+            <Input
+              id="clientName"
+              placeholder="e.g. Jason · Summit Research"
+              value={opts.clientName}
+              onChange={(e) => patch({ clientName: e.target.value })}
+            />
+          </div>
           <div className="space-y-2">
-            <Label htmlFor="sheetDate">Sheet date (on PDF)</Label>
+            <Label htmlFor="sheetDate">Sheet date</Label>
             <Input
               id="sheetDate"
               type="date"
@@ -91,7 +157,7 @@ function LabWholesalePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="listOff">Wholesale % off list ({offPct}%)</Label>
+            <Label htmlFor="listOff">Default wholesale % off list ({offPct}%)</Label>
             <Input
               id="listOff"
               type="number"
@@ -105,7 +171,7 @@ function LabWholesalePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="roundMode">Price rounding</Label>
+            <Label htmlFor="roundMode">Default rounding</Label>
             <select
               id="roundMode"
               value={opts.roundMode}
@@ -117,22 +183,6 @@ function LabWholesalePage() {
               <option value="ten">Nearest $10</option>
               <option value="dollar">Nearest $1</option>
             </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="title">Sheet title</Label>
-            <Input
-              id="title"
-              value={opts.title}
-              onChange={(e) => patch({ title: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tagline">Tagline</Label>
-            <Input
-              id="tagline"
-              value={opts.tagline}
-              onChange={(e) => patch({ tagline: e.target.value })}
-            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="contactEmail">Contact email</Label>
@@ -151,16 +201,11 @@ function LabWholesalePage() {
               onChange={(e) => patch({ nextShipNote: e.target.value })}
             />
           </div>
-          <div className="flex flex-col justify-end gap-2 sm:col-span-2 lg:col-span-1">
-            <Toggle
-              checked={opts.includeSingles}
-              onChange={(v) => patch({ includeSingles: v })}
-              label="Include 1-vial columns"
-            />
+          <div className="flex flex-col justify-end gap-2">
             <Toggle
               checked={opts.showMargin}
               onChange={(v) => patch({ showMargin: v })}
-              label="Show margin column"
+              label="Show margin columns"
             />
             <Toggle
               checked={opts.showTestingNote}
@@ -174,11 +219,70 @@ function LabWholesalePage() {
             />
           </div>
         </div>
+
+        {/* Manual price editor */}
+        <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="border-b border-[var(--color-border)] px-4 py-3">
+            <p className="text-sm font-medium text-[var(--color-fg)]">Manual prices for this client</p>
+            <p className="text-xs text-[var(--color-fg-subtle)]">
+              Leave blank to use the default calculation. Edited cells override for the preview and
+              PDF only (does not change the public shop).
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-[var(--color-border)] text-[10px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
+                  <th className="px-3 py-2 font-medium">Compound</th>
+                  <th className="px-2 py-2 text-right font-medium">10-pack WS</th>
+                  <th className="px-2 py-2 text-right font-medium">10-pack retail</th>
+                  <th className="px-2 py-2 text-right font-medium">1 vial WS</th>
+                  <th className="px-2 py-2 text-right font-medium">1 vial retail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const ov = opts.overrides[r.baseSku] ?? {};
+                  return (
+                    <tr key={r.baseSku} className="border-b border-[var(--color-border)]">
+                      <td className="px-3 py-2 font-medium text-[var(--color-fg)]">
+                        {r.name}
+                        <span className="mt-0.5 block font-mono text-[10px] font-normal text-[var(--color-fg-subtle)]">
+                          {r.vialLabel}
+                        </span>
+                      </td>
+                      <PriceCell
+                        value={ov.kitWholesale}
+                        placeholder={String(r.wholesale)}
+                        onChange={(v) => setOverride(r.baseSku, "kitWholesale", v)}
+                      />
+                      <PriceCell
+                        value={ov.kitRetail}
+                        placeholder={String(r.suggestedRetail)}
+                        onChange={(v) => setOverride(r.baseSku, "kitRetail", v)}
+                      />
+                      <PriceCell
+                        value={ov.singleWholesale}
+                        placeholder={String(r.singleWholesale)}
+                        onChange={(v) => setOverride(r.baseSku, "singleWholesale", v)}
+                      />
+                      <PriceCell
+                        value={ov.singleRetail}
+                        placeholder={String(r.singleRetail)}
+                        onChange={(v) => setOverride(r.baseSku, "singleRetail", v)}
+                      />
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      {/* Preview / print surface */}
+      {/* —— Printable preview —— */}
       <article className="pamphlet space-y-0 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] print:rounded-none print:border-0 print:shadow-none">
-        <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
+        <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:p-6">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--color-border)] pb-5">
             <div>
               <p className="font-display text-4xl font-semibold tracking-tight text-[var(--color-fg)]">
@@ -187,126 +291,77 @@ function LabWholesalePage() {
               <p className="mt-1 text-sm tracking-[0.16em] text-[var(--color-primary)] uppercase">
                 {opts.tagline}
               </p>
-              <p className="mt-3 text-sm font-medium text-[var(--color-fg)]">
+              {opts.clientName.trim() ? (
+                <p className="mt-3 text-base font-medium text-[var(--color-fg)]">
+                  Prepared for · {opts.clientName.trim()}
+                </p>
+              ) : null}
+              <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
                 Sheet date · {formatSheetDate(opts.sheetDate)}
               </p>
             </div>
             <div className="text-right">
               <p className="font-mono text-sm font-medium text-[var(--color-fg)]">{SITE_HOST}</p>
-              <p className="text-xs text-[var(--color-fg-subtle)]">{SITE_URL}</p>
               <p className="mt-1 font-mono text-xs font-medium text-[var(--color-primary)]">
                 {opts.contactEmail}
               </p>
             </div>
           </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-4 py-3">
-              <p className="text-sm font-medium text-[var(--color-fg)]">Invoice contact</p>
-              <p className="mt-1 font-mono text-sm text-[var(--color-primary)]">
-                {opts.contactEmail}
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
-              <p className="text-sm font-medium text-[var(--color-fg)]">Terms</p>
-              <ul className="mt-2 space-y-1 text-xs text-[var(--color-fg-muted)]">
-                <li>
-                  Partner: {offPct}% off list · round nearest $
-                  {opts.roundMode === "ten" ? "10" : "1"}
-                </li>
-                <li>{MAIL_ORDER.shippingNote}</li>
-                <li>{opts.nextShipNote}</li>
-                <li>10-pack + singles when available · produced when you buy</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-3">
-            <p className="text-sm text-[var(--color-fg-muted)]">{MAIL_ORDER.partnerCodeNote}</p>
-            {opts.showTestingNote ? (
-              <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
-            ) : null}
-            {opts.showRuo ? (
-              <p className="mt-1 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.ruo}</p>
-            ) : null}
-          </div>
+          <p className="mt-4 text-sm text-[var(--color-fg-muted)]">
+            Default partner: {offPct}% off list ·{" "}
+            <span className="font-medium text-[var(--color-fg)]">Recommended retail</span> = public
+            catalog price. {opts.nextShipNote}
+          </p>
+          {opts.showTestingNote ? (
+            <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
+          ) : null}
         </section>
 
-        <section className="p-6 sm:p-8 print:p-6">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 className="font-display text-2xl font-semibold tracking-tight">
-                {MAIL_ORDER.partnerLabel}
-              </h2>
-              <p className="text-sm text-[var(--color-fg-muted)]">
-                {offPct}% off list · dated {formatSheetDate(opts.sheetDate)} · recommended retail =
-                public catalog price
-              </p>
-            </div>
-            <p className="text-xs text-[var(--color-fg-subtle)]">
-              {opts.contactEmail} · {SITE_HOST}
-            </p>
-          </div>
+        {/* 10-pack chart */}
+        <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            10-vial pack pricing
+          </h2>
+          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
+            Your wholesale = what you pay us. Recommended retail = what customers pay online.
+          </p>
+          <PriceTable
+            rows={rows.map((r) => ({
+              key: r.baseSku,
+              name: r.name,
+              size: r.strength,
+              wholesale: r.wholesale,
+              retail: r.suggestedRetail,
+              margin: r.margin,
+            }))}
+            showMargin={opts.showMargin}
+            roundMode={opts.roundMode}
+          />
+        </section>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-[var(--color-border-strong)] text-[11px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
-                  <th className="py-2 pr-2 font-medium">Compound</th>
-                  <th className="py-2 pr-2 font-medium">Size</th>
-                  <th className="py-2 pr-2 text-right font-medium text-[var(--color-primary)]">
-                    {opts.includeSingles ? "10-pack WS" : "Your wholesale"}
-                  </th>
-                  <th className="py-2 pr-2 text-right font-medium">
-                    {opts.includeSingles ? "10-pack retail" : "Recommended retail"}
-                  </th>
-                  {opts.includeSingles ? (
-                    <>
-                      <th className="py-2 pr-2 text-right font-medium">1 vial WS</th>
-                      <th className="py-2 text-right font-medium">1 vial retail</th>
-                    </>
-                  ) : opts.showMargin ? (
-                    <th className="py-2 text-right font-medium">Your margin</th>
-                  ) : null}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr
-                    key={r.baseSku}
-                    className="border-b border-[var(--color-border)] text-[var(--color-fg)]"
-                  >
-                    <td className="py-2.5 pr-2 font-medium">{r.name}</td>
-                    <td className="py-2.5 pr-2 font-mono text-xs text-[var(--color-fg-muted)]">
-                      {r.strength}
-                    </td>
-                    <td className="py-2.5 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
-                      {formatMoney(r.wholesale, opts.roundMode)}
-                    </td>
-                    <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
-                      {formatMoney(r.suggestedRetail, opts.roundMode)}
-                    </td>
-                    {opts.includeSingles ? (
-                      <>
-                        <td className="py-2.5 pr-2 text-right tabular text-[var(--color-primary)]">
-                          {formatMoney(r.singleWholesale ?? 0, opts.roundMode)}
-                        </td>
-                        <td className="py-2.5 text-right tabular text-[var(--color-fg-muted)]">
-                          {formatMoney(r.singleRetail ?? 0, opts.roundMode)}
-                        </td>
-                      </>
-                    ) : opts.showMargin ? (
-                      <td className="py-2.5 text-right tabular text-[var(--color-fg-muted)]">
-                        {formatMoney(r.margin, opts.roundMode)}
-                      </td>
-                    ) : null}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Single vial chart */}
+        <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            Single vial pricing
+          </h2>
+          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
+            Easy reference for one-vial orders when singles are available.
+          </p>
+          <PriceTable
+            rows={rows.map((r) => ({
+              key: `${r.baseSku}-v`,
+              name: r.name,
+              size: r.singleStrength,
+              wholesale: r.singleWholesale,
+              retail: r.singleRetail,
+              margin: r.singleMargin,
+            }))}
+            showMargin={opts.showMargin}
+            roundMode={opts.roundMode}
+            compact
+          />
 
-          <div className="mt-6 grid gap-4 border-t border-[var(--color-border)] pt-5 text-xs text-[var(--color-fg-subtle)] sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-5 text-xs text-[var(--color-fg-subtle)] sm:grid-cols-3">
             <p>
               <span className="font-medium text-[var(--color-fg-muted)]">Order online</span>
               <br />
@@ -318,20 +373,13 @@ function LabWholesalePage() {
               {opts.contactEmail}
             </p>
             <p>
-              <span className="font-medium text-[var(--color-fg-muted)]">Sheet date</span>
+              <span className="font-medium text-[var(--color-fg-muted)]">Partner code</span>
               <br />
-              {formatSheetDate(opts.sheetDate)}
+              By text only · never on this sheet
             </p>
           </div>
-
-          <p className="mt-6 text-center font-display text-lg tracking-wide text-[var(--color-fg)]">
-            {SITE_HOST}
-          </p>
-          <p className="text-center font-mono text-sm text-[var(--color-primary)]">
-            {opts.contactEmail}
-          </p>
           {opts.showRuo ? (
-            <p className="mt-1 text-center text-[11px] text-[var(--color-fg-subtle)]">
+            <p className="mt-4 text-center text-[11px] text-[var(--color-fg-subtle)]">
               {MAIL_ORDER.ruo}
             </p>
           ) : null}
@@ -339,9 +387,104 @@ function LabWholesalePage() {
       </article>
 
       <p className="mt-4 text-center text-xs text-[var(--color-fg-subtle)] print:hidden">
-        PDF filename includes the sheet date. Default inbox: {CONTACT.email}.
+        PDF includes both charts + client name + date. Default inbox: {CONTACT.email}.
       </p>
     </main>
+  );
+}
+
+function PriceTable({
+  rows,
+  showMargin,
+  roundMode,
+  compact,
+}: {
+  rows: Array<{
+    key: string;
+    name: string;
+    size: string;
+    wholesale: number;
+    retail: number;
+    margin: number;
+  }>;
+  showMargin: boolean;
+  roundMode: "ten" | "dollar";
+  compact?: boolean;
+}) {
+  return (
+    <div className="mt-4 overflow-x-auto">
+      <table className="w-full min-w-[480px] border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-[var(--color-border-strong)] text-[11px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
+            <th className="py-2 pr-2 font-medium">Compound</th>
+            <th className="py-2 pr-2 font-medium">Size</th>
+            <th className="py-2 pr-2 text-right font-medium text-[var(--color-primary)]">
+              Your wholesale
+            </th>
+            <th className="py-2 pr-2 text-right font-medium">Recommended retail</th>
+            {showMargin ? (
+              <th className="py-2 text-right font-medium">Your margin</th>
+            ) : null}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr
+              key={r.key}
+              className={cn(
+                "border-b border-[var(--color-border)] text-[var(--color-fg)]",
+                compact && "text-[13px]",
+              )}
+            >
+              <td className="py-2.5 pr-2 font-medium">{r.name}</td>
+              <td className="py-2.5 pr-2 font-mono text-xs text-[var(--color-fg-muted)]">
+                {r.size}
+              </td>
+              <td className="py-2.5 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
+                {formatMoney(r.wholesale, roundMode)}
+              </td>
+              <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
+                {formatMoney(r.retail, roundMode)}
+              </td>
+              {showMargin ? (
+                <td className="py-2.5 text-right tabular text-[var(--color-fg-muted)]">
+                  {formatMoney(r.margin, roundMode)}
+                </td>
+              ) : null}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PriceCell({
+  value,
+  placeholder,
+  onChange,
+}: {
+  value?: number;
+  placeholder: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <td className="px-2 py-1.5">
+      <input
+        type="number"
+        step={1}
+        min={0}
+        className={cn(
+          "h-9 w-full rounded-[var(--radius-sm)] border bg-[var(--color-bg)] px-2 text-right font-mono text-sm tabular outline-none focus:border-[var(--color-primary)]",
+          value !== undefined
+            ? "border-[var(--color-primary)]/50 text-[var(--color-fg)]"
+            : "border-[var(--color-border)] text-[var(--color-fg-muted)]",
+        )}
+        placeholder={placeholder}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </td>
   );
 }
 

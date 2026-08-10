@@ -10,12 +10,10 @@ export const SITE_HOST = "graelpeptides.com";
 
 /** Invoice / cash wholesale — printed on pamphlet & site */
 export const CONTACT = {
-  /** Primary for wholesale invoices & cash settlement */
   email: "wholesale@graelpeptides.com",
   emailMailto:
     "mailto:wholesale@graelpeptides.com?subject=Wholesale%20invoice%20request%20%E2%80%94%20Grael",
   label: "Wholesale & invoices",
-  /** How cash wholesale works */
   cashInvoice: {
     title: "Wholesale cash / invoice",
     steps: [
@@ -58,15 +56,20 @@ export const PARTNER_LIST_OFF = 0.4;
 
 export type PamphletRoundMode = "ten" | "dollar";
 
+/** Manual overrides per base SKU (blank = use calculated) */
+export type PriceOverride = {
+  kitWholesale?: number;
+  kitRetail?: number;
+  singleWholesale?: number;
+  singleRetail?: number;
+};
+
 export type PamphletOptions = {
-  /** Fraction off list (0.4 = 40%) */
   listOff: number;
   roundMode: PamphletRoundMode;
-  /** Show 1-vial wholesale + retail columns */
+  /** Always true for studio charts; kept for API */
   includeSingles: boolean;
-  /** Effective / sheet date ISO yyyy-mm-dd */
   sheetDate: string;
-  /** Contact line override */
   contactEmail: string;
   nextShipNote: string;
   showRuo: boolean;
@@ -74,12 +77,16 @@ export type PamphletOptions = {
   showMargin: boolean;
   title: string;
   tagline: string;
+  /** Prepared for / prepared for partner */
+  clientName: string;
+  /** Manual price overrides keyed by baseSku */
+  overrides: Record<string, PriceOverride>;
 };
 
 export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   listOff: PARTNER_LIST_OFF,
   roundMode: "ten",
-  includeSingles: false,
+  includeSingles: true,
   sheetDate: new Date().toISOString().slice(0, 10),
   contactEmail: CONTACT.email,
   nextShipNote: MAIL_ORDER.nextShip,
@@ -88,18 +95,25 @@ export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   showMargin: true,
   title: MAIL_ORDER.title,
   tagline: MAIL_ORDER.tagline,
+  clientName: "",
+  overrides: {},
 };
 
 export type PamphletRow = {
   baseSku: string;
   name: string;
   strength: string;
+  vialLabel: string;
+  /** 10-pack */
   suggestedRetail: number;
   listPrice: number;
   wholesale: number;
   margin: number;
-  singleWholesale?: number;
-  singleRetail?: number;
+  /** 1 vial */
+  singleWholesale: number;
+  singleRetail: number;
+  singleMargin: number;
+  singleStrength: string;
 };
 
 export function roundMoney(n: number, mode: PamphletRoundMode = "ten") {
@@ -107,42 +121,58 @@ export function roundMoney(n: number, mode: PamphletRoundMode = "ten") {
   return Math.round(n / 10) * 10;
 }
 
-/** @deprecated use roundMoney(..., "ten") */
 export function roundToTen(n: number) {
   return roundMoney(n, "ten");
 }
 
-/** Wholesale = % off list, rounded */
-export function partnerPrice(listPrice: number, listOff = PARTNER_LIST_OFF, mode: PamphletRoundMode = "ten") {
+export function partnerPrice(
+  listPrice: number,
+  listOff = PARTNER_LIST_OFF,
+  mode: PamphletRoundMode = "ten",
+) {
   return roundMoney(listPrice * (1 - listOff), mode);
 }
 
+function pick(override: number | undefined, calculated: number) {
+  if (override === undefined || Number.isNaN(override)) return calculated;
+  return override;
+}
+
 export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[] {
-  const o = { ...DEFAULT_PAMPHLET_OPTIONS, ...opts };
+  const o = { ...DEFAULT_PAMPHLET_OPTIONS, ...opts, overrides: opts.overrides ?? DEFAULT_PAMPHLET_OPTIONS.overrides };
   return catalogProducts().map((kit) => {
-    const wholesale = partnerPrice(kit.listPrice, o.listOff, o.roundMode);
-    const suggestedRetail = roundMoney(kit.price, o.roundMode);
+    const ov = o.overrides[kit.baseSku] ?? {};
+    const wholesaleCalc = partnerPrice(kit.listPrice, o.listOff, o.roundMode);
+    const retailCalc = roundMoney(kit.price, o.roundMode);
     const listPrice = roundMoney(kit.listPrice, o.roundMode);
+    const wholesale = pick(ov.kitWholesale, wholesaleCalc);
+    const suggestedRetail = pick(ov.kitRetail, retailCalc);
+
     const single = vialPack(kit.baseSku);
-    const row: PamphletRow = {
+    const singleList = single ? single.listPrice : kit.listPrice / 10;
+    const singlePrice = single ? single.price : kit.price / 10;
+    const singleWholesaleCalc = partnerPrice(singleList, o.listOff, o.roundMode);
+    const singleRetailCalc = roundMoney(singlePrice, o.roundMode);
+    const singleWholesale = pick(ov.singleWholesale, singleWholesaleCalc);
+    const singleRetail = pick(ov.singleRetail, singleRetailCalc);
+
+    return {
       baseSku: kit.baseSku,
       name: kit.name,
       strength: `10-vial × ${kit.vialLabel}`,
+      vialLabel: kit.vialLabel,
       suggestedRetail,
       listPrice,
       wholesale,
       margin: roundMoney(suggestedRetail - wholesale, o.roundMode),
+      singleWholesale,
+      singleRetail,
+      singleMargin: roundMoney(singleRetail - singleWholesale, o.roundMode),
+      singleStrength: `1 vial × ${kit.vialLabel}`,
     };
-    if (o.includeSingles && single) {
-      row.singleWholesale = partnerPrice(single.listPrice, o.listOff, o.roundMode);
-      row.singleRetail = roundMoney(single.price, o.roundMode);
-      row.strength = `10-pack × ${kit.vialLabel} · 1 vial`;
-    }
-    return row;
   });
 }
 
-/** @deprecated */
 export function pamphletRowsLegacy() {
   return catalogProducts().map((kit) => {
     const vial = products.find((p) => p.baseSku === kit.baseSku && p.pack === "vial");
@@ -160,7 +190,6 @@ export function pamphletRowsLegacy() {
   });
 }
 
-/** Whole-dollar currency for the wholesale sheet. */
 export function formatMoney(n: number, mode: PamphletRoundMode = "ten") {
   return roundMoney(n, mode).toLocaleString("en-US", {
     style: "currency",
