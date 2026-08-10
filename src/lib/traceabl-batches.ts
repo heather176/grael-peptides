@@ -6,7 +6,8 @@
 
 import { products } from "@/lib/products";
 
-export const TRACEABL_SITE = "https://traceabl.us/";
+export const TRACEABL_SITE = "https://www.traceabl.us";
+export const TRACEABL_VERIFY = "https://www.traceabl.us/verify";
 
 /** Lab turnaround after Traceabl receives the sample */
 export const TRACEABL_TURNAROUND = {
@@ -27,6 +28,13 @@ export type BatchRecord = {
   coaUrl: string;
   /** Short integrity note (no copyable secret keys) */
   integrity: string;
+  /**
+   * Traceabl Sample ID (PP-YYMMDD-XXXX). When set, Product Chip v1 embeds on PDP.
+   * Leave undefined until a real sealed COA exists for that lot.
+   */
+  sampleId?: string;
+  /** Show on-chain flag on embed when TX is published */
+  onChain?: boolean;
 };
 
 /** One active sell batch per SKU — what the customer is ordering */
@@ -40,7 +48,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-03",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-TR15-2026-072",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-TR15-2026-072",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -52,7 +60,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-03",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-SM15-2026-068",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-SM15-2026-068",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -64,20 +72,23 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-02",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-RT10-2026-055",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-RT10-2026-055",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
     sku: "BC10",
     compound: "BPC-157",
     strength: "10 mg",
-    batchId: "GRAEL-BPC-2026-081",
-    purityPercent: 99.6,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-02",
+    batchId: "GRAEL-BPC-2026-08-01",
+    purityPercent: 98.7,
+    method: "HPLC-UV · TM-HPLC-001",
+    analyzedAt: "2026-08-01",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-BPC-2026-081",
-    integrity: "Result hash registered · QR-locked to this LOT",
+    sampleId: "PP-260801-0001",
+    coaUrl: "https://www.traceabl.us/verify?id=PP-260801-0001",
+    integrity:
+      "Traceabl Sample PP-260801-0001 · Product Chip v1 · Integrity Seal v21",
+    onChain: false,
   },
   {
     sku: "BT5",
@@ -88,7 +99,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-01",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-TB5-2026-061",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-TB5-2026-061",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -100,7 +111,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC panel",
     analyzedAt: "2026-07-30",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-BB10-2026-047",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-BB10-2026-047",
     integrity: "Blend panel hash registered · QR-locked to this LOT",
   },
   {
@@ -112,7 +123,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-07-29",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-MS10-2026-039",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-MS10-2026-039",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -124,7 +135,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-04",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-NAD-2026-088",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-NAD-2026-088",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -136,7 +147,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-08-01",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-GHK-2026-044",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-GHK-2026-044",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -148,7 +159,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-07-28",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-GTT-2026-033",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-GTT-2026-033",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -160,7 +171,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "HPLC-UV",
     analyzedAt: "2026-07-27",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-ET10-2026-029",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-ET10-2026-029",
     integrity: "Result hash registered · QR-locked to this LOT",
   },
   {
@@ -172,7 +183,7 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     method: "Sterility / identity",
     analyzedAt: "2026-07-25",
     status: "Verified",
-    coaUrl: "https://traceabl.us/verify?batch=GRAEL-WA3-2026-012",
+    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-WA3-2026-012",
     integrity: "Support lot recorded · QR-locked to this LOT",
   },
 ];

@@ -64,3 +64,7 @@ Until DNS is updated, the shop is live on the Vercel production URL above.
 - **`production-site/`** — polished static catalog with all Stripe links; used for production when the full SSR build is blocked or oversized for file deploy.
 
 Optional later: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://graelpeptides.com`.
+
+## Traceabl Product Chip v1
+
+On product pages with a sealed Sample ID (see `src/lib/traceabl-batches.ts` → `sampleId`), the **Traceabl Product Chip v1** iframe loads from `www.traceabl.us`. First lot: BPC-157 · `PP-260801-0001` · 98.7% (2026-08-01).

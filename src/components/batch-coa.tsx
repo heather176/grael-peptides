@@ -1,5 +1,6 @@
 import { CheckCircle2, ExternalLink } from "lucide-react";
 import type { BatchRecord } from "@/lib/traceabl-batches";
+import { TraceablProductChip } from "@/components/traceabl-product-chip";
 import { cn } from "@/lib/utils";
 
 /** Compact batch line for product cards */
@@ -69,13 +70,27 @@ export function BatchCoaPanel({ batch }: { batch: BatchRecord }) {
         </div>
       </dl>
       <p className="mt-3 text-xs text-[var(--color-fg-subtle)]">{batch.integrity}</p>
+      {batch.sampleId ? (
+        <div className="mt-4 border-t border-[var(--color-border)] pt-4">
+          <TraceablProductChip
+            sampleId={batch.sampleId}
+            peptide={batch.compound}
+            mode="chip"
+            onChain={Boolean(batch.onChain)}
+          />
+        </div>
+      ) : (
+        <p className="mt-4 text-xs text-[var(--color-fg-subtle)]">
+          Live Traceabl seal appears here when this lot is issued (Sample ID + purity).
+        </p>
+      )}
       <a
         href={batch.coaUrl}
         target="_blank"
         rel="noreferrer"
         className="mt-4 inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-xs font-medium text-[var(--color-fg)] no-underline hover:border-[var(--color-border-strong)]"
       >
-        Open COA for this batch
+        Open COA / verify
         <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
       </a>
     </div>
