@@ -12,6 +12,7 @@ import {
   formatMoney,
   formatSheetDate,
   MAIL_ORDER,
+  PARTNER_SELL_POINTS,
   pamphletRows,
   shippingTermsLine,
   SITE_HOST,
@@ -576,6 +577,34 @@ function LabWholesalePage() {
                 </p>
               </>
             )}
+          </div>
+
+          <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-5 py-4">
+            <p className="font-display text-xl font-semibold tracking-tight text-[var(--color-fg)]">
+              {PARTNER_SELL_POINTS.title}
+            </p>
+            <p className="mt-1 text-sm text-[var(--color-fg-muted)]">{PARTNER_SELL_POINTS.subtitle}</p>
+            <ul className="mt-4 space-y-3">
+              {PARTNER_SELL_POINTS.points.map((pt) => (
+                <li key={pt.title}>
+                  <p className="font-medium text-[var(--color-fg)]">{pt.title}</p>
+                  <p className="mt-0.5 text-sm text-[var(--color-fg-muted)]">{pt.body}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 border-t border-[var(--color-border)] pt-3">
+              <p className="text-xs font-medium tracking-wide text-[var(--color-fg-subtle)] uppercase">
+                Quick talk track
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-fg-muted)]">
+                {PARTNER_SELL_POINTS.talkTrack.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs text-[var(--color-fg-subtle)]">
+                {PARTNER_SELL_POINTS.compliance}
+              </p>
+            </div>
           </div>
 
           <div className="mt-4 rounded-[var(--radius-lg)] border-2 border-[var(--color-fg)]/15 bg-white px-5 py-4">

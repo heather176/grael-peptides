@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import {
   formatMoney,
   formatSheetDate,
+  PARTNER_SELL_POINTS,
   roundStepLabel,
   shippingTermsLine,
   SITE_HOST,
@@ -198,6 +199,65 @@ export function downloadWholesalePdf(
     y += 12;
   }
   y += 6;
+
+  // —— Sell points for partner ——
+  if (y > pageH - 160) {
+    doc.addPage();
+    y = margin;
+  }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20);
+  doc.text(PARTNER_SELL_POINTS.title, margin, y);
+  y += 12;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(80);
+  doc.text(PARTNER_SELL_POINTS.subtitle, margin, y, { maxWidth: pageW - margin * 2 });
+  y += 14;
+
+  for (const pt of PARTNER_SELL_POINTS.points) {
+    if (y > pageH - 56) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(25);
+    doc.text(`• ${pt.title}`, margin, y);
+    y += 11;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(60);
+    const lines = doc.splitTextToSize(pt.body, pageW - margin * 2 - 8) as string[];
+    for (const line of lines) {
+      doc.text(line, margin + 8, y);
+      y += 10;
+    }
+    y += 4;
+  }
+
+  if (y > pageH - 70) {
+    doc.addPage();
+    y = margin;
+  }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(25);
+  doc.text("Quick talk track", margin, y);
+  y += 12;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(60);
+  for (const t of PARTNER_SELL_POINTS.talkTrack) {
+    doc.text(`– ${t}`, margin, y, { maxWidth: pageW - margin * 2 });
+    y += 11;
+  }
+  y += 8;
+  doc.setFontSize(7);
+  doc.setTextColor(100);
+  doc.text(PARTNER_SELL_POINTS.compliance, margin, y, { maxWidth: pageW - margin * 2 });
+  y += 16;
 
   // How to order
   doc.setFont("helvetica", "bold");

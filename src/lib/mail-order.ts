@@ -52,6 +52,50 @@ export const MAIL_ORDER = {
   invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
 } as const;
 
+/**
+ * Partner talking points for the wholesale sheet / PDF.
+ * RUO-safe: quality, logistics, margins — no human benefit or dosing claims.
+ */
+export const PARTNER_SELL_POINTS = {
+  title: "Why researchers and resellers choose Grael",
+  subtitle:
+    "Use these points when talking to your customers. Research use only — never make medical or dosing claims.",
+  points: [
+    {
+      title: "Produced when you buy",
+      body: "Fresh production for each order — not sitting for months in a warehouse. Reliable for labs that care about handling and turnaround.",
+    },
+    {
+      title: "Target ≥99% identity",
+      body: "Research-grade materials with a high purity target. Independent third-party testing has been ordered for all peptides and will be posted as results arrive.",
+    },
+    {
+      title: "Traceabl-ready batch trail",
+      body: "Built for transparent batch documentation. When COAs and Traceabl ledger entries go live, you can point customers to verifiable batch info — not a vague PDF alone.",
+    },
+    {
+      title: "Clean catalog, clear packs",
+      body: "Core research compounds with simple options: 1 vial or 10-vial pack. Easy to quote, restock, and explain without a confusing SKU maze.",
+    },
+    {
+      title: "Partner economics that sell",
+      body: "Wholesale You pay vs recommended retail is printed on this sheet so you can show margin at a glance. Card checkout or invoice — your choice.",
+    },
+    {
+      title: "Cold-chain when it matters",
+      body: "Peptides ship with cold-chain packaging when required so material integrity is protected in transit (US mail-order).",
+    },
+  ],
+  talkTrack: [
+    "Lead with purity target and fresh production — researchers buy confidence.",
+    "Show the recommended retail vs your cost so they see you are not inflated.",
+    "Mention testing ordered + COAs coming — transparency beats hype.",
+    "Keep language research-only: laboratory use, not personal results.",
+  ],
+  compliance:
+    "Research use only. Not for human or veterinary use. Not a drug, food, or cosmetic. Do not advertise therapeutic benefits or dosing.",
+} as const;
+
 /** 40% off list — matches WHOLESALEJASON */
 export const PARTNER_LIST_OFF = 0.4;
 
