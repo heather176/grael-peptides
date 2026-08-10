@@ -10,7 +10,8 @@ export function SiteFooter() {
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="space-y-2">
-          <p className="font-display text-xl font-semibold tracking-tight">Grael Peptides</p>
+          <p className="font-display text-2xl font-semibold tracking-tight">Grael</p>
+          <p className="text-xs tracking-[0.2em] text-[var(--color-fg-subtle)] uppercase">Peptides</p>
           <p className="max-w-xs text-sm text-[var(--color-fg-muted)]">
             Research products. Produced when you buy. {LAUNCH.suppliesLabel}. {TESTING_ORDERED}
           </p>

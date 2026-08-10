@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, Printer, RotateCcw, Save } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { GraelWordmark } from "@/components/grael-wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,7 +60,6 @@ function LabWholesalePage() {
     }
   }, [opts, hydrated]);
 
-  // Live status of code as the store would resolve it
   useEffect(() => {
     if (!hydrated) return;
     const code = opts.partnerCode.trim();
@@ -139,7 +139,6 @@ function LabWholesalePage() {
     toast.success(
       `Saved ${rec.code} · ${rec.percentOff}% off list · expires ${formatSheetDate(opts.codeExpiresAt)}`,
     );
-    // force status re-eval
     setOpts((o) => ({ ...o }));
   }
 
@@ -162,13 +161,13 @@ function LabWholesalePage() {
       <div className="mb-6 space-y-4 print:hidden">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-medium tracking-[0.18em] text-[var(--color-fg-subtle)] uppercase">
+            <p className="text-xs font-medium tracking-[0.18em] text-[var(--color-fg-subtle)] uppercase">
               Lab · Pricing studio
             </p>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">
+            <h1 className="font-display text-3xl font-semibold tracking-tight">
               Wholesale pricing studio
             </h1>
-            <p className="mt-1 max-w-xl text-sm text-[var(--color-fg-muted)]">
+            <p className="mt-1 max-w-xl text-base text-[var(--color-fg-muted)]">
               Client name, partner code + expiry, manual prices. PDF includes 10-pack and single-vial
               charts. Saving the code makes expiry work at checkout in this browser.
             </p>
@@ -196,7 +195,6 @@ function LabWholesalePage() {
           </div>
         </div>
 
-        {/* Client + code */}
         <div className="grid gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2 sm:col-span-2 lg:col-span-1">
             <Label htmlFor="clientName">Client / partner name</Label>
@@ -216,7 +214,7 @@ function LabWholesalePage() {
               value={opts.partnerCode}
               onChange={(e) => patch({ partnerCode: e.target.value.toUpperCase() })}
             />
-            <p className="text-[11px] text-[var(--color-fg-subtle)]">{codeStatus}</p>
+            <p className="text-xs text-[var(--color-fg-subtle)]">{codeStatus}</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="codeExpiresAt">Code expiry date</Label>
@@ -226,7 +224,7 @@ function LabWholesalePage() {
               value={opts.codeExpiresAt}
               onChange={(e) => patch({ codeExpiresAt: e.target.value })}
             />
-            <p className="text-[11px] text-[var(--color-fg-subtle)]">
+            <p className="text-xs text-[var(--color-fg-subtle)]">
               After this date the store rejects the code.
             </p>
           </div>
@@ -308,19 +306,18 @@ function LabWholesalePage() {
           </div>
         </div>
 
-        {/* Manual price editor */}
         <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)]">
           <div className="border-b border-[var(--color-border)] px-4 py-3">
-            <p className="text-sm font-medium text-[var(--color-fg)]">Manual prices for this client</p>
-            <p className="text-xs text-[var(--color-fg-subtle)]">
+            <p className="text-base font-medium text-[var(--color-fg)]">Manual prices for this client</p>
+            <p className="text-sm text-[var(--color-fg-subtle)]">
               Blank = default math from % off list. Edits are for this sheet only (not the public
               catalog).
             </p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-left text-base">
               <thead>
-                <tr className="border-b border-[var(--color-border)] text-[10px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
+                <tr className="border-b border-[var(--color-border)] text-xs tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
                   <th className="px-3 py-2 font-medium">Compound</th>
                   <th className="px-2 py-2 text-right font-medium">10-pack WS</th>
                   <th className="px-2 py-2 text-right font-medium">10-pack retail</th>
@@ -335,7 +332,7 @@ function LabWholesalePage() {
                     <tr key={r.baseSku} className="border-b border-[var(--color-border)]">
                       <td className="px-3 py-2 font-medium text-[var(--color-fg)]">
                         {r.name}
-                        <span className="mt-0.5 block font-mono text-[10px] font-normal text-[var(--color-fg-subtle)]">
+                        <span className="mt-0.5 block font-mono text-xs font-normal text-[var(--color-fg-subtle)]">
                           {r.vialLabel}
                         </span>
                       </td>
@@ -368,35 +365,33 @@ function LabWholesalePage() {
         </div>
       </div>
 
-      {/* Preview */}
+      {/* Printable preview with Grael wordmark logo */}
       <article className="pamphlet space-y-0 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] print:rounded-none print:border-0 print:shadow-none">
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--color-border)] pb-5">
+          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--color-border)] pb-6">
             <div>
-              <p className="font-display text-4xl font-semibold tracking-tight text-[var(--color-fg)]">
-                {opts.title}
-              </p>
-              <p className="mt-1 text-sm tracking-[0.16em] text-[var(--color-primary)] uppercase">
+              <GraelWordmark size="xl" withMark className="block" />
+              <p className="mt-4 text-base tracking-[0.12em] text-[var(--color-primary)] uppercase">
                 {opts.tagline}
               </p>
               {opts.clientName.trim() ? (
-                <p className="mt-3 text-base font-medium text-[var(--color-fg)]">
+                <p className="mt-4 text-lg font-medium text-[var(--color-fg)]">
                   Prepared for · {opts.clientName.trim()}
                 </p>
               ) : null}
-              <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
+              <p className="mt-2 text-base text-[var(--color-fg-muted)]">
                 Sheet date · {formatSheetDate(opts.sheetDate)}
               </p>
             </div>
             <div className="text-right">
-              <p className="font-mono text-sm font-medium text-[var(--color-fg)]">{SITE_HOST}</p>
-              <p className="mt-1 font-mono text-xs font-medium text-[var(--color-primary)]">
+              <p className="font-mono text-base font-medium text-[var(--color-fg)]">{SITE_HOST}</p>
+              <p className="mt-1 font-mono text-sm font-medium text-[var(--color-primary)]">
                 {opts.contactEmail}
               </p>
             </div>
           </div>
 
-          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-4 py-3 text-sm">
+          <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-4 py-3 text-base">
             <p className="font-medium text-[var(--color-fg)]">Partner access</p>
             {opts.printPartnerCode && opts.partnerCode.trim() ? (
               <p className="mt-1 font-mono text-[var(--color-primary)]">
@@ -415,26 +410,26 @@ function LabWholesalePage() {
                 </span>
               </p>
             ) : null}
-            <p className="mt-1 text-xs text-[var(--color-fg-subtle)]">
+            <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
               Enter the code at checkout on {SITE_HOST}. After the expiry date it will not work.
             </p>
           </div>
 
-          <p className="mt-4 text-sm text-[var(--color-fg-muted)]">
+          <p className="mt-4 text-base text-[var(--color-fg-muted)]">
             Default partner: {offPct}% off list ·{" "}
             <span className="font-medium text-[var(--color-fg)]">Recommended retail</span> = public
             catalog price. {opts.nextShipNote}
           </p>
           {opts.showTestingNote ? (
-            <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
+            <p className="mt-2 text-sm text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
           ) : null}
         </section>
 
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
-          <h2 className="font-display text-2xl font-semibold tracking-tight">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
             10-vial pack pricing
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
+          <p className="mt-1 text-base text-[var(--color-fg-muted)]">
             Your wholesale = what you pay us. Recommended retail = what customers pay online.
           </p>
           <PriceTable
@@ -452,10 +447,10 @@ function LabWholesalePage() {
         </section>
 
         <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
-          <h2 className="font-display text-2xl font-semibold tracking-tight">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
             Single vial pricing
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
+          <p className="mt-1 text-base text-[var(--color-fg-muted)]">
             Easy reference for one-vial orders when singles are available.
           </p>
           <PriceTable
@@ -469,10 +464,9 @@ function LabWholesalePage() {
             }))}
             showMargin={opts.showMargin}
             roundMode={opts.roundMode}
-            compact
           />
 
-          <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-5 text-xs text-[var(--color-fg-subtle)] sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-5 text-sm text-[var(--color-fg-subtle)] sm:grid-cols-3">
             <p>
               <span className="font-medium text-[var(--color-fg-muted)]">Order online</span>
               <br />
@@ -490,14 +484,12 @@ function LabWholesalePage() {
             </p>
           </div>
           {opts.showRuo ? (
-            <p className="mt-4 text-center text-[11px] text-[var(--color-fg-subtle)]">
-              {MAIL_ORDER.ruo}
-            </p>
+            <p className="mt-4 text-center text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.ruo}</p>
           ) : null}
         </section>
       </article>
 
-      <p className="mt-4 text-center text-xs text-[var(--color-fg-subtle)] print:hidden">
+      <p className="mt-4 text-center text-sm text-[var(--color-fg-subtle)] print:hidden">
         After <strong className="font-medium">Save code to store</strong>, partners enter the code
         at cart / checkout. Expired codes show “That code has expired.” Default inbox:{" "}
         {CONTACT.email}.
@@ -510,7 +502,6 @@ function PriceTable({
   rows,
   showMargin,
   roundMode,
-  compact,
 }: {
   rows: Array<{
     key: string;
@@ -522,43 +513,34 @@ function PriceTable({
   }>;
   showMargin: boolean;
   roundMode: "ten" | "dollar";
-  compact?: boolean;
 }) {
   return (
     <div className="mt-4 overflow-x-auto">
-      <table className="w-full min-w-[480px] border-collapse text-left text-sm">
+      <table className="w-full min-w-[520px] border-collapse text-left text-base">
         <thead>
-          <tr className="border-b border-[var(--color-border-strong)] text-[11px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
-            <th className="py-2 pr-2 font-medium">Compound</th>
-            <th className="py-2 pr-2 font-medium">Size</th>
-            <th className="py-2 pr-2 text-right font-medium text-[var(--color-primary)]">
+          <tr className="border-b border-[var(--color-border-strong)] text-xs tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
+            <th className="py-2.5 pr-2 font-medium">Compound</th>
+            <th className="py-2.5 pr-2 font-medium">Size</th>
+            <th className="py-2.5 pr-2 text-right font-medium text-[var(--color-primary)]">
               Your wholesale
             </th>
-            <th className="py-2 pr-2 text-right font-medium">Recommended retail</th>
-            {showMargin ? <th className="py-2 text-right font-medium">Your margin</th> : null}
+            <th className="py-2.5 pr-2 text-right font-medium">Recommended retail</th>
+            {showMargin ? <th className="py-2.5 text-right font-medium">Your margin</th> : null}
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr
-              key={r.key}
-              className={cn(
-                "border-b border-[var(--color-border)] text-[var(--color-fg)]",
-                compact && "text-[13px]",
-              )}
-            >
-              <td className="py-2.5 pr-2 font-medium">{r.name}</td>
-              <td className="py-2.5 pr-2 font-mono text-xs text-[var(--color-fg-muted)]">
-                {r.size}
-              </td>
-              <td className="py-2.5 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
+            <tr key={r.key} className="border-b border-[var(--color-border)] text-[var(--color-fg)]">
+              <td className="py-3 pr-2 font-medium">{r.name}</td>
+              <td className="py-3 pr-2 font-mono text-sm text-[var(--color-fg-muted)]">{r.size}</td>
+              <td className="py-3 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
                 {formatMoney(r.wholesale, roundMode)}
               </td>
-              <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
+              <td className="py-3 pr-2 text-right tabular text-[var(--color-fg-muted)]">
                 {formatMoney(r.retail, roundMode)}
               </td>
               {showMargin ? (
-                <td className="py-2.5 text-right tabular text-[var(--color-fg-muted)]">
+                <td className="py-3 text-right tabular text-[var(--color-fg-muted)]">
                   {formatMoney(r.margin, roundMode)}
                 </td>
               ) : null}
@@ -586,7 +568,7 @@ function PriceCell({
         step={1}
         min={0}
         className={cn(
-          "h-9 w-full rounded-[var(--radius-sm)] border bg-[var(--color-bg)] px-2 text-right font-mono text-sm tabular outline-none focus:border-[var(--color-primary)]",
+          "h-10 w-full rounded-[var(--radius-sm)] border bg-[var(--color-bg)] px-2 text-right font-mono text-base tabular outline-none focus:border-[var(--color-primary)]",
           value !== undefined
             ? "border-[var(--color-primary)]/50 text-[var(--color-fg)]"
             : "border-[var(--color-border)] text-[var(--color-fg-muted)]",

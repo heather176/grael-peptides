@@ -85,11 +85,17 @@ export function downloadWholesalePdf(
   const offPct = Math.round(opts.listOff * 100);
   const client = opts.clientName.trim();
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text(opts.title, margin, y);
-  y += 16;
+  // Grael wordmark (Times approximates Cormorant Garamond on PDF)
+  doc.setFont("times", "bold");
+  doc.setFontSize(36);
+  doc.setTextColor(28);
+  doc.text("Grael", margin, y + 8);
+  y += 28;
   doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(120);
+  doc.text("PEPTIDES", margin, y);
+  y += 16;
   doc.setFontSize(10);
   doc.setTextColor(80);
   doc.text(opts.tagline, margin, y);

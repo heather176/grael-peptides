@@ -68,7 +68,7 @@
       linear-gradient(180deg, #fafaf8 0%, var(--color-bg) 45%, #efefe9 100%);
     color: var(--color-fg);
     font-family: var(--font-sans);
-    font-size: 0.975rem;
+    font-size: 1.0625rem; /* 17px — larger body for readability */
     line-height: 1.65;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
