@@ -4,6 +4,7 @@
  */
 
 import { catalogProducts, products, SHIPPING, ORDER, vialPack } from "@/lib/products";
+import { productionCostFor, type ProductionCost } from "@/lib/production-costs";
 
 export const SITE_URL = "https://graelpeptides.com";
 export const SITE_HOST = "graelpeptides.com";
@@ -87,6 +88,8 @@ export type PamphletOptions = {
   printPartnerCode: boolean;
   /** Manual price overrides keyed by baseSku */
   overrides: Record<string, PriceOverride>;
+  /** Private Lab-only production cost overrides */
+  productionOverrides: Record<string, Partial<ProductionCost>>;
 };
 
 export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
@@ -106,6 +109,7 @@ export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   codeExpiresAt: "2026-12-31",
   printPartnerCode: false,
   overrides: {},
+  productionOverrides: {},
 };
 
 export type PamphletRow = {
@@ -113,16 +117,22 @@ export type PamphletRow = {
   name: string;
   strength: string;
   vialLabel: string;
-  /** 10-pack */
+  /** 10-pack — what partner pays */
   suggestedRetail: number;
   listPrice: number;
   wholesale: number;
   margin: number;
-  /** 1 vial */
+  /** 1 vial — what partner pays */
   singleWholesale: number;
   singleRetail: number;
   singleMargin: number;
   singleStrength: string;
+  /** Lab private — your production/supplier cost */
+  productionKit: number;
+  productionSingle: number;
+  /** Lab private — partner wholesale − your cost (before shipping) */
+  ourMarginKit: number;
+  ourMarginSingle: number;
 };
 
 export function roundMoney(n: number, mode: PamphletRoundMode = "ten") {
@@ -148,7 +158,13 @@ function pick(override: number | undefined, calculated: number) {
 }
 
 export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[] {
-  const o = { ...DEFAULT_PAMPHLET_OPTIONS, ...opts, overrides: opts.overrides ?? DEFAULT_PAMPHLET_OPTIONS.overrides };
+  const o = {
+    ...DEFAULT_PAMPHLET_OPTIONS,
+    ...opts,
+    overrides: opts.overrides ?? DEFAULT_PAMPHLET_OPTIONS.overrides,
+    productionOverrides:
+      opts.productionOverrides ?? DEFAULT_PAMPHLET_OPTIONS.productionOverrides,
+  };
   return catalogProducts().map((kit) => {
     const ov = o.overrides[kit.baseSku] ?? {};
     const wholesaleCalc = partnerPrice(kit.listPrice, o.listOff, o.roundMode);
@@ -165,6 +181,10 @@ export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[]
     const singleWholesale = pick(ov.singleWholesale, singleWholesaleCalc);
     const singleRetail = pick(ov.singleRetail, singleRetailCalc);
 
+    const prod = productionCostFor(kit.baseSku, o.productionOverrides);
+    const productionKit = roundMoney(prod.kit, o.roundMode);
+    const productionSingle = roundMoney(prod.single, o.roundMode);
+
     return {
       baseSku: kit.baseSku,
       name: kit.name,
@@ -178,6 +198,10 @@ export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[]
       singleRetail,
       singleMargin: roundMoney(singleRetail - singleWholesale, o.roundMode),
       singleStrength: `1 vial × ${kit.vialLabel}`,
+      productionKit,
+      productionSingle,
+      ourMarginKit: roundMoney(wholesale - productionKit, o.roundMode),
+      ourMarginSingle: roundMoney(singleWholesale - productionSingle, o.roundMode),
     };
   });
 }

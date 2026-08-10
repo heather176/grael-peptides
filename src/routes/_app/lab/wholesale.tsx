@@ -110,9 +110,26 @@ function LabWholesalePage() {
     });
   }
 
+  function setProduction(baseSku: string, field: "kit" | "single", value: string) {
+    setOpts((o) => {
+      const next = { ...o.productionOverrides };
+      const row = { ...(next[baseSku] ?? {}) };
+      if (value.trim() === "") {
+        delete row[field];
+      } else {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return o;
+        row[field] = Math.round(n);
+      }
+      if (Object.keys(row).length === 0) delete next[baseSku];
+      else next[baseSku] = row;
+      return { ...o, productionOverrides: next };
+    });
+  }
+
   function clearOverrides() {
-    patch({ overrides: {} });
-    toast.message("Manual prices cleared — back to calculated defaults");
+    patch({ overrides: {}, productionOverrides: {} });
+    toast.message("Manual partner prices and our costs reset to defaults");
   }
 
   function saveCodeToStore() {
@@ -426,44 +443,50 @@ function LabWholesalePage() {
         </section>
 
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">
-            10-vial pack pricing
-          </h2>
-          <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-            Your wholesale = what you pay us. Recommended retail = what customers pay online.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="font-display text-3xl font-semibold tracking-tight">
+                10-vial pack pricing
+              </h2>
+              <p className="mt-1 text-base text-[var(--color-fg-muted)]">
+                Your wholesale = what partners pay. Recommended retail = public catalog.
+              </p>
+            </div>
+            <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
+              Private columns · not on PDF
+            </p>
+          </div>
           <PriceTable
-            rows={rows.map((r) => ({
-              key: r.baseSku,
-              name: r.name,
-              size: r.strength,
-              wholesale: r.wholesale,
-              retail: r.suggestedRetail,
-              margin: r.margin,
-            }))}
+            mode="kit"
+            rows={rows}
             showMargin={opts.showMargin}
             roundMode={opts.roundMode}
+            productionOverrides={opts.productionOverrides}
+            onProductionChange={setProduction}
           />
         </section>
 
         <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">
-            Single vial pricing
-          </h2>
-          <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-            Easy reference for one-vial orders when singles are available.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="font-display text-3xl font-semibold tracking-tight">
+                Single vial pricing
+              </h2>
+              <p className="mt-1 text-base text-[var(--color-fg-muted)]">
+                Easy reference for one-vial orders when singles are available.
+              </p>
+            </div>
+            <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
+              Private columns · not on PDF
+            </p>
+          </div>
           <PriceTable
-            rows={rows.map((r) => ({
-              key: `${r.baseSku}-v`,
-              name: r.name,
-              size: r.singleStrength,
-              wholesale: r.singleWholesale,
-              retail: r.singleRetail,
-              margin: r.singleMargin,
-            }))}
+            mode="single"
+            rows={rows}
             showMargin={opts.showMargin}
             roundMode={opts.roundMode}
+            productionOverrides={opts.productionOverrides}
+            onProductionChange={setProduction}
           />
 
           <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-5 text-sm text-[var(--color-fg-subtle)] sm:grid-cols-3">
@@ -499,55 +522,106 @@ function LabWholesalePage() {
 }
 
 function PriceTable({
+  mode,
   rows,
   showMargin,
   roundMode,
+  productionOverrides,
+  onProductionChange,
 }: {
-  rows: Array<{
-    key: string;
-    name: string;
-    size: string;
-    wholesale: number;
-    retail: number;
-    margin: number;
-  }>;
+  mode: "kit" | "single";
+  rows: ReturnType<typeof pamphletRows>;
   showMargin: boolean;
   roundMode: "ten" | "dollar";
+  productionOverrides: PamphletOptions["productionOverrides"];
+  onProductionChange: (baseSku: string, field: "kit" | "single", value: string) => void;
 }) {
   return (
     <div className="mt-4 overflow-x-auto">
-      <table className="w-full min-w-[520px] border-collapse text-left text-base">
+      <table className="w-full min-w-[720px] border-collapse text-left text-base">
         <thead>
           <tr className="border-b border-[var(--color-border-strong)] text-xs tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
             <th className="py-2.5 pr-2 font-medium">Compound</th>
             <th className="py-2.5 pr-2 font-medium">Size</th>
             <th className="py-2.5 pr-2 text-right font-medium text-[var(--color-primary)]">
-              Your wholesale
+              Partner wholesale
             </th>
             <th className="py-2.5 pr-2 text-right font-medium">Recommended retail</th>
-            {showMargin ? <th className="py-2.5 text-right font-medium">Your margin</th> : null}
+            {showMargin ? (
+              <th className="py-2.5 pr-2 text-right font-medium">Partner margin</th>
+            ) : null}
+            {/* Private — screen only */}
+            <th className="hidden py-2.5 pr-2 text-right font-medium text-[var(--color-warning)] print:hidden sm:table-cell">
+              Our cost
+            </th>
+            <th className="hidden py-2.5 text-right font-medium text-[var(--color-warning)] print:hidden sm:table-cell">
+              Our margin
+            </th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.key} className="border-b border-[var(--color-border)] text-[var(--color-fg)]">
-              <td className="py-3 pr-2 font-medium">{r.name}</td>
-              <td className="py-3 pr-2 font-mono text-sm text-[var(--color-fg-muted)]">{r.size}</td>
-              <td className="py-3 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
-                {formatMoney(r.wholesale, roundMode)}
-              </td>
-              <td className="py-3 pr-2 text-right tabular text-[var(--color-fg-muted)]">
-                {formatMoney(r.retail, roundMode)}
-              </td>
-              {showMargin ? (
-                <td className="py-3 text-right tabular text-[var(--color-fg-muted)]">
-                  {formatMoney(r.margin, roundMode)}
+          {rows.map((r) => {
+            const wholesale = mode === "kit" ? r.wholesale : r.singleWholesale;
+            const retail = mode === "kit" ? r.suggestedRetail : r.singleRetail;
+            const partnerMargin = mode === "kit" ? r.margin : r.singleMargin;
+            const cost = mode === "kit" ? r.productionKit : r.productionSingle;
+            const ourMargin = mode === "kit" ? r.ourMarginKit : r.ourMarginSingle;
+            const size = mode === "kit" ? r.strength : r.singleStrength;
+            const ov = productionOverrides[r.baseSku];
+            const costOverride = mode === "kit" ? ov?.kit : ov?.single;
+
+            return (
+              <tr key={`${mode}-${r.baseSku}`} className="border-b border-[var(--color-border)]">
+                <td className="py-3 pr-2 font-medium text-[var(--color-fg)]">{r.name}</td>
+                <td className="py-3 pr-2 font-mono text-sm text-[var(--color-fg-muted)]">{size}</td>
+                <td className="py-3 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
+                  {formatMoney(wholesale, roundMode)}
                 </td>
-              ) : null}
-            </tr>
-          ))}
+                <td className="py-3 pr-2 text-right tabular text-[var(--color-fg-muted)]">
+                  {formatMoney(retail, roundMode)}
+                </td>
+                {showMargin ? (
+                  <td className="py-3 pr-2 text-right tabular text-[var(--color-fg-muted)]">
+                    {formatMoney(partnerMargin, roundMode)}
+                  </td>
+                ) : null}
+                <td className="hidden bg-[var(--color-warning)]/5 py-2 pr-2 print:hidden sm:table-cell">
+                  <input
+                    type="number"
+                    step={1}
+                    min={0}
+                    title="Your production / supplier cost — private, not on PDF"
+                    className={cn(
+                      "h-9 w-full min-w-[4.5rem] rounded-[var(--radius-sm)] border bg-white px-2 text-right font-mono text-sm tabular outline-none focus:border-[var(--color-warning)]",
+                      costOverride !== undefined
+                        ? "border-[var(--color-warning)]/60 text-[var(--color-fg)]"
+                        : "border-[var(--color-border)] text-[var(--color-fg-muted)]",
+                    )}
+                    placeholder={String(cost)}
+                    value={costOverride ?? ""}
+                    onChange={(e) => onProductionChange(r.baseSku, mode === "kit" ? "kit" : "single", e.target.value)}
+                  />
+                </td>
+                <td
+                  className={cn(
+                    "hidden py-3 text-right font-medium tabular print:hidden sm:table-cell",
+                    ourMargin >= 0 ? "text-[var(--color-success)]" : "text-[var(--color-danger)]",
+                  )}
+                  title="Partner wholesale − our cost · before shipping"
+                >
+                  {formatMoney(ourMargin, roundMode)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+      <p className="mt-2 text-xs text-[var(--color-fg-subtle)] print:hidden">
+        <span className="font-medium text-[var(--color-warning)]">Our cost</span> = production /
+        supplier price you enter.{" "}
+        <span className="font-medium text-[var(--color-warning)]">Our margin</span> = partner
+        wholesale − our cost (before shipping). Both stay off the PDF and print.
+      </p>
     </div>
   );
 }
