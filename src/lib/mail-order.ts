@@ -179,6 +179,10 @@ export type PamphletRow = {
   name: string;
   strength: string;
   vialLabel: string;
+  /** RUO research focus line for partner sell sheet */
+  researchFocus: string;
+  /** Short research description */
+  researchBlurb: string;
   /** 10-pack — what partner pays */
   suggestedRetail: number;
   listPrice: number;
@@ -259,6 +263,8 @@ export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[]
       name: kit.name,
       strength: `10-vial × ${kit.vialLabel}`,
       vialLabel: kit.vialLabel,
+      researchFocus: kit.researchFocus,
+      researchBlurb: kit.short,
       suggestedRetail,
       listPrice,
       wholesale,

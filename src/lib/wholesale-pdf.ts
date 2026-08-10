@@ -319,7 +319,60 @@ export function downloadWholesalePdf(
   });
   y = drawTable(doc, y, packHeaders, packRows, packColW, margin, pageW, pageH, dateLabel, opts.title);
 
-  y += 22;
+  y += 20;
+
+  // Research focus guide for partner selling
+  if (y > pageH - 100) {
+    doc.addPage();
+    y = margin;
+  }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20);
+  doc.text("Research focus by compound (what to tell customers)", margin, y);
+  y += 12;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(80);
+  doc.text(
+    "Laboratory research context only — not medical claims. Use these lines when describing what each material is studied for.",
+    margin,
+    y,
+    { maxWidth: pageW - margin * 2 },
+  );
+  y += 14;
+
+  for (const r of rows) {
+    if (y > pageH - 40) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(25);
+    doc.text(r.name, margin, y);
+    y += 11;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(55);
+    const blurb = `${r.researchBlurb} · Research focus: ${r.researchFocus}`;
+    const blines = doc.splitTextToSize(blurb, pageW - margin * 2) as string[];
+    for (const line of blines) {
+      doc.text(line, margin, y);
+      y += 10;
+    }
+    y += 4;
+  }
+  y += 8;
+  doc.setFontSize(7);
+  doc.setTextColor(100);
+  doc.text(
+    "Research use only. Not for human or veterinary use. Do not claim personal health results or dosing.",
+    margin,
+    y,
+    { maxWidth: pageW - margin * 2 },
+  );
+  y += 16;
 
   // —— Single vial chart ——
   if (y > pageH - 120) {

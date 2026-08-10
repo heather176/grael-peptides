@@ -674,7 +674,42 @@ function LabWholesalePage() {
             roundMode={opts.roundMode}
             productionOverrides={opts.productionOverrides}
             onProductionChange={setProduction}
+            showResearch
           />
+        </section>
+
+        <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
+            Research focus by compound
+          </h2>
+          <p className="mt-1 text-base text-[var(--color-fg-muted)]">
+            What each material is for in health-related research — laboratory context only, not
+            medical claims.
+          </p>
+          <ul className="mt-5 space-y-4">
+            {rows.map((r) => (
+              <li
+                key={`rf-${r.baseSku}`}
+                className="border-b border-[var(--color-border)] pb-4 last:border-0"
+              >
+                <p className="font-medium text-[var(--color-fg)]">
+                  {r.name}{" "}
+                  <span className="font-mono text-sm font-normal text-[var(--color-fg-subtle)]">
+                    · {r.vialLabel}
+                  </span>
+                </p>
+                <p className="mt-1 text-base text-[var(--color-fg-muted)]">{r.researchBlurb}</p>
+                <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
+                  <span className="font-medium text-[var(--color-fg-muted)]">Research focus:</span>{" "}
+                  {r.researchFocus}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-[var(--color-fg-subtle)]">
+            Research use only. Not for human or veterinary use. Do not claim personal health results
+            or dosing.
+          </p>
         </section>
 
         <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
@@ -741,6 +776,7 @@ function PriceTable({
   roundMode,
   productionOverrides,
   onProductionChange,
+  showResearch,
 }: {
   mode: "kit" | "single";
   rows: ReturnType<typeof pamphletRows>;
@@ -748,6 +784,7 @@ function PriceTable({
   roundMode: PamphletRoundMode;
   productionOverrides: PamphletOptions["productionOverrides"];
   onProductionChange: (baseSku: string, field: "kit" | "single", value: string) => void;
+  showResearch?: boolean;
 }) {
   return (
     <div className="mt-4 overflow-x-auto">
@@ -782,7 +819,14 @@ function PriceTable({
 
             return (
               <tr key={`${mode}-${r.baseSku}`} className="border-b border-[var(--color-border)]">
-                <td className="py-3 pr-2 font-medium text-[var(--color-fg)]">{r.name}</td>
+                <td className="py-3 pr-2 font-medium text-[var(--color-fg)]">
+                  {r.name}
+                  {showResearch ? (
+                    <span className="mt-0.5 block text-xs font-normal text-[var(--color-fg-subtle)]">
+                      {r.researchFocus}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="py-3 pr-2 font-mono text-sm text-[var(--color-fg-muted)]">{size}</td>
                 <td className="py-3 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
                   {formatMoney(wholesale, roundMode)}
