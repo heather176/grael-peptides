@@ -13,6 +13,7 @@ import {
   formatSheetDate,
   MAIL_ORDER,
   pamphletRows,
+  shippingTermsLine,
   SITE_HOST,
   SITE_URL,
   type PamphletOptions,
@@ -299,6 +300,36 @@ function LabWholesalePage() {
               onChange={(e) => patch({ nextShipNote: e.target.value })}
             />
           </div>
+          <div className="space-y-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-3 sm:col-span-2 lg:col-span-1">
+            <Toggle
+              checked={opts.chargeShipping}
+              onChange={(v) => patch({ chargeShipping: v })}
+              label="Charge shipping on this account"
+            />
+            {opts.chargeShipping ? (
+              <div className="space-y-1 pl-6">
+                <Label htmlFor="shipAmt">Shipping amount (US flat)</Label>
+                <Input
+                  id="shipAmt"
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={opts.shippingAmount}
+                  onChange={(e) =>
+                    patch({ shippingAmount: Math.max(0, Math.round(Number(e.target.value) || 0)) })
+                  }
+                />
+                <p className="text-xs text-[var(--color-fg-subtle)]">
+                  Default $100 · cold-chain packaging for peptides.
+                </p>
+              </div>
+            ) : (
+              <p className="pl-6 text-xs text-[var(--color-fg-subtle)]">
+                No shipping charge for this partner (e.g. Jason). Cold-chain still used when
+                needed — you absorb the cost.
+              </p>
+            )}
+          </div>
           <div className="flex flex-col justify-end gap-2">
             <Toggle
               checked={opts.printPartnerCode}
@@ -308,7 +339,7 @@ function LabWholesalePage() {
             <Toggle
               checked={opts.showMargin}
               onChange={(v) => patch({ showMargin: v })}
-              label="Show margin columns"
+              label="Show partner margin columns"
             />
             <Toggle
               checked={opts.showTestingNote}
@@ -430,6 +461,21 @@ function LabWholesalePage() {
             <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
               Enter the code at checkout on {SITE_HOST}. After the expiry date it will not work.
             </p>
+          </div>
+
+          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-3 text-base">
+            <p className="font-medium text-[var(--color-fg)]">Shipping</p>
+            <p className="mt-1 text-[var(--color-fg-muted)]">{shippingTermsLine(opts)}</p>
+            {opts.chargeShipping ? (
+              <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
+                Cold-chain packaging is required for most peptides — the flat rate covers insulated
+                shippers and ice packs as needed.
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
+                Special account: shipping not charged. Cold-chain still applied when required.
+              </p>
+            )}
           </div>
 
           <p className="mt-4 text-base text-[var(--color-fg-muted)]">

@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import {
   formatMoney,
   formatSheetDate,
+  shippingTermsLine,
   SITE_HOST,
   SITE_URL,
   type PamphletOptions,
@@ -135,6 +136,8 @@ export function downloadWholesalePdf(
   y += 12;
   doc.text(opts.nextShipNote, margin, y);
   y += 12;
+  doc.text(shippingTermsLine(opts), margin, y, { maxWidth: pageW - margin * 2 });
+  y += 14;
   doc.text(`${SITE_URL} · ${opts.contactEmail}`, margin, y);
   y += 14;
 

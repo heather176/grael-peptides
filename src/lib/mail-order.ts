@@ -86,6 +86,13 @@ export type PamphletOptions = {
   codeExpiresAt: string;
   /** Print code on sheet/PDF (default off — usually texted) */
   printPartnerCode: boolean;
+  /**
+   * Charge partner for shipping on this sheet.
+   * Default true · $100 cold-chain US. Jason / specials: false.
+   */
+  chargeShipping: boolean;
+  /** Flat US shipping when chargeShipping is true */
+  shippingAmount: number;
   /** Manual price overrides keyed by baseSku */
   overrides: Record<string, PriceOverride>;
   /** Private Lab-only production cost overrides */
@@ -108,9 +115,20 @@ export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   partnerCode: "WHOLESALEJASON",
   codeExpiresAt: "2026-12-31",
   printPartnerCode: false,
+  chargeShipping: true,
+  shippingAmount: SHIPPING.amount,
   overrides: {},
   productionOverrides: {},
 };
+
+/** Human shipping line for sheet / PDF from studio options */
+export function shippingTermsLine(opts: Pick<PamphletOptions, "chargeShipping" | "shippingAmount">) {
+  if (!opts.chargeShipping) {
+    return "Shipping: no charge on this account (covered) · cold-chain when required";
+  }
+  const amt = opts.shippingAmount || SHIPPING.amount;
+  return `US shipping $${amt} flat per order · cold-chain packaging · product minimum $${ORDER.minProductSubtotal}`;
+}
 
 export type PamphletRow = {
   baseSku: string;
