@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import {
   formatMoney,
   formatSheetDate,
+  roundStepLabel,
   shippingTermsLine,
   SITE_HOST,
   SITE_URL,
@@ -128,7 +129,7 @@ export function downloadWholesalePdf(
   doc.setFontSize(9);
   doc.setTextColor(60);
   doc.text(
-    `Partner wholesale: ${offPct}% off list (defaults) · round nearest $${opts.roundMode === "ten" ? "10" : "1"} · prices may be custom for this client`,
+    `Partner wholesale: ${offPct}% off list (defaults) · round nearest $${roundStepLabel(opts.roundMode)} · prices may be custom for this client`,
     margin,
     y,
     { maxWidth: pageW - margin * 2 },

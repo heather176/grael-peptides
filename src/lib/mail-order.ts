@@ -55,7 +55,7 @@ export const MAIL_ORDER = {
 /** 40% off list — matches WHOLESALEJASON */
 export const PARTNER_LIST_OFF = 0.4;
 
-export type PamphletRoundMode = "ten" | "dollar";
+export type PamphletRoundMode = "ten" | "five" | "dollar";
 
 /** Manual overrides per base SKU (blank = use calculated) */
 export type PriceOverride = {
@@ -155,7 +155,14 @@ export type PamphletRow = {
 
 export function roundMoney(n: number, mode: PamphletRoundMode = "ten") {
   if (mode === "dollar") return Math.round(n);
+  if (mode === "five") return Math.round(n / 5) * 5;
   return Math.round(n / 10) * 10;
+}
+
+export function roundStepLabel(mode: PamphletRoundMode) {
+  if (mode === "dollar") return "1";
+  if (mode === "five") return "5";
+  return "10";
 }
 
 export function roundToTen(n: number) {

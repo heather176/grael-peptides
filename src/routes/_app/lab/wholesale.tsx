@@ -17,6 +17,7 @@ import {
   SITE_HOST,
   SITE_URL,
   type PamphletOptions,
+  type PamphletRoundMode,
   type PriceOverride,
 } from "@/lib/mail-order";
 import { lookupDiscountCode, normalizeCode } from "@/lib/discount-codes";
@@ -274,12 +275,16 @@ function LabWholesalePage() {
             <select
               id="roundMode"
               value={opts.roundMode}
-              onChange={(e) =>
-                patch({ roundMode: e.target.value === "dollar" ? "dollar" : "ten" })
-              }
+              onChange={(e) => {
+                const v = e.target.value;
+                const mode: PamphletRoundMode =
+                  v === "five" ? "five" : v === "dollar" ? "dollar" : "ten";
+                patch({ roundMode: mode });
+              }}
               className="flex h-10 w-full rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-card)] px-3 text-sm"
             >
               <option value="ten">Nearest $10</option>
+              <option value="five">Nearest $5</option>
               <option value="dollar">Nearest $1</option>
             </select>
           </div>
@@ -628,7 +633,7 @@ function PriceTable({
   mode: "kit" | "single";
   rows: ReturnType<typeof pamphletRows>;
   showMargin: boolean;
-  roundMode: "ten" | "dollar";
+  roundMode: PamphletRoundMode;
   productionOverrides: PamphletOptions["productionOverrides"];
   onProductionChange: (baseSku: string, field: "kit" | "single", value: string) => void;
 }) {
