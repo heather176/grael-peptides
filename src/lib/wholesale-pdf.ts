@@ -1,12 +1,14 @@
 /**
- * Wholesale partner PDF — logo image, clear tables (10-pack + single vial).
- * Our cost / Our margin never appear.
+ * Wholesale partner PDF — for partners who buy 10-packs and resell singles / small lots.
+ * Columns: You pay (10-pack), cost per vial, suggested single retail, list 10-pack.
+ * No Our cost / Our margin.
  */
 import { jsPDF } from "jspdf";
 import {
   formatMoney,
   formatSheetDate,
   PARTNER_SELL_POINTS,
+  roundMoney,
   roundStepLabel,
   shippingTermsLine,
   SITE_HOST,
@@ -97,12 +99,11 @@ function drawPriceTable(
   doc.text(subtitle, margin, y, { maxWidth: pageW - margin * 2 });
   y += 14;
 
-  // header
   ensure(24);
   doc.setFillColor(248, 248, 245);
-  doc.rect(margin, y - 8, pageW - margin * 2, 18, "F");
+  doc.rect(margin, y - 8, pageW - margin * 2, 20, "F");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor(80);
   let x = margin + 4;
   headers.forEach((h) => {
@@ -110,18 +111,17 @@ function drawPriceTable(
     else doc.text(h.label, x, y);
     x += h.w;
   });
-  y += 8;
+  y += 10;
   doc.setDrawColor(190);
   doc.line(margin, y, pageW - margin, y);
   y += 12;
 
   for (const row of body) {
-    ensure(34);
+    ensure(28);
     x = margin + 4;
     row.forEach((cell, i) => {
       const h = headers[i]!;
       if (i === 0) {
-        // compound name bold + size/focus on next lines already in cell with \n
         const parts = String(cell).split("\n");
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
@@ -130,24 +130,17 @@ function drawPriceTable(
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7.5);
         doc.setTextColor(100);
-        if (parts[1]) doc.text(parts[1], x, y + 10, { maxWidth: h.w - 6 });
-        if (parts[2]) doc.text(parts[2], x, y + 19, { maxWidth: h.w - 6 });
-      } else if (i === 1 && headers[1]?.key === "focus") {
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(7.5);
-        doc.setTextColor(55);
-        const lines = doc.splitTextToSize(String(cell), h.w - 6) as string[];
-        doc.text(lines.slice(0, 3), x, y);
+        if (parts[1]) doc.text(parts[1], x, y + 10, { maxWidth: h.w - 4 });
       } else {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.setTextColor(25);
-        if (h.align === "right") doc.text(String(cell), x + h.w - 2, y + 4, { align: "right" });
-        else doc.text(String(cell), x, y + 4);
+        if (h.align === "right") doc.text(String(cell), x + h.w - 2, y + 3, { align: "right" });
+        else doc.text(String(cell), x, y + 3, { maxWidth: h.w - 4 });
       }
       x += h.w;
     });
-    y += 30;
+    y += 26;
     doc.setDrawColor(230);
     doc.line(margin, y - 8, pageW - margin, y - 8);
   }
@@ -163,7 +156,7 @@ export async function downloadWholesalePdf(
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
-  const margin = 42;
+  const margin = 40;
   let y = margin;
 
   const dateLabel = formatSheetDate(opts.sheetDate);
@@ -184,38 +177,38 @@ export async function downloadWholesalePdf(
     }
   };
 
-  // —— Logo (provided brand image) ——
+  // Logo
   if (logo) {
-    // Center logo, ~2.4" wide
-    const logoW = 170;
-    const logoH = 108;
-    const logoX = (pageW - logoW) / 2;
-    doc.addImage(logo, "PNG", logoX, y, logoW, logoH);
-    y += logoH + 10;
+    const logoW = 150;
+    const logoH = 95;
+    doc.addImage(logo, "PNG", (pageW - logoW) / 2, y, logoW, logoH);
+    y += logoH + 8;
   } else {
     doc.setFont("times", "bold");
-    doc.setFontSize(32);
+    doc.setFontSize(30);
     doc.setTextColor(20);
-    doc.text("Grael", pageW / 2, y + 20, { align: "center" });
+    doc.text("Grael", pageW / 2, y + 18, { align: "center" });
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(130);
-    doc.text("PEPTIDES", pageW / 2, y + 36, { align: "center" });
-    y += 50;
+    doc.text("PEPTIDES", pageW / 2, y + 32, { align: "center" });
+    y += 44;
   }
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(70);
-  doc.text(opts.tagline, pageW / 2, y, { align: "center" });
-  y += 16;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(25);
+  doc.text("Wholesale pricing sheet · buy 10-packs · sell singles", pageW / 2, y, {
+    align: "center",
+  });
+  y += 14;
 
   if (client) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(20);
     doc.text(`Prepared for: ${client}`, pageW / 2, y, { align: "center" });
-    y += 14;
+    y += 13;
   }
 
   doc.setFont("helvetica", "normal");
@@ -227,36 +220,60 @@ export async function downloadWholesalePdf(
   y += 12;
   const emailW = doc.getTextWidth(email);
   drawLink(doc, email, mail, pageW - margin - emailW, y, 9);
-  y += 16;
+  y += 14;
 
-  // Link bar
-  ensure(42);
+  // Reseller how-to box
+  ensure(78);
   doc.setFillColor(246, 246, 243);
-  doc.roundedRect(margin, y - 2, pageW - margin * 2, 36, 3, 3, "F");
+  doc.roundedRect(margin, y - 2, pageW - margin * 2, 72, 3, 3, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(20);
+  doc.text("How to use this sheet (reseller model)", margin + 10, y + 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(50);
+  const how = [
+    "1. Buy 10-vial packs at You pay — that is your wholesale cost for a full pack.",
+    "2. Cost / vial = You pay ÷ 10 — your floor when selling one vial or a few vials.",
+    "3. Suggested sell (1 vial) = public single-vial retail — a clear price for your customers.",
+    "4. List (10-pack) = public list for the pack — use when quoting a full pack to a lab.",
+  ];
+  let hy = y + 26;
+  for (const line of how) {
+    doc.text(line, margin + 10, hy, { maxWidth: pageW - margin * 2 - 20 });
+    hy += 11;
+  }
+  y += 82;
+
+  // Links
+  ensure(36);
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(220);
+  doc.roundedRect(margin, y - 2, pageW - margin * 2, 32, 3, 3, "S");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(90);
-  doc.text("Tap a link to open", margin + 12, y + 11);
-  let lx = margin + 12;
-  const ly = y + 26;
-  lx += drawLink(doc, "Shop catalog", CATALOG_URL, lx, ly, 10) + 20;
-  lx += drawLink(doc, "Cart / checkout", CART_URL, lx, ly, 10) + 20;
-  drawLink(doc, "Email wholesale", mail, lx, ly, 10);
-  y += 48;
-
-  doc.setDrawColor(210);
-  doc.line(margin, y, pageW - margin, y);
-  y += 12;
+  doc.text("Order online", margin + 10, y + 10);
+  let lx = margin + 10;
+  const ly = y + 24;
+  lx += drawLink(doc, "Shop catalog", CATALOG_URL, lx, ly, 9) + 16;
+  lx += drawLink(doc, "Cart / checkout", CART_URL, lx, ly, 9) + 16;
+  drawLink(doc, "Email wholesale", mail, lx, ly, 9);
+  y += 42;
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(55);
-  doc.text(`Partner wholesale: ${offPct}% off list · round nearest $${roundStepLabel(opts.roundMode)}`, margin, y);
-  y += 12;
-  doc.text(opts.nextShipNote, margin, y);
-  y += 12;
+  doc.setFontSize(8);
+  doc.setTextColor(60);
+  doc.text(
+    `Partner wholesale: ${offPct}% off list · round nearest $${roundStepLabel(opts.roundMode)} · ${opts.nextShipNote}`,
+    margin,
+    y,
+    { maxWidth: pageW - margin * 2 },
+  );
+  y += 11;
   doc.text(shippingTermsLine(opts), margin, y, { maxWidth: pageW - margin * 2 });
-  y += 13;
+  y += 12;
 
   if (!opts.chargeShipping) {
     doc.setFont("helvetica", "bold");
@@ -264,17 +281,12 @@ export async function downloadWholesalePdf(
     doc.setTextColor(20);
     doc.text("SHIPPING: NO CHARGE on this partner account.", margin, y);
     y += 12;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(80);
-    doc.text("We are not charging for shipping. Cold-chain used when required.", margin, y);
-    y += 14;
   } else {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(20);
     doc.text(`SHIPPING: $${opts.shippingAmount || 100} flat US · cold-chain`, margin, y);
-    y += 14;
+    y += 12;
   }
 
   doc.setFont("helvetica", "normal");
@@ -292,81 +304,106 @@ export async function downloadWholesalePdf(
     doc.text(`Code valid through: ${formatSheetDate(opts.codeExpiresAt)}`, margin, y);
     y += 14;
   } else {
-    y += 4;
+    y += 6;
   }
 
-  // —— 10-vial pack only: You pay + List (no margin, no singles) ——
-  const kitHeaders: Col[] = [
-    { key: "name", label: "Compound", w: 110, align: "left" },
-    { key: "focus", label: "Research focus", w: 210, align: "left" },
-    { key: "pay", label: "You pay (10-pack)", w: 90, align: "right" },
-    { key: "list", label: "List", w: 80, align: "right" },
+  // Main pricing table — buy pack, sell singles
+  const headers: Col[] = [
+    { key: "name", label: "Compound", w: 118, align: "left" },
+    { key: "pay", label: "You pay (10-pack)", w: 88, align: "right" },
+    { key: "per", label: "Your cost / vial", w: 78, align: "right" },
+    { key: "sell1", label: "Suggested sell (1 vial)", w: 100, align: "right" },
+    { key: "list", label: "List (10-pack)", w: 80, align: "right" },
   ];
 
-  const kitBody = rows.map((r) => [
-    `${r.name}\n${r.strength}`,
-    `${r.researchBlurb} · ${r.researchFocus}`,
-    formatMoney(r.wholesale, opts.roundMode),
-    formatMoney(r.listPrice, opts.roundMode),
-  ]);
+  const body = rows.map((r) => {
+    const costPerVial = roundMoney(r.wholesale / 10, opts.roundMode === "ten" ? "dollar" : opts.roundMode);
+    return [
+      `${r.name}\n${r.strength}`,
+      formatMoney(r.wholesale, opts.roundMode),
+      formatMoney(costPerVial, "dollar"),
+      formatMoney(r.singleRetail, opts.roundMode),
+      formatMoney(r.listPrice, opts.roundMode),
+    ];
+  });
 
   y = drawPriceTable(
     doc,
     y,
-    "10-vial pack pricing",
-    "Order “Buy 10-pack” on the site. You pay = wholesale from Grael. List = public list price.",
-    kitHeaders,
-    kitBody,
+    "Buy 10-packs · price when you sell vials",
+    "You pay = wholesale for one 10-vial pack. Cost / vial = You pay ÷ 10. Suggested sell (1 vial) = public single retail. List = public 10-pack list.",
+    headers,
+    body,
     margin,
     pageW,
     pageH,
     dateLabel,
   );
 
-  // —— Sell points (compact) ——
-  ensure(90);
+  // Compact research reference (helps sales talk without cluttering prices)
+  ensure(40);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(20);
-  doc.text(PARTNER_SELL_POINTS.title, margin, y);
+  doc.text("Research focus (for your customers — RUO only)", margin, y);
   y += 12;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(80);
-  doc.text(PARTNER_SELL_POINTS.subtitle, margin, y, { maxWidth: pageW - margin * 2 });
-  y += 12;
-
-  for (const pt of PARTNER_SELL_POINTS.points) {
-    ensure(26);
+  doc.setFontSize(7.5);
+  doc.setTextColor(55);
+  for (const r of rows) {
+    ensure(18);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(8);
+    doc.setTextColor(25);
+    doc.text(r.name, margin, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(70);
+    doc.text(` — ${r.researchBlurb}`, margin + doc.getTextWidth(r.name) + 2, y, {
+      maxWidth: pageW - margin * 2 - doc.getTextWidth(r.name) - 4,
+    });
+    y += 11;
+    doc.setTextColor(110);
+    doc.text(`Research focus: ${r.researchFocus}`, margin + 6, y, {
+      maxWidth: pageW - margin * 2 - 6,
+    });
+    y += 12;
+  }
+
+  y += 4;
+  doc.setFontSize(7);
+  doc.setTextColor(110);
+  doc.text(
+    "Research use only. Not for human or veterinary use. Do not claim personal health results or dosing.",
+    margin,
+    y,
+    { maxWidth: pageW - margin * 2 },
+  );
+  y += 16;
+
+  // Short sell points
+  ensure(80);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(20);
+  doc.text(PARTNER_SELL_POINTS.title, margin, y);
+  y += 11;
+  for (const pt of PARTNER_SELL_POINTS.points.slice(0, 4)) {
+    ensure(22);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
     doc.setTextColor(25);
     doc.text(`• ${pt.title}`, margin, y);
-    y += 11;
+    y += 10;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(60);
     const lines = doc.splitTextToSize(pt.body, pageW - margin * 2 - 6) as string[];
     for (const line of lines) {
       doc.text(line, margin + 8, y);
-      y += 10;
+      y += 9;
     }
-    y += 3;
-  }
-
-  ensure(48);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(25);
-  doc.text("Quick talk track", margin, y);
-  y += 11;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(60);
-  for (const t of PARTNER_SELL_POINTS.talkTrack) {
-    ensure(12);
-    doc.text(`– ${t}`, margin, y, { maxWidth: pageW - margin * 2 });
-    y += 11;
+    y += 2;
   }
   y += 6;
   doc.setFontSize(7);
@@ -375,12 +412,12 @@ export async function downloadWholesalePdf(
   y += 16;
 
   // How to order
-  ensure(72);
+  ensure(70);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(20);
-  doc.text("How to order", margin, y);
-  y += 14;
+  doc.text("How to order 10-packs", margin, y);
+  y += 13;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(40);
@@ -388,7 +425,7 @@ export async function downloadWholesalePdf(
   drawLink(doc, CATALOG_URL, CATALOG_URL, margin + doc.getTextWidth("1. Open the shop: "), y, 9);
   y += 13;
   doc.setTextColor(40);
-  doc.text("2. Choose Buy 1 vial or Buy 10-pack; add to cart.", margin, y);
+  doc.text("2. Choose Buy 10-pack on each compound; add packs to cart.", margin, y);
   y += 13;
   doc.text(
     "3. At checkout enter your partner code (texted separately). Prices become You pay.",
@@ -397,28 +434,16 @@ export async function downloadWholesalePdf(
     { maxWidth: pageW - margin * 2 },
   );
   y += 13;
-  doc.text("4. Pay by card, or email for invoice: ", margin, y);
+  doc.text("4. Pay by card, crypto invoice, or email for invoice: ", margin, y);
   drawLink(
     doc,
     email,
     mail,
-    margin + doc.getTextWidth("4. Pay by card, or email for invoice: "),
+    margin + doc.getTextWidth("4. Pay by card, crypto invoice, or email for invoice: "),
     y,
     9,
   );
-  y += 18;
-
-  ensure(36);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(20);
-  doc.text("Quick links", margin, y);
-  y += 12;
-  let fx = margin;
-  fx += drawLink(doc, "Shop catalog", CATALOG_URL, fx, y, 9) + 18;
-  fx += drawLink(doc, "Cart / checkout", CART_URL, fx, y, 9) + 18;
-  drawLink(doc, email, mail, fx, y, 9);
-  y += 14;
+  y += 16;
 
   if (opts.showTestingNote) {
     doc.setFont("helvetica", "normal");

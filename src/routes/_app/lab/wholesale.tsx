@@ -641,11 +641,12 @@ function LabWholesalePage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="font-display text-3xl font-semibold tracking-tight">
-                10-vial pack — what to buy
+                Buy 10-packs · sell vials
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                <span className="font-medium text-[var(--color-fg)]">You pay</span> is your cost from
-                Grael; recommended retail is for your customers.
+                Partners buy 10-packs at <span className="font-medium text-[var(--color-fg)]">You pay</span>.
+                Cost per vial ≈ You pay ÷ 10 when selling singles or small lots. Recommended retail
+                guides what to charge customers.
               </p>
             </div>
           </div>
