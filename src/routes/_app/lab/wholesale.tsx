@@ -200,12 +200,14 @@ function LabWholesalePage() {
   }
 
   function onPdf() {
-    try {
-      const name = downloadWholesalePdf(rows, opts);
-      toast.success(`PDF saved · ${name}`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not build PDF");
-    }
+    void (async () => {
+      try {
+        const name = await downloadWholesalePdf(rows, opts);
+        toast.success(`PDF saved · ${name}`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not build PDF");
+      }
+    })();
   }
 
   function resetAll() {
