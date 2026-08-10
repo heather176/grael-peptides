@@ -47,7 +47,7 @@ export const MAIL_ORDER = {
     "Your wholesale access code is provided separately by text. Do not share. Enter it at card checkout — or skip the code and request an invoice by email.",
   partnerLabel: "Wholesale pricing for partners",
   partnerDiscountLabel: "40% off list · prices rounded to the nearest $10",
-  publicLabel: "Suggested retail (public launch)",
+  publicLabel: "Recommended retail (public catalog)",
   testingNote:
     "Independent third-party testing has been ordered for all peptides and will be posted shortly. Target ≥99% identity.",
   invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,

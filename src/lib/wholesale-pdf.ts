@@ -67,15 +67,15 @@ export function downloadWholesalePdf(
         { k: "name", w: 120, label: "Compound" },
         { k: "size", w: 90, label: "Size" },
         { k: "wh", w: 70, label: "10-pack WS", align: "right" as const },
-        { k: "sr", w: 70, label: "10-pack SR", align: "right" as const },
+        { k: "sr", w: 70, label: "10-pack RR", align: "right" as const },
         { k: "swh", w: 60, label: "1v WS", align: "right" as const },
-        { k: "ssr", w: 60, label: "1v SR", align: "right" as const },
+        { k: "ssr", w: 60, label: "1v RR", align: "right" as const },
       ]
     : [
         { k: "name", w: 150, label: "Compound" },
         { k: "size", w: 110, label: "Size" },
         { k: "wh", w: 80, label: "Your wholesale", align: "right" as const },
-        { k: "sr", w: 80, label: "Suggested retail", align: "right" as const },
+        { k: "sr", w: 90, label: "Recommended retail", align: "right" as const },
         ...(opts.showMargin
           ? [{ k: "mg", w: 70, label: "Margin", align: "right" as const }]
           : []),

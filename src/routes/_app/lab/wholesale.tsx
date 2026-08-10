@@ -239,7 +239,8 @@ function LabWholesalePage() {
                 {MAIL_ORDER.partnerLabel}
               </h2>
               <p className="text-sm text-[var(--color-fg-muted)]">
-                {offPct}% off list · dated {formatSheetDate(opts.sheetDate)}
+                {offPct}% off list · dated {formatSheetDate(opts.sheetDate)} · recommended retail =
+                public catalog price
               </p>
             </div>
             <p className="text-xs text-[var(--color-fg-subtle)]">
@@ -257,12 +258,12 @@ function LabWholesalePage() {
                     {opts.includeSingles ? "10-pack WS" : "Your wholesale"}
                   </th>
                   <th className="py-2 pr-2 text-right font-medium">
-                    {opts.includeSingles ? "10-pack SR" : "Suggested retail"}
+                    {opts.includeSingles ? "10-pack retail" : "Recommended retail"}
                   </th>
                   {opts.includeSingles ? (
                     <>
                       <th className="py-2 pr-2 text-right font-medium">1 vial WS</th>
-                      <th className="py-2 text-right font-medium">1 vial SR</th>
+                      <th className="py-2 text-right font-medium">1 vial retail</th>
                     </>
                   ) : opts.showMargin ? (
                     <th className="py-2 text-right font-medium">Your margin</th>
