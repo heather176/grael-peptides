@@ -194,22 +194,22 @@ export function downloadWholesalePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(20);
-  doc.text("10-vial pack pricing", margin, y);
+  doc.text("10-vial pack — what to buy", margin, y);
   y += 6;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(100);
   y += 10;
   doc.text(
-    "Your wholesale = what the partner pays · Recommended retail = public catalog price",
+    "You pay = your cost from Grael · Recommended retail = for your customers",
     margin,
     y,
   );
   y += 14;
 
   const packHeaders = opts.showMargin
-    ? ["Compound", "Size", "Wholesale", "Rec. retail", "Margin"]
-    : ["Compound", "Size", "Wholesale", "Rec. retail"];
+    ? ["Compound", "Size", "You pay", "Rec. retail", "Your margin"]
+    : ["Compound", "Size", "You pay", "Rec. retail"];
   const packColW = opts.showMargin ? [140, 110, 80, 90, 70] : [150, 130, 100, 100];
   const packRows = rows.map((r) => {
     const base = [
