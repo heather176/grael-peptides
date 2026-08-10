@@ -73,7 +73,7 @@ function AboutPage() {
               <a href={CONTACT.emailMailto}>Request an invoice</a>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/pamphlet">Partner price sheet</Link>
+              <Link to="/lab/wholesale">Lab wholesale sheet</Link>
             </Button>
           </div>
         </section>
@@ -93,7 +93,7 @@ function AboutPage() {
               <Link to="/preorder">Next shipment</Link>
             </Button>
             <Button variant="ghost" asChild>
-              <Link to="/pamphlet">Print partner pamphlet</Link>
+              <Link to="/lab/wholesale">Open Lab wholesale sheet</Link>
             </Button>
           </div>
         </section>

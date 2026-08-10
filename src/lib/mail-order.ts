@@ -1,13 +1,9 @@
 /**
- * Mail-order launch: pamphlet + wholesale partner list.
+ * Mail-order launch: Lab wholesale sheet + partner list.
  * Partner codes are NEVER printed on the pamphlet — issued by text only.
- *
- * Wholesale = 40% off list, rounded to nearest $10.
- * Suggested retail = public launch price, rounded to nearest $10 for the sheet.
- * All pamphlet money figures print as whole dollars (no cents).
  */
 
-import { catalogProducts, products, SHIPPING, ORDER } from "@/lib/products";
+import { catalogProducts, products, SHIPPING, ORDER, vialPack } from "@/lib/products";
 
 export const SITE_URL = "https://graelpeptides.com";
 export const SITE_HOST = "graelpeptides.com";
@@ -60,47 +56,93 @@ export const MAIL_ORDER = {
 /** 40% off list — matches WHOLESALEJASON */
 export const PARTNER_LIST_OFF = 0.4;
 
+export type PamphletRoundMode = "ten" | "dollar";
+
+export type PamphletOptions = {
+  /** Fraction off list (0.4 = 40%) */
+  listOff: number;
+  roundMode: PamphletRoundMode;
+  /** Show 1-vial wholesale + retail columns */
+  includeSingles: boolean;
+  /** Effective / sheet date ISO yyyy-mm-dd */
+  sheetDate: string;
+  /** Contact line override */
+  contactEmail: string;
+  nextShipNote: string;
+  showRuo: boolean;
+  showTestingNote: boolean;
+  showMargin: boolean;
+  title: string;
+  tagline: string;
+};
+
+export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
+  listOff: PARTNER_LIST_OFF,
+  roundMode: "ten",
+  includeSingles: false,
+  sheetDate: new Date().toISOString().slice(0, 10),
+  contactEmail: CONTACT.email,
+  nextShipNote: MAIL_ORDER.nextShip,
+  showRuo: true,
+  showTestingNote: true,
+  showMargin: true,
+  title: MAIL_ORDER.title,
+  tagline: MAIL_ORDER.tagline,
+};
+
 export type PamphletRow = {
   baseSku: string;
   name: string;
   strength: string;
-  /** Public launch / suggested retail — nearest $10 */
   suggestedRetail: number;
-  /** Full list (MSRP reference) — nearest $10 */
   listPrice: number;
-  /** Partner wholesale — 40% off list, nearest $10 */
   wholesale: number;
-  /** Partner margin vs suggested retail — nearest $10 */
   margin: number;
+  singleWholesale?: number;
+  singleRetail?: number;
 };
 
-/** Round money to nearest $10 (wholesale sheet rule). */
-export function roundToTen(n: number) {
+export function roundMoney(n: number, mode: PamphletRoundMode = "ten") {
+  if (mode === "dollar") return Math.round(n);
   return Math.round(n / 10) * 10;
 }
 
-/** Wholesale = % off list, rounded to nearest $10 */
-export function partnerPrice(listPrice: number) {
-  return roundToTen(listPrice * (1 - PARTNER_LIST_OFF));
+/** @deprecated use roundMoney(..., "ten") */
+export function roundToTen(n: number) {
+  return roundMoney(n, "ten");
 }
 
-export function pamphletRows(): PamphletRow[] {
+/** Wholesale = % off list, rounded */
+export function partnerPrice(listPrice: number, listOff = PARTNER_LIST_OFF, mode: PamphletRoundMode = "ten") {
+  return roundMoney(listPrice * (1 - listOff), mode);
+}
+
+export function pamphletRows(opts: Partial<PamphletOptions> = {}): PamphletRow[] {
+  const o = { ...DEFAULT_PAMPHLET_OPTIONS, ...opts };
   return catalogProducts().map((kit) => {
-    const wholesale = partnerPrice(kit.listPrice);
-    const suggestedRetail = roundToTen(kit.price);
-    return {
+    const wholesale = partnerPrice(kit.listPrice, o.listOff, o.roundMode);
+    const suggestedRetail = roundMoney(kit.price, o.roundMode);
+    const listPrice = roundMoney(kit.listPrice, o.roundMode);
+    const single = vialPack(kit.baseSku);
+    const row: PamphletRow = {
       baseSku: kit.baseSku,
       name: kit.name,
       strength: `10-vial × ${kit.vialLabel}`,
       suggestedRetail,
-      listPrice: roundToTen(kit.listPrice),
+      listPrice,
       wholesale,
-      margin: roundToTen(suggestedRetail - wholesale),
+      margin: roundMoney(suggestedRetail - wholesale, o.roundMode),
     };
+    if (o.includeSingles && single) {
+      row.singleWholesale = partnerPrice(single.listPrice, o.listOff, o.roundMode);
+      row.singleRetail = roundMoney(single.price, o.roundMode);
+      row.strength = `10-pack × ${kit.vialLabel} · 1 vial`;
+    }
+    return row;
   });
 }
 
-/** @deprecated use pamphletRows — kept for any residual imports */
+/** @deprecated */
 export function pamphletRowsLegacy() {
   return catalogProducts().map((kit) => {
     const vial = products.find((p) => p.baseSku === kit.baseSku && p.pack === "vial");
@@ -118,12 +160,22 @@ export function pamphletRowsLegacy() {
   });
 }
 
-/** Whole-dollar currency for the wholesale sheet (nearest $10, no cents). */
-export function formatMoney(n: number) {
-  return roundToTen(n).toLocaleString("en-US", {
+/** Whole-dollar currency for the wholesale sheet. */
+export function formatMoney(n: number, mode: PamphletRoundMode = "ten") {
+  return roundMoney(n, mode).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
+  });
+}
+
+export function formatSheetDate(iso: string) {
+  const d = new Date(iso + "T12:00:00");
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }

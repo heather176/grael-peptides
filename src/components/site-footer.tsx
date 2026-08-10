@@ -31,10 +31,10 @@ export function SiteFooter() {
             Next shipment
           </Link>
           <Link
-            to="/pamphlet"
+            to="/lab"
             className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
           >
-            Wholesale pamphlet
+            Lab
           </Link>
           <a
             href={CONTACT.emailMailto}
