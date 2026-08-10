@@ -1,5 +1,5 @@
 /**
- * Wholesale partner PDF — Cormorant logo, combined pack table, clickable links.
+ * Wholesale partner PDF — logo image, clear tables (10-pack + single vial).
  * Our cost / Our margin never appear.
  */
 import { jsPDF } from "jspdf";
@@ -17,100 +17,141 @@ import {
 
 const CATALOG_URL = `${SITE_URL}/catalog`;
 const CART_URL = `${SITE_URL}/cart`;
+const LOGO_PATH = "/brand/grael-logo.png";
 
-let fontReady: Promise<string | null> | null = null;
+let logoDataUrl: Promise<string | null> | null = null;
 
-/** Load Cormorant Garamond as base64 for jsPDF (browser). */
-function loadCormorantBase64(): Promise<string | null> {
+function loadLogoDataUrl(): Promise<string | null> {
   if (typeof window === "undefined") return Promise.resolve(null);
-  if (fontReady) return fontReady;
-  fontReady = (async () => {
+  if (logoDataUrl) return logoDataUrl;
+  logoDataUrl = (async () => {
     try {
-      const res = await fetch("/fonts/CormorantGaramond-SemiBold.ttf");
+      const res = await fetch(LOGO_PATH);
       if (!res.ok) return null;
-      const buf = await res.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let binary = "";
-      const chunk = 0x8000;
-      for (let i = 0; i < bytes.length; i += chunk) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-      }
-      return btoa(binary);
+      const blob = await res.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      });
     } catch {
       return null;
     }
   })();
-  return fontReady;
-}
-
-function registerBrandFont(doc: jsPDF, b64: string | null) {
-  if (!b64) return false;
-  try {
-    doc.addFileToVFS("CormorantGaramond-SemiBold.ttf", b64);
-    doc.addFont("CormorantGaramond-SemiBold.ttf", "Cormorant", "normal");
-    doc.addFont("CormorantGaramond-SemiBold.ttf", "Cormorant", "bold");
-    return true;
-  } catch {
-    return false;
-  }
+  return logoDataUrl;
 }
 
 function mailtoUrl(email: string) {
   return `mailto:${email}?subject=${encodeURIComponent("Wholesale order — Grael Peptides")}`;
 }
 
-/** Clean blue link without broken letter-spacing */
-function drawLink(
-  doc: jsPDF,
-  label: string,
-  url: string,
-  x: number,
-  y: number,
-  size = 9,
-) {
+function drawLink(doc: jsPDF, label: string, url: string, x: number, y: number, size = 9) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(size);
   doc.setTextColor(25, 90, 170);
   doc.textWithLink(label, x, y, { url });
   const w = doc.getTextWidth(label);
   doc.setDrawColor(25, 90, 170);
-  doc.setLineWidth(0.5);
+  doc.setLineWidth(0.45);
   doc.line(x, y + 1.2, x + w, y + 1.2);
-  doc.setTextColor(30);
+  doc.setTextColor(35);
   return w;
 }
 
-function drawLogo(doc: jsPDF, margin: number, y: number, hasCormorant: boolean) {
-  const brand = "Grael";
-  if (hasCormorant) {
-    doc.setFont("Cormorant", "bold");
-    doc.setFontSize(42);
-  } else {
-    doc.setFont("times", "bold");
-    doc.setFontSize(36);
-  }
-  doc.setTextColor(20);
-  doc.text(brand, margin, y + 10);
-  const brandW = doc.getTextWidth(brand);
+type Col = { key: string; label: string; w: number; align: "left" | "right" };
 
-  // PEPTIDES centered under Grael
+function drawPriceTable(
+  doc: jsPDF,
+  y: number,
+  title: string,
+  subtitle: string,
+  headers: Col[],
+  body: string[][],
+  margin: number,
+  pageW: number,
+  pageH: number,
+  dateLabel: string,
+): number {
+  const ensure = (need: number) => {
+    if (y + need > pageH - 48) {
+      doc.addPage();
+      y = margin;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(130);
+      doc.text(`Grael Peptides · continued · ${dateLabel}`, margin, y);
+      y += 16;
+    }
+  };
+
+  ensure(50);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(20);
+  doc.text(title, margin, y);
+  y += 12;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.setTextColor(130);
-  const sub = "PEPTIDES";
-  const gap = 2.8;
-  let subW = 0;
-  for (let i = 0; i < sub.length; i++) {
-    subW += doc.getTextWidth(sub[i]!);
-    if (i < sub.length - 1) subW += gap;
+  doc.setTextColor(90);
+  doc.text(subtitle, margin, y, { maxWidth: pageW - margin * 2 });
+  y += 14;
+
+  // header
+  ensure(24);
+  doc.setFillColor(248, 248, 245);
+  doc.rect(margin, y - 8, pageW - margin * 2, 18, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(80);
+  let x = margin + 4;
+  headers.forEach((h) => {
+    if (h.align === "right") doc.text(h.label, x + h.w - 2, y, { align: "right" });
+    else doc.text(h.label, x, y);
+    x += h.w;
+  });
+  y += 8;
+  doc.setDrawColor(190);
+  doc.line(margin, y, pageW - margin, y);
+  y += 12;
+
+  for (const row of body) {
+    ensure(34);
+    x = margin + 4;
+    row.forEach((cell, i) => {
+      const h = headers[i]!;
+      if (i === 0) {
+        // compound name bold + size/focus on next lines already in cell with \n
+        const parts = String(cell).split("\n");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(20);
+        doc.text(parts[0] || "", x, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(100);
+        if (parts[1]) doc.text(parts[1], x, y + 10, { maxWidth: h.w - 6 });
+        if (parts[2]) doc.text(parts[2], x, y + 19, { maxWidth: h.w - 6 });
+      } else if (i === 1 && headers[1]?.key === "focus") {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(55);
+        const lines = doc.splitTextToSize(String(cell), h.w - 6) as string[];
+        doc.text(lines.slice(0, 3), x, y);
+      } else {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(25);
+        if (h.align === "right") doc.text(String(cell), x + h.w - 2, y + 4, { align: "right" });
+        else doc.text(String(cell), x, y + 4);
+      }
+      x += h.w;
+    });
+    y += 30;
+    doc.setDrawColor(230);
+    doc.line(margin, y - 8, pageW - margin, y - 8);
   }
-  let sx = margin + Math.max(0, (brandW - subW) / 2);
-  const subY = y + 24;
-  for (let i = 0; i < sub.length; i++) {
-    doc.text(sub[i]!, sx, subY);
-    sx += doc.getTextWidth(sub[i]!) + gap;
-  }
-  return subY + 14;
+  return y + 6;
 }
 
 export async function downloadWholesalePdf(
@@ -118,13 +159,11 @@ export async function downloadWholesalePdf(
   opts: PamphletOptions,
   filename?: string,
 ) {
-  const fontB64 = await loadCormorantBase64();
+  const logo = await loadLogoDataUrl();
   const doc = new jsPDF({ unit: "pt", format: "letter" });
-  const hasCormorant = registerBrandFont(doc, fontB64);
-
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
-  const margin = 40;
+  const margin = 42;
   let y = margin;
 
   const dateLabel = formatSheetDate(opts.sheetDate);
@@ -139,300 +178,237 @@ export async function downloadWholesalePdf(
       y = margin;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      doc.setTextColor(120);
+      doc.setTextColor(130);
       doc.text(`Grael Peptides · continued · ${dateLabel}`, margin, y);
       y += 16;
     }
   };
 
-  // —— Header / logo ——
-  y = drawLogo(doc, margin, y, hasCormorant);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(80);
-  doc.text(opts.tagline, margin, y);
-  y += 14;
-
-  if (client) {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+  // —— Logo (provided brand image) ——
+  if (logo) {
+    // Center logo, ~2.4" wide
+    const logoW = 170;
+    const logoH = 108;
+    const logoX = (pageW - logoW) / 2;
+    doc.addImage(logo, "PNG", logoX, y, logoW, logoH);
+    y += logoH + 10;
+  } else {
+    doc.setFont("times", "bold");
+    doc.setFontSize(32);
     doc.setTextColor(20);
-    doc.text(`Prepared for: ${client}`, margin, y);
-    y += 14;
+    doc.text("Grael", pageW / 2, y + 20, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(130);
+    doc.text("PEPTIDES", pageW / 2, y + 36, { align: "center" });
+    y += 50;
   }
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(30);
+  doc.setTextColor(70);
+  doc.text(opts.tagline, pageW / 2, y, { align: "center" });
+  y += 16;
+
+  if (client) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(20);
+    doc.text(`Prepared for: ${client}`, pageW / 2, y, { align: "center" });
+    y += 14;
+  }
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(50);
   doc.text(`Sheet date: ${dateLabel}`, margin, y);
-  // right-side links
   const hostW = doc.getTextWidth(SITE_HOST);
-  drawLink(doc, SITE_HOST, SITE_URL, pageW - margin - hostW, y, 10);
-  y += 13;
+  drawLink(doc, SITE_HOST, SITE_URL, pageW - margin - hostW, y, 9);
+  y += 12;
   const emailW = doc.getTextWidth(email);
   drawLink(doc, email, mail, pageW - margin - emailW, y, 9);
   y += 16;
 
-  // Clean link bar
-  ensure(48);
+  // Link bar
+  ensure(42);
   doc.setFillColor(246, 246, 243);
-  doc.roundedRect(margin, y - 2, pageW - margin * 2, 40, 3, 3, "F");
-  doc.setFont("helvetica", "bold");
+  doc.roundedRect(margin, y - 2, pageW - margin * 2, 36, 3, 3, "F");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(90);
-  doc.text("Open the store (tap a link)", margin + 12, y + 12);
+  doc.text("Tap a link to open", margin + 12, y + 11);
   let lx = margin + 12;
-  const ly = y + 28;
-  lx += drawLink(doc, "Shop catalog", CATALOG_URL, lx, ly, 10) + 18;
-  lx += drawLink(doc, "Cart / checkout", CART_URL, lx, ly, 10) + 18;
+  const ly = y + 26;
+  lx += drawLink(doc, "Shop catalog", CATALOG_URL, lx, ly, 10) + 20;
+  lx += drawLink(doc, "Cart / checkout", CART_URL, lx, ly, 10) + 20;
   drawLink(doc, "Email wholesale", mail, lx, ly, 10);
-  y += 50;
+  y += 48;
 
   doc.setDrawColor(210);
   doc.line(margin, y, pageW - margin, y);
   y += 12;
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(70);
-  doc.text(
-    `Partner wholesale: ${offPct}% off list · round nearest $${roundStepLabel(opts.roundMode)}`,
-    margin,
-    y,
-  );
-  y += 11;
-  doc.text(opts.nextShipNote, margin, y);
-  y += 11;
-  doc.text(shippingTermsLine(opts), margin, y, { maxWidth: pageW - margin * 2 });
+  doc.setFontSize(9);
+  doc.setTextColor(55);
+  doc.text(`Partner wholesale: ${offPct}% off list · round nearest $${roundStepLabel(opts.roundMode)}`, margin, y);
   y += 12;
+  doc.text(opts.nextShipNote, margin, y);
+  y += 12;
+  doc.text(shippingTermsLine(opts), margin, y, { maxWidth: pageW - margin * 2 });
+  y += 13;
 
   if (!opts.chargeShipping) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(20);
-    doc.text(
-      "SHIPPING: NO CHARGE on this partner account — we are not charging for shipping.",
-      margin,
-      y,
-      { maxWidth: pageW - margin * 2 },
-    );
+    doc.text("SHIPPING: NO CHARGE on this partner account.", margin, y);
     y += 12;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(80);
-    doc.text(
-      "Cold-chain packaging still used when required; Grael covers ship cost on this sheet.",
-      margin,
-      y,
-      { maxWidth: pageW - margin * 2 },
-    );
-    y += 12;
+    doc.text("We are not charging for shipping. Cold-chain used when required.", margin, y);
+    y += 14;
   } else {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(20);
-    doc.text(
-      `SHIPPING: $${opts.shippingAmount || 100} flat US · cold-chain (charged on this account)`,
-      margin,
-      y,
-    );
-    y += 12;
+    doc.text(`SHIPPING: $${opts.shippingAmount || 100} flat US · cold-chain`, margin, y);
+    y += 14;
   }
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(80);
-  if (opts.printPartnerCode && opts.partnerCode.trim()) {
-    doc.setFont("helvetica", "bold");
-    doc.text(`Access code: ${opts.partnerCode.trim().toUpperCase()}`, margin, y);
-    y += 11;
-  } else {
-    doc.text("Access code: provided by text only — not printed on this sheet", margin, y);
-    y += 11;
-  }
-  if (opts.codeExpiresAt) {
-    doc.text(`Code valid through: ${formatSheetDate(opts.codeExpiresAt)}`, margin, y);
-    y += 12;
-  }
-
-  // —— Combined pricing table: 1 vial + 10-pack + research ——
-  ensure(80);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(20);
-  doc.text("Pricing — 1 vial & 10-pack (what to buy)", margin, y);
-  y += 12;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(90);
   doc.text(
-    "You pay = your cost from Grael · Rec. retail = suggested customer price · Research focus = what to tell labs (RUO only)",
+    opts.printPartnerCode && opts.partnerCode.trim()
+      ? `Access code: ${opts.partnerCode.trim().toUpperCase()}`
+      : "Access code: provided by text only — not printed on this sheet",
     margin,
     y,
-    { maxWidth: pageW - margin * 2 },
   );
-  y += 14;
+  y += 11;
+  if (opts.codeExpiresAt) {
+    doc.text(`Code valid through: ${formatSheetDate(opts.codeExpiresAt)}`, margin, y);
+    y += 14;
+  } else {
+    y += 4;
+  }
 
-  // Column layout (letter width ~612, margins 40 → ~532 usable)
-  // Compound 78 | Focus 118 | 1 pay 48 | 1 ret 48 | 10 pay 52 | 10 ret 52 | marg 48 | size note
-  const cols = {
-    name: 72,
-    focus: 130,
-    pay1: 48,
-    ret1: 48,
-    pay10: 52,
-    ret10: 52,
-    marg: 48,
-  };
-  // Actually show size under name; research focus column
+  // —— 10-vial pack table ——
+  const kitHeaders: Col[] = [
+    { key: "name", label: "Compound", w: 100, align: "left" },
+    { key: "focus", label: "Research focus", w: 175, align: "left" },
+    { key: "pay", label: "You pay", w: 70, align: "right" },
+    { key: "ret", label: "Recommended retail", w: 95, align: "right" },
+  ];
+  if (opts.showMargin) {
+    kitHeaders.push({ key: "marg", label: "Your margin", w: 70, align: "right" });
+  }
 
-  const drawHead = () => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.setTextColor(100);
-    let x = margin;
-    const heads: [string, number, "left" | "right"][] = [
-      ["Compound / size", cols.name + 8, "left"],
-      ["Research focus (RUO)", cols.focus, "left"],
-      ["1 vial\nYou pay", cols.pay1, "right"],
-      ["1 vial\nRetail", cols.ret1, "right"],
-      ["10-pack\nYou pay", cols.pay10, "right"],
-      ["10-pack\nRetail", cols.ret10, "right"],
-    ];
-    if (opts.showMargin) heads.push(["10-pack\nmargin", cols.marg, "right"]);
-
-    // single-line headers (compact)
-    const labels = opts.showMargin
-      ? ["Compound", "Research focus", "1·pay", "1·ret", "10·pay", "10·ret", "Margin"]
-      : ["Compound", "Research focus", "1·pay", "1·ret", "10·pay", "10·ret"];
-    const widths = opts.showMargin
-      ? [cols.name + 8, cols.focus, cols.pay1, cols.ret1, cols.pay10, cols.ret10, cols.marg]
-      : [cols.name + 8, cols.focus, cols.pay1, cols.ret1, cols.pay10, cols.ret10];
-
-    x = margin;
-    labels.forEach((h, i) => {
-      const right = i >= 2;
-      doc.text(h, right ? x + widths[i]! : x, y, { align: right ? "right" : "left" });
-      x += widths[i]!;
-    });
-    y += 5;
-    doc.setDrawColor(180);
-    doc.line(margin, y, pageW - margin, y);
-    y += 10;
-    return widths;
-  };
-
-  let widths = drawHead();
-
-  for (const r of rows) {
-    ensure(36);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(20);
-    let x = margin;
-    // name + size
-    doc.text(r.name, x, y, { maxWidth: widths[0]! - 2 });
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(110);
-    doc.text(r.vialLabel, x, y + 9, { maxWidth: widths[0]! - 2 });
-    x += widths[0]!;
-
-    // research focus (truncate carefully)
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(50);
-    const focus = `${r.researchBlurb}`;
-    const focusLines = doc.splitTextToSize(focus, widths[1]! - 4) as string[];
-    doc.text(focusLines.slice(0, 2), x, y);
-    // second line research focus tag
-    if (focusLines.length < 2) {
-      doc.setTextColor(100);
-      doc.text(r.researchFocus, x, y + 9, { maxWidth: widths[1]! - 4 });
-    } else {
-      doc.setTextColor(100);
-      doc.text(r.researchFocus, x, y + 18, { maxWidth: widths[1]! - 4 });
-    }
-    x += widths[1]!;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(20);
-    const nums = [
-      formatMoney(r.singleWholesale, opts.roundMode),
-      formatMoney(r.singleRetail, opts.roundMode),
+  const kitBody = rows.map((r) => {
+    const cells = [
+      `${r.name}\n${r.strength}`,
+      `${r.researchBlurb} · ${r.researchFocus}`,
       formatMoney(r.wholesale, opts.roundMode),
       formatMoney(r.suggestedRetail, opts.roundMode),
     ];
-    if (opts.showMargin) nums.push(formatMoney(r.margin, opts.roundMode));
-    nums.forEach((n, i) => {
-      const wi = widths[i + 2]!;
-      doc.text(n, x + wi, y + 4, { align: "right" });
-      x += wi;
-    });
+    if (opts.showMargin) cells.push(formatMoney(r.margin, opts.roundMode));
+    return cells;
+  });
 
-    y += focusLines.length >= 2 || r.researchFocus ? 28 : 22;
-    doc.setDrawColor(230);
-    doc.line(margin, y - 6, pageW - margin, y - 6);
+  y = drawPriceTable(
+    doc,
+    y,
+    "10-vial pack — what to buy",
+    "Order “Buy 10-pack” on the site. You pay = your cost from Grael. Recommended retail = what to charge customers.",
+    kitHeaders,
+    kitBody,
+    margin,
+    pageW,
+    pageH,
+    dateLabel,
+  );
+
+  // —— Single vial table ——
+  const vialHeaders: Col[] = [
+    { key: "name", label: "Compound", w: 100, align: "left" },
+    { key: "focus", label: "Research focus", w: 175, align: "left" },
+    { key: "pay", label: "You pay", w: 70, align: "right" },
+    { key: "ret", label: "Recommended retail", w: 95, align: "right" },
+  ];
+  if (opts.showMargin) {
+    vialHeaders.push({ key: "marg", label: "Your margin", w: 70, align: "right" });
   }
 
-  y += 8;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
-  doc.setTextColor(100);
-  doc.text(
-    "1·pay / 10·pay = You pay Grael · 1·ret / 10·ret = recommended retail · Margin = 10-pack retail − 10-pack you pay (before your shipping).",
-    margin,
+  const vialBody = rows.map((r) => {
+    const cells = [
+      `${r.name}\n${r.singleStrength}`,
+      `${r.researchBlurb} · ${r.researchFocus}`,
+      formatMoney(r.singleWholesale, opts.roundMode),
+      formatMoney(r.singleRetail, opts.roundMode),
+    ];
+    if (opts.showMargin) cells.push(formatMoney(r.singleMargin, opts.roundMode));
+    return cells;
+  });
+
+  y = drawPriceTable(
+    doc,
     y,
-    { maxWidth: pageW - margin * 2 },
+    "Single vial — what to buy",
+    "Order “Buy 1 vial” on the site when you only need one unit. Same compounds as the 10-pack list.",
+    vialHeaders,
+    vialBody,
+    margin,
+    pageW,
+    pageH,
+    dateLabel,
   );
-  y += 16;
 
   // —— Sell points (compact) ——
-  ensure(100);
+  ensure(90);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setTextColor(20);
   doc.text(PARTNER_SELL_POINTS.title, margin, y);
-  y += 11;
+  y += 12;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
+  doc.setFontSize(8);
   doc.setTextColor(80);
   doc.text(PARTNER_SELL_POINTS.subtitle, margin, y, { maxWidth: pageW - margin * 2 });
   y += 12;
 
   for (const pt of PARTNER_SELL_POINTS.points) {
-    ensure(28);
+    ensure(26);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setTextColor(25);
     doc.text(`• ${pt.title}`, margin, y);
-    y += 10;
+    y += 11;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
     doc.setTextColor(60);
     const lines = doc.splitTextToSize(pt.body, pageW - margin * 2 - 6) as string[];
     for (const line of lines) {
-      doc.text(line, margin + 6, y);
-      y += 9;
+      doc.text(line, margin + 8, y);
+      y += 10;
     }
     y += 3;
   }
 
-  ensure(50);
+  ensure(48);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setTextColor(25);
   doc.text("Quick talk track", margin, y);
-  y += 10;
+  y += 11;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
+  doc.setFontSize(8);
   doc.setTextColor(60);
   for (const t of PARTNER_SELL_POINTS.talkTrack) {
     ensure(12);
     doc.text(`– ${t}`, margin, y, { maxWidth: pageW - margin * 2 });
-    y += 10;
+    y += 11;
   }
   y += 6;
   doc.setFontSize(7);
@@ -440,13 +416,13 @@ export async function downloadWholesalePdf(
   doc.text(PARTNER_SELL_POINTS.compliance, margin, y, { maxWidth: pageW - margin * 2 });
   y += 16;
 
-  // —— How to order ——
-  ensure(70);
+  // How to order
+  ensure(72);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setTextColor(20);
   doc.text("How to order", margin, y);
-  y += 13;
+  y += 14;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(40);
@@ -474,22 +450,21 @@ export async function downloadWholesalePdf(
   );
   y += 18;
 
-  // Footer links
-  ensure(40);
+  ensure(36);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(20);
   doc.text("Quick links", margin, y);
   y += 12;
   let fx = margin;
-  fx += drawLink(doc, "Shop catalog", CATALOG_URL, fx, y, 9) + 16;
-  fx += drawLink(doc, "Cart / checkout", CART_URL, fx, y, 9) + 16;
+  fx += drawLink(doc, "Shop catalog", CATALOG_URL, fx, y, 9) + 18;
+  fx += drawLink(doc, "Cart / checkout", CART_URL, fx, y, 9) + 18;
   drawLink(doc, email, mail, fx, y, 9);
   y += 14;
 
   if (opts.showTestingNote) {
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
     doc.setTextColor(90);
     doc.text(
       "Independent medical-grade third-party testing has been ordered for all peptides and will be posted shortly.",
@@ -497,11 +472,7 @@ export async function downloadWholesalePdf(
       y,
       { maxWidth: pageW - margin * 2 },
     );
-    y += 11;
-  }
-  if (!opts.printPartnerCode) {
-    doc.text("Partner code: by text only — never printed on this sheet.", margin, y);
-    y += 11;
+    y += 12;
   }
   if (opts.showRuo) {
     doc.setFontSize(7);
