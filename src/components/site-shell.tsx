@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { WholesaleInquiryBanner } from "@/components/wholesale-inquiry";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 
 /** Single thin status strip — parchment + green, not slate */
@@ -40,6 +41,7 @@ export function SiteShell({ children }: { children?: ReactNode }) {
       <SiteHeader />
       <StatusStrip />
       <div className="flex-1">{children ?? <Outlet />}</div>
+      <WholesaleInquiryBanner />
       <SiteFooter />
       <Toaster
         theme="light"

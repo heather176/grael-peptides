@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Printer, RotateCcw, Save } from "lucide-react";
+import { Download, Printer, RotateCcw, Save, Database } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { GraelWordmark } from "@/components/grael-wordmark";
@@ -22,6 +22,12 @@ import {
 } from "@/lib/mail-order";
 import { lookupDiscountCode, normalizeCode } from "@/lib/discount-codes";
 import { upsertPartnerCode } from "@/lib/partner-code-registry";
+import {
+  exportWholesalerDbJson,
+  loadWholesalerDb,
+  savePreparedWholesaler,
+  type WholesalerRecord,
+} from "@/lib/wholesaler-db";
 import { downloadWholesalePdf } from "@/lib/wholesale-pdf";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +52,12 @@ function LabWholesalePage() {
   const [opts, setOpts] = useState<PamphletOptions>({ ...DEFAULT_PAMPHLET_OPTIONS });
   const [hydrated, setHydrated] = useState(false);
   const [codeStatus, setCodeStatus] = useState<string>("");
+  const [partners, setPartners] = useState<WholesalerRecord[]>([]);
 
   useEffect(() => {
     const stored = loadStored();
     if (stored) setOpts(stored);
+    setPartners(loadWholesalerDb().partners);
     setHydrated(true);
   }, []);
 
@@ -161,6 +169,35 @@ function LabWholesalePage() {
     setOpts((o) => ({ ...o }));
   }
 
+  function saveToWholesalerDb(markSent: boolean) {
+    if (!opts.clientName.trim()) {
+      toast.error("Enter the client / partner name first (e.g. Jason)");
+      return;
+    }
+    const rec = savePreparedWholesaler({ opts, rows, markSent });
+    setPartners(loadWholesalerDb().partners);
+    toast.success(
+      markSent
+        ? `Saved & marked sent · ${rec.name} (${rec.partnerCode})`
+        : `Saved prepared sheet · ${rec.name} (${rec.partnerCode})`,
+    );
+  }
+
+  function exportDb() {
+    const blob = new Blob([exportWholesalerDbJson()], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `grael-wholesalers-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success("Wholesaler database exported");
+  }
+
+  function loadPartner(p: WholesalerRecord) {
+    setOpts({ ...DEFAULT_PAMPHLET_OPTIONS, ...p.sheet });
+    toast.message(`Loaded sheet for ${p.name}`);
+  }
+
   function onPdf() {
     try {
       const name = downloadWholesalePdf(rows, opts);
@@ -187,14 +224,19 @@ function LabWholesalePage() {
               Wholesale pricing studio
             </h1>
             <p className="mt-1 max-w-xl text-base text-[var(--color-fg-muted)]">
-              Client name, partner code + expiry, manual prices. PDF includes 10-pack and single-vial
-              charts. Saving the code makes expiry work at checkout in this browser.
+              Prepare a partner sheet, PDF it, then{" "}
+              <strong className="font-medium text-[var(--color-fg)]">save to wholesaler DB</strong>{" "}
+              so you have a record of what you sent (e.g. Jason).
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={saveCodeToStore} className="gap-2">
+            <Button size="sm" onClick={() => saveToWholesalerDb(true)} className="gap-2">
+              <Database className="h-4 w-4" strokeWidth={1.5} />
+              Save & mark sent
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => saveToWholesalerDb(false)} className="gap-2">
               <Save className="h-4 w-4" strokeWidth={1.5} />
-              Save code to store
+              Save prepared
             </Button>
             <Button size="sm" variant="secondary" onClick={onPdf} className="gap-2">
               <Download className="h-4 w-4" strokeWidth={1.5} />
@@ -204,6 +246,9 @@ function LabWholesalePage() {
               <Printer className="h-4 w-4" strokeWidth={1.5} />
               Print
             </Button>
+            <Button size="sm" variant="ghost" onClick={saveCodeToStore} className="gap-2">
+              Save code to store
+            </Button>
             <Button size="sm" variant="ghost" onClick={clearOverrides}>
               Clear manual prices
             </Button>
@@ -212,6 +257,51 @@ function LabWholesalePage() {
               Reset studio
             </Button>
           </div>
+        </div>
+
+        {/* Wholesaler database */}
+        <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-medium text-[var(--color-fg)]">Wholesaler database</p>
+              <p className="text-xs text-[var(--color-fg-subtle)]">
+                Saved partners & sheets prepared/sent · this browser · export for backup
+              </p>
+            </div>
+            <Button size="sm" variant="ghost" onClick={exportDb}>
+              Export JSON
+            </Button>
+          </div>
+          {partners.length === 0 ? (
+            <p className="mt-3 text-sm text-[var(--color-fg-subtle)]">
+              No partners saved yet. Prepare Jason’s sheet → <strong>Save & mark sent</strong>.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-[var(--color-border)]">
+              {partners.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
+                >
+                  <div>
+                    <p className="font-medium text-[var(--color-fg)]">{p.name}</p>
+                    <p className="font-mono text-xs text-[var(--color-fg-subtle)]">
+                      {p.partnerCode}
+                      {p.sentAt
+                        ? ` · sent ${formatSheetDate(p.sentAt.slice(0, 10))}`
+                        : " · prepared only"}
+                      {p.chargeShipping
+                        ? ` · ship $${p.shippingAmount}`
+                        : " · no shipping charge"}
+                    </p>
+                  </div>
+                  <Button size="sm" variant="secondary" onClick={() => loadPartner(p)}>
+                    Load sheet
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="grid gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -243,9 +333,6 @@ function LabWholesalePage() {
               value={opts.codeExpiresAt}
               onChange={(e) => patch({ codeExpiresAt: e.target.value })}
             />
-            <p className="text-xs text-[var(--color-fg-subtle)]">
-              After this date the store rejects the code.
-            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="sheetDate">Sheet date (PDF)</Label>
@@ -330,8 +417,7 @@ function LabWholesalePage() {
               </div>
             ) : (
               <p className="pl-6 text-xs text-[var(--color-fg-subtle)]">
-                No shipping charge for this partner (e.g. Jason). Cold-chain still used when
-                needed — you absorb the cost.
+                No shipping charge (e.g. Jason). PDF states clearly we are not charging for shipping.
               </p>
             )}
           </div>
@@ -363,8 +449,7 @@ function LabWholesalePage() {
           <div className="border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-base font-medium text-[var(--color-fg)]">Manual prices for this client</p>
             <p className="text-sm text-[var(--color-fg-subtle)]">
-              Blank = default math from % off list. Edits are for this sheet only (not the public
-              catalog).
+              Blank = default math from % off list. Edits are for this sheet only.
             </p>
           </div>
           <div className="overflow-x-auto">
@@ -418,7 +503,7 @@ function LabWholesalePage() {
         </div>
       </div>
 
-      {/* Printable preview with Grael wordmark logo */}
+      {/* Printable preview */}
       <article className="pamphlet space-y-0 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] print:rounded-none print:border-0 print:shadow-none">
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:p-6">
           <div className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--color-border)] pb-6">
@@ -463,23 +548,33 @@ function LabWholesalePage() {
                 </span>
               </p>
             ) : null}
-            <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
-              Enter the code at checkout on {SITE_HOST}. After the expiry date it will not work.
-            </p>
           </div>
 
-          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-3 text-base">
+          <div
+            className={cn(
+              "mt-4 rounded-[var(--radius-md)] border px-4 py-3 text-base",
+              opts.chargeShipping
+                ? "border-[var(--color-border)]"
+                : "border-[var(--color-success)]/40 bg-[var(--color-success)]/5",
+            )}
+          >
             <p className="font-medium text-[var(--color-fg)]">Shipping</p>
-            <p className="mt-1 text-[var(--color-fg-muted)]">{shippingTermsLine(opts)}</p>
             {opts.chargeShipping ? (
-              <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
-                Cold-chain packaging is required for most peptides — the flat rate covers insulated
-                shippers and ice packs as needed.
-              </p>
+              <>
+                <p className="mt-1 text-[var(--color-fg-muted)]">{shippingTermsLine(opts)}</p>
+                <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
+                  Cold-chain packaging · flat rate covers insulated shippers as needed.
+                </p>
+              </>
             ) : (
-              <p className="mt-1 text-sm text-[var(--color-fg-subtle)]">
-                Special account: shipping not charged. Cold-chain still applied when required.
-              </p>
+              <>
+                <p className="mt-1 text-lg font-medium text-[var(--color-fg)]">
+                  We are not charging for shipping on this account.
+                </p>
+                <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
+                  No ship fee. Cold-chain still applied when required; Grael covers the cost.
+                </p>
+              </>
             )}
           </div>
 
@@ -491,45 +586,33 @@ function LabWholesalePage() {
               <li className="flex gap-3">
                 <span className="font-mono font-medium text-[var(--color-primary)]">1.</span>
                 <span>
-                  Go to{" "}
-                  <span className="font-medium text-[var(--color-fg)]">{SITE_HOST}</span> → Shop.
-                  Each product is a research peptide (same names as this sheet).
+                  Go to <span className="font-medium text-[var(--color-fg)]">{SITE_HOST}</span> →
+                  Shop. Product names match this sheet.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="font-mono font-medium text-[var(--color-primary)]">2.</span>
                 <span>
-                  Choose{" "}
-                  <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> or{" "}
-                  <span className="font-medium text-[var(--color-fg)]">Buy 10-pack</span> on the
-                  product. Add what you need to the cart.
+                  Choose <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> or{" "}
+                  <span className="font-medium text-[var(--color-fg)]">Buy 10-pack</span>.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="font-mono font-medium text-[var(--color-primary)]">3.</span>
                 <span>
-                  At checkout, enter your{" "}
-                  <span className="font-medium text-[var(--color-fg)]">partner code</span> (texted
-                  separately — not on this sheet). Prices drop to the wholesale column below.
+                  Enter your partner code at checkout (texted separately). Prices become{" "}
+                  <span className="font-medium text-[var(--color-fg)]">You pay</span> below.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="font-mono font-medium text-[var(--color-primary)]">4.</span>
                 <span>
-                  Pay by card on the site, or email{" "}
+                  Card online, or email{" "}
                   <span className="font-mono text-[var(--color-primary)]">{opts.contactEmail}</span>{" "}
-                  for an invoice (cash / wire / Zelle).
+                  for invoice.
                 </span>
               </li>
             </ol>
-            <p className="mt-3 text-sm text-[var(--color-fg-subtle)]">
-              <span className="font-medium text-[var(--color-fg-muted)]">You pay</span> = wholesale
-              price on this sheet.{" "}
-              <span className="font-medium text-[var(--color-fg-muted)]">Recommended retail</span> =
-              what we suggest you charge your customers (public catalog).{" "}
-              <span className="font-medium text-[var(--color-fg-muted)]">Your margin</span> = retail −
-              what you pay (before your shipping to them).
-            </p>
           </div>
 
           <p className="mt-4 text-base text-[var(--color-fg-muted)]">
@@ -547,9 +630,8 @@ function LabWholesalePage() {
                 10-vial pack — what to buy
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                Order a <span className="font-medium text-[var(--color-fg)]">10-pack</span> on the
-                site for each line. <span className="font-medium text-[var(--color-fg)]">You pay</span>{" "}
-                is your cost from Grael; recommended retail is for your customers.
+                <span className="font-medium text-[var(--color-fg)]">You pay</span> is your cost from
+                Grael; recommended retail is for your customers.
               </p>
             </div>
             <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
@@ -574,7 +656,7 @@ function LabWholesalePage() {
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
                 Order <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> when you
-                only need one. Same products as the 10-pack list.
+                only need one.
               </p>
             </div>
             <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
@@ -602,9 +684,11 @@ function LabWholesalePage() {
               {opts.contactEmail}
             </p>
             <p>
-              <span className="font-medium text-[var(--color-fg-muted)]">Code expiry</span>
+              <span className="font-medium text-[var(--color-fg-muted)]">Shipping</span>
               <br />
-              {opts.codeExpiresAt ? formatSheetDate(opts.codeExpiresAt) : "—"}
+              {opts.chargeShipping
+                ? `$${opts.shippingAmount} cold-chain`
+                : "No charge on this account"}
             </p>
           </div>
           {opts.showRuo ? (
@@ -614,9 +698,8 @@ function LabWholesalePage() {
       </article>
 
       <p className="mt-4 text-center text-sm text-[var(--color-fg-subtle)] print:hidden">
-        After <strong className="font-medium">Save code to store</strong>, partners enter the code
-        at cart / checkout. Expired codes show “That code has expired.” Default inbox:{" "}
-        {CONTACT.email}.
+        After PDF, use <strong className="font-medium">Save & mark sent</strong> so Jason (or any
+        partner) is stored in your wholesaler database. Inbox: {CONTACT.email}.
       </p>
     </main>
   );
@@ -644,14 +727,11 @@ function PriceTable({
           <tr className="border-b border-[var(--color-border-strong)] text-xs tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
             <th className="py-2.5 pr-2 font-medium">Compound</th>
             <th className="py-2.5 pr-2 font-medium">Size</th>
-            <th className="py-2.5 pr-2 text-right font-medium text-[var(--color-primary)]">
-              You pay
-            </th>
+            <th className="py-2.5 pr-2 text-right font-medium text-[var(--color-primary)]">You pay</th>
             <th className="py-2.5 pr-2 text-right font-medium">Recommended retail</th>
             {showMargin ? (
               <th className="py-2.5 pr-2 text-right font-medium">Your margin</th>
             ) : null}
-            {/* Private — screen only */}
             <th className="hidden py-2.5 pr-2 text-right font-medium text-[var(--color-warning)] print:hidden sm:table-cell">
               Our cost
             </th>
@@ -691,7 +771,6 @@ function PriceTable({
                     type="number"
                     step={1}
                     min={0}
-                    title="Your production / supplier cost — private, not on PDF"
                     className={cn(
                       "h-9 w-full min-w-[4.5rem] rounded-[var(--radius-sm)] border bg-white px-2 text-right font-mono text-sm tabular outline-none focus:border-[var(--color-warning)]",
                       costOverride !== undefined
@@ -700,7 +779,9 @@ function PriceTable({
                     )}
                     placeholder={String(cost)}
                     value={costOverride ?? ""}
-                    onChange={(e) => onProductionChange(r.baseSku, mode === "kit" ? "kit" : "single", e.target.value)}
+                    onChange={(e) =>
+                      onProductionChange(r.baseSku, mode === "kit" ? "kit" : "single", e.target.value)
+                    }
                   />
                 </td>
                 <td
@@ -708,7 +789,6 @@ function PriceTable({
                     "hidden py-3 text-right font-medium tabular print:hidden sm:table-cell",
                     ourMargin >= 0 ? "text-[var(--color-success)]" : "text-[var(--color-danger)]",
                   )}
-                  title="Partner wholesale − our cost · before shipping"
                 >
                   {formatMoney(ourMargin, roundMode)}
                 </td>
@@ -717,12 +797,6 @@ function PriceTable({
           })}
         </tbody>
       </table>
-      <p className="mt-2 text-xs text-[var(--color-fg-subtle)] print:hidden">
-        <span className="font-medium text-[var(--color-warning)]">Our cost</span> = production /
-        supplier price you enter.{" "}
-        <span className="font-medium text-[var(--color-warning)]">Our margin</span> = partner
-        wholesale − our cost (before shipping). Both stay off the PDF and print.
-      </p>
     </div>
   );
 }

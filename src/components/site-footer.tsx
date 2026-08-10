@@ -3,7 +3,7 @@ import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT, TESTING_ORDERED } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.6.1";
+const VERSION = "1.6.2";
 
 export function SiteFooter() {
   return (
@@ -31,12 +31,12 @@ export function SiteFooter() {
           >
             Next shipment
           </Link>
-          <Link
-            to="/lab"
-            className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
+          <a
+            href={CONTACT.emailMailto}
+            className="font-medium text-[var(--color-fg)] no-underline hover:opacity-80"
           >
-            Lab
-          </Link>
+            Wholesale
+          </a>
           <a
             href={CONTACT.emailMailto}
             className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
@@ -58,7 +58,15 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} Grael Peptides · v{VERSION}
           </p>
-          <p>Research use only · {CONTACT.email} · graelpeptides.com</p>
+          <p>
+            Research use only · Wholesale:{" "}
+            <a
+              href={CONTACT.emailMailto}
+              className="font-medium text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
+            >
+              {CONTACT.email}
+            </a>
+          </p>
         </div>
       </div>
     </footer>

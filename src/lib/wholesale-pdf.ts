@@ -139,6 +139,41 @@ export function downloadWholesalePdf(
   y += 12;
   doc.text(shippingTermsLine(opts), margin, y, { maxWidth: pageW - margin * 2 });
   y += 14;
+  if (!opts.chargeShipping) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(30);
+    doc.text(
+      "SHIPPING: NO CHARGE on this partner account — we are not charging for shipping.",
+      margin,
+      y,
+      { maxWidth: pageW - margin * 2 },
+    );
+    y += 12;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(80);
+    doc.text(
+      "Cold-chain packaging still used when required; Grael covers ship cost on this sheet.",
+      margin,
+      y,
+      { maxWidth: pageW - margin * 2 },
+    );
+    y += 14;
+  } else {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(30);
+    doc.text(
+      `SHIPPING: $${opts.shippingAmount || 100} flat US · cold-chain (charged on this account)`,
+      margin,
+      y,
+    );
+    y += 14;
+  }
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(80);
   doc.text(`${SITE_URL} · ${opts.contactEmail}`, margin, y);
   y += 14;
 
