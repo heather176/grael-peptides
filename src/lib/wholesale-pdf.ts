@@ -130,7 +130,29 @@ export function downloadWholesalePdf(
   doc.text(opts.nextShipNote, margin, y);
   y += 12;
   doc.text(`${SITE_URL} · ${opts.contactEmail}`, margin, y);
-  y += 20;
+  y += 14;
+
+  // Partner code block
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(30);
+  if (opts.printPartnerCode && opts.partnerCode.trim()) {
+    doc.text(`Access code: ${opts.partnerCode.trim().toUpperCase()}`, margin, y);
+    y += 12;
+  } else {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80);
+    doc.text("Access code: provided by text only — not printed on this sheet", margin, y);
+    y += 12;
+  }
+  if (opts.codeExpiresAt) {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80);
+    const expLabel = formatSheetDate(opts.codeExpiresAt);
+    doc.text(`Code valid through: ${expLabel}`, margin, y);
+    y += 12;
+  }
+  y += 6;
 
   // —— 10-pack chart ——
   doc.setFont("helvetica", "bold");
@@ -228,8 +250,10 @@ export function downloadWholesalePdf(
     );
     y += 12;
   }
-  doc.text("Partner code: by text only — never printed on this sheet.", margin, y);
-  y += 12;
+  if (!opts.printPartnerCode) {
+    doc.text("Partner code: by text only — never printed on this sheet.", margin, y);
+    y += 12;
+  }
   if (opts.showRuo) {
     doc.setFontSize(7);
     doc.text(

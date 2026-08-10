@@ -79,6 +79,12 @@ export type PamphletOptions = {
   tagline: string;
   /** Prepared for / prepared for partner */
   clientName: string;
+  /** Partner access code (store + optional print) */
+  partnerCode: string;
+  /** Code expiry yyyy-mm-dd */
+  codeExpiresAt: string;
+  /** Print code on sheet/PDF (default off — usually texted) */
+  printPartnerCode: boolean;
   /** Manual price overrides keyed by baseSku */
   overrides: Record<string, PriceOverride>;
 };
@@ -96,6 +102,9 @@ export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   title: MAIL_ORDER.title,
   tagline: MAIL_ORDER.tagline,
   clientName: "",
+  partnerCode: "WHOLESALEJASON",
+  codeExpiresAt: "2026-12-31",
+  printPartnerCode: false,
   overrides: {},
 };
 

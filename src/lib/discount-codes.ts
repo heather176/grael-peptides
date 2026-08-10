@@ -6,7 +6,14 @@
  * Never apply percentOff to product.price (that double-counts pre-sale).
  *
  * Stripe: checkout uses launch prices; stripePercentOff maps list% → launch%.
+ *
+ * Lab studio can override / add codes via partner-code-registry (localStorage).
  */
+
+import {
+  findPartnerCode,
+  partnerRecordToDef,
+} from "@/lib/partner-code-registry";
 
 export type DiscountTier = "wholesale" | "partner" | "vip";
 
@@ -78,21 +85,36 @@ export function normalizeCode(raw: string) {
   return raw.trim().toUpperCase().replace(/\s+/g, "");
 }
 
+function isExpired(expiresAt: string | null | undefined, now: Date): boolean {
+  if (!expiresAt) return false;
+  const exp = new Date(expiresAt).getTime();
+  if (Number.isNaN(exp)) return false;
+  return now.getTime() > exp;
+}
+
+/**
+ * Resolve a code for the store.
+ * Lab partner-code-registry overrides built-in entries (expiry, %, active).
+ */
 export function lookupDiscountCode(raw: string, now = new Date()): DiscountLookupResult {
   let code = normalizeCode(raw);
   if (!code) return { ok: false, reason: "not_found" };
   // Accept WHOLESALEJASON25 as alias of WHOLESALEJASON (40%)
   if (code === "WHOLESALEJASON25") code = "WHOLESALEJASON";
 
+  // Lab registry first (overrides + custom codes)
+  const partner = findPartnerCode(code);
+  if (partner) {
+    const def = partnerRecordToDef(partner);
+    if (!def.active) return { ok: false, reason: "inactive" };
+    if (isExpired(def.expiresAt, now)) return { ok: false, reason: "expired" };
+    return { ok: true, def };
+  }
+
   const def = DISCOUNT_CODES.find((d) => normalizeCode(d.code) === code);
   if (!def) return { ok: false, reason: "not_found" };
   if (!def.active) return { ok: false, reason: "inactive" };
-  if (def.expiresAt) {
-    const exp = new Date(def.expiresAt).getTime();
-    if (!Number.isNaN(exp) && now.getTime() > exp) {
-      return { ok: false, reason: "expired" };
-    }
-  }
+  if (isExpired(def.expiresAt, now)) return { ok: false, reason: "expired" };
   return { ok: true, def };
 }
 
@@ -104,7 +126,7 @@ export function unitPriceWithDiscount(basePrice: number, percentOff: number) {
 
 /**
  * Final charged unit when a code is active: % off LIST only, nearest $10.
- * Public (no code): launch price (already ~15% off list).
+ * Public (no code): launch price.
  */
 export function unitPriceForProduct(
   product: { price: number; listPrice: number },
@@ -122,6 +144,7 @@ export function stripeCheckoutCode(code: string | null | undefined) {
   if (!n) return null;
   // Aliases → live WHOLESALEJASON (40% off list, $400 min on Stripe)
   if (n === "WHOLESALEJASON25" || n === "WHOLESALEJASON40") return "WHOLESALEJASON";
+  // Custom lab codes: pass through; Stripe only honors codes that exist as promo codes
   return n;
 }
 

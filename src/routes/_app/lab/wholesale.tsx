@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Printer, RotateCcw } from "lucide-react";
+import { Download, Printer, RotateCcw, Save } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
   type PamphletOptions,
   type PriceOverride,
 } from "@/lib/mail-order";
+import { lookupDiscountCode, normalizeCode } from "@/lib/discount-codes";
+import { upsertPartnerCode } from "@/lib/partner-code-registry";
 import { downloadWholesalePdf } from "@/lib/wholesale-pdf";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,7 @@ function loadStored(): PamphletOptions | null {
 function LabWholesalePage() {
   const [opts, setOpts] = useState<PamphletOptions>({ ...DEFAULT_PAMPHLET_OPTIONS });
   const [hydrated, setHydrated] = useState(false);
+  const [codeStatus, setCodeStatus] = useState<string>("");
 
   useEffect(() => {
     const stored = loadStored();
@@ -52,9 +55,36 @@ function LabWholesalePage() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(opts));
     } catch {
-      /* ignore quota */
+      /* ignore */
     }
   }, [opts, hydrated]);
+
+  // Live status of code as the store would resolve it
+  useEffect(() => {
+    if (!hydrated) return;
+    const code = opts.partnerCode.trim();
+    if (!code) {
+      setCodeStatus("Enter a partner code to use at checkout.");
+      return;
+    }
+    const result = lookupDiscountCode(code);
+    if (result.ok) {
+      const exp = result.def.expiresAt
+        ? formatSheetDate(result.def.expiresAt.slice(0, 10))
+        : "no expiry";
+      setCodeStatus(
+        `Store: active · ${result.def.percentOff}% off list · valid through ${exp}`,
+      );
+    } else if (result.reason === "expired") {
+      setCodeStatus("Store: EXPIRED — customers will see “That code has expired.”");
+    } else if (result.reason === "inactive") {
+      setCodeStatus("Store: turned off.");
+    } else {
+      setCodeStatus(
+        "Not in store yet — click “Save code to store” so partners can use it at checkout.",
+      );
+    }
+  }, [opts.partnerCode, opts.codeExpiresAt, opts.listOff, hydrated, opts]);
 
   const rows = useMemo(() => pamphletRows(opts), [opts]);
   const offPct = Math.round(opts.listOff * 100);
@@ -85,6 +115,34 @@ function LabWholesalePage() {
     toast.message("Manual prices cleared — back to calculated defaults");
   }
 
+  function saveCodeToStore() {
+    const code = normalizeCode(opts.partnerCode);
+    if (!code) {
+      toast.error("Enter a partner discount code first");
+      return;
+    }
+    if (!opts.codeExpiresAt) {
+      toast.error("Set a code expiry date");
+      return;
+    }
+    const rec = upsertPartnerCode({
+      code,
+      label: opts.clientName.trim()
+        ? `Wholesale · ${opts.clientName.trim()}`
+        : `Wholesale ${code}`,
+      percentOff: offPct,
+      expiresAt: opts.codeExpiresAt,
+      active: true,
+      clientName: opts.clientName.trim() || undefined,
+      note: `Lab studio · ${offPct}% off list · expires ${opts.codeExpiresAt}`,
+    });
+    toast.success(
+      `Saved ${rec.code} · ${rec.percentOff}% off list · expires ${formatSheetDate(opts.codeExpiresAt)}`,
+    );
+    // force status re-eval
+    setOpts((o) => ({ ...o }));
+  }
+
   function onPdf() {
     try {
       const name = downloadWholesalePdf(rows, opts);
@@ -101,7 +159,6 @@ function LabWholesalePage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 print:max-w-none print:px-0 print:py-0">
-      {/* —— Studio controls —— */}
       <div className="mb-6 space-y-4 print:hidden">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -112,18 +169,20 @@ function LabWholesalePage() {
               Wholesale pricing studio
             </h1>
             <p className="mt-1 max-w-xl text-sm text-[var(--color-fg-muted)]">
-              Set client name, tweak any price by hand, then download a dated PDF with both{" "}
-              <strong className="font-medium text-[var(--color-fg)]">10-pack</strong> and{" "}
-              <strong className="font-medium text-[var(--color-fg)]">single vial</strong> charts.
-              Saves in this browser until you reset.
+              Client name, partner code + expiry, manual prices. PDF includes 10-pack and single-vial
+              charts. Saving the code makes expiry work at checkout in this browser.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={onPdf} className="gap-2">
+            <Button size="sm" onClick={saveCodeToStore} className="gap-2">
+              <Save className="h-4 w-4" strokeWidth={1.5} />
+              Save code to store
+            </Button>
+            <Button size="sm" variant="secondary" onClick={onPdf} className="gap-2">
               <Download className="h-4 w-4" strokeWidth={1.5} />
               Download PDF
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => window.print()} className="gap-2">
+            <Button size="sm" variant="ghost" onClick={() => window.print()} className="gap-2">
               <Printer className="h-4 w-4" strokeWidth={1.5} />
               Print
             </Button>
@@ -137,9 +196,10 @@ function LabWholesalePage() {
           </div>
         </div>
 
+        {/* Client + code */}
         <div className="grid gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-            <Label htmlFor="clientName">Client / partner name (on sheet & PDF)</Label>
+            <Label htmlFor="clientName">Client / partner name</Label>
             <Input
               id="clientName"
               placeholder="e.g. Jason · Summit Research"
@@ -148,7 +208,30 @@ function LabWholesalePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sheetDate">Sheet date</Label>
+            <Label htmlFor="partnerCode">Partner discount code</Label>
+            <Input
+              id="partnerCode"
+              className="font-mono uppercase"
+              placeholder="WHOLESALEJASON"
+              value={opts.partnerCode}
+              onChange={(e) => patch({ partnerCode: e.target.value.toUpperCase() })}
+            />
+            <p className="text-[11px] text-[var(--color-fg-subtle)]">{codeStatus}</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="codeExpiresAt">Code expiry date</Label>
+            <Input
+              id="codeExpiresAt"
+              type="date"
+              value={opts.codeExpiresAt}
+              onChange={(e) => patch({ codeExpiresAt: e.target.value })}
+            />
+            <p className="text-[11px] text-[var(--color-fg-subtle)]">
+              After this date the store rejects the code.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sheetDate">Sheet date (PDF)</Label>
             <Input
               id="sheetDate"
               type="date"
@@ -157,7 +240,7 @@ function LabWholesalePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="listOff">Default wholesale % off list ({offPct}%)</Label>
+            <Label htmlFor="listOff">Wholesale % off list ({offPct}%)</Label>
             <Input
               id="listOff"
               type="number"
@@ -203,6 +286,11 @@ function LabWholesalePage() {
           </div>
           <div className="flex flex-col justify-end gap-2">
             <Toggle
+              checked={opts.printPartnerCode}
+              onChange={(v) => patch({ printPartnerCode: v })}
+              label="Print code on PDF (usually leave off — text it)"
+            />
+            <Toggle
               checked={opts.showMargin}
               onChange={(v) => patch({ showMargin: v })}
               label="Show margin columns"
@@ -225,8 +313,8 @@ function LabWholesalePage() {
           <div className="border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-sm font-medium text-[var(--color-fg)]">Manual prices for this client</p>
             <p className="text-xs text-[var(--color-fg-subtle)]">
-              Leave blank to use the default calculation. Edited cells override for the preview and
-              PDF only (does not change the public shop).
+              Blank = default math from % off list. Edits are for this sheet only (not the public
+              catalog).
             </p>
           </div>
           <div className="overflow-x-auto">
@@ -280,7 +368,7 @@ function LabWholesalePage() {
         </div>
       </div>
 
-      {/* —— Printable preview —— */}
+      {/* Preview */}
       <article className="pamphlet space-y-0 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] print:rounded-none print:border-0 print:shadow-none">
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:p-6">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--color-border)] pb-5">
@@ -307,6 +395,31 @@ function LabWholesalePage() {
               </p>
             </div>
           </div>
+
+          <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-4 py-3 text-sm">
+            <p className="font-medium text-[var(--color-fg)]">Partner access</p>
+            {opts.printPartnerCode && opts.partnerCode.trim() ? (
+              <p className="mt-1 font-mono text-[var(--color-primary)]">
+                Code · {opts.partnerCode.trim().toUpperCase()}
+              </p>
+            ) : (
+              <p className="mt-1 text-[var(--color-fg-muted)]">
+                Access code provided by text only — not printed on this sheet
+              </p>
+            )}
+            {opts.codeExpiresAt ? (
+              <p className="mt-1 text-[var(--color-fg-muted)]">
+                Code valid through ·{" "}
+                <span className="font-medium text-[var(--color-fg)]">
+                  {formatSheetDate(opts.codeExpiresAt)}
+                </span>
+              </p>
+            ) : null}
+            <p className="mt-1 text-xs text-[var(--color-fg-subtle)]">
+              Enter the code at checkout on {SITE_HOST}. After the expiry date it will not work.
+            </p>
+          </div>
+
           <p className="mt-4 text-sm text-[var(--color-fg-muted)]">
             Default partner: {offPct}% off list ·{" "}
             <span className="font-medium text-[var(--color-fg)]">Recommended retail</span> = public
@@ -317,7 +430,6 @@ function LabWholesalePage() {
           ) : null}
         </section>
 
-        {/* 10-pack chart */}
         <section className="border-b border-[var(--color-border)] p-6 sm:p-8 print:break-inside-avoid print:p-6">
           <h2 className="font-display text-2xl font-semibold tracking-tight">
             10-vial pack pricing
@@ -339,7 +451,6 @@ function LabWholesalePage() {
           />
         </section>
 
-        {/* Single vial chart */}
         <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
           <h2 className="font-display text-2xl font-semibold tracking-tight">
             Single vial pricing
@@ -373,9 +484,9 @@ function LabWholesalePage() {
               {opts.contactEmail}
             </p>
             <p>
-              <span className="font-medium text-[var(--color-fg-muted)]">Partner code</span>
+              <span className="font-medium text-[var(--color-fg-muted)]">Code expiry</span>
               <br />
-              By text only · never on this sheet
+              {opts.codeExpiresAt ? formatSheetDate(opts.codeExpiresAt) : "—"}
             </p>
           </div>
           {opts.showRuo ? (
@@ -387,7 +498,9 @@ function LabWholesalePage() {
       </article>
 
       <p className="mt-4 text-center text-xs text-[var(--color-fg-subtle)] print:hidden">
-        PDF includes both charts + client name + date. Default inbox: {CONTACT.email}.
+        After <strong className="font-medium">Save code to store</strong>, partners enter the code
+        at cart / checkout. Expired codes show “That code has expired.” Default inbox:{" "}
+        {CONTACT.email}.
       </p>
     </main>
   );
@@ -422,9 +535,7 @@ function PriceTable({
               Your wholesale
             </th>
             <th className="py-2 pr-2 text-right font-medium">Recommended retail</th>
-            {showMargin ? (
-              <th className="py-2 text-right font-medium">Your margin</th>
-            ) : null}
+            {showMargin ? <th className="py-2 text-right font-medium">Your margin</th> : null}
           </tr>
         </thead>
         <tbody>
