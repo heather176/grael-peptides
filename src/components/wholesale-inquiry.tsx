@@ -1,3 +1,4 @@
+import { CRYPTO_PAY } from "@/lib/crypto-payments";
 import { CONTACT } from "@/lib/mail-order";
 
 /** Site-wide cue: wholesale pricing available via wholesale@ */
@@ -19,8 +20,8 @@ export function WholesaleInquiryBanner({ className }: { className?: string }) {
             Wholesale pricing available
           </p>
           <p className="text-sm text-[var(--color-fg-muted)] sm:text-base">
-            Resellers and labs: ask for partner rates, invoice billing, and volume packs. Research use
-            only.
+            Resellers and labs: partner rates, invoice billing, volume packs. Pay by card or crypto (
+            {CRYPTO_PAY.methodsLabel}). Research use only.
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 sm:items-end">
