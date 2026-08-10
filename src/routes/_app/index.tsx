@@ -13,35 +13,34 @@ function HomePage() {
 
   return (
     <main>
-      {/* Full-bleed clinical-luxury hero */}
+      {/* Clean hero: copy over soft vial photo — no framed poster card */}
       <section className="relative overflow-hidden border-b border-[var(--color-border)]">
         <div className="absolute inset-0">
           <img
-            src="/products/hero-primary.jpg"
+            src="/products/hero-bg.jpg"
             alt=""
-            className="h-full w-full object-cover object-center"
+            className="h-full w-full object-cover object-[70%_center] sm:object-[80%_center]"
             aria-hidden
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg)] via-[var(--color-bg)]/92 to-[var(--color-bg)]/35 sm:via-[var(--color-bg)]/88 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/20 sm:from-white sm:via-white/90 sm:to-transparent" />
         </div>
 
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-28">
-          <div className="space-y-6">
+        <div className="relative mx-auto flex min-h-[28rem] max-w-6xl flex-col justify-center px-4 py-24 sm:min-h-[32rem] sm:px-6 sm:py-28 lg:py-32">
+          <div className="max-w-xl space-y-6">
             <p className="text-[11px] font-medium tracking-[0.22em] text-[var(--color-fg-subtle)] uppercase">
               Grael Peptides · Research use only
             </p>
-            <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-fg)] sm:text-5xl lg:text-[3.65rem]">
-              Quiet. Clear.
+            <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-fg)] sm:text-5xl lg:text-[3.5rem]">
+              Research peptides,
               <br />
-              Research-ready.
+              clearly presented.
             </h1>
             <p className="max-w-md text-[var(--color-fg-muted)] leading-relaxed">
-              Clinical-luxury research materials. Priced by{" "}
-              <span className="text-[var(--color-fg)]">single vial</span>, with a{" "}
+              Priced by <span className="text-[var(--color-fg)]">single vial</span>, with a{" "}
               <span className="text-[var(--color-fg)]">10-pack</span> on every compound. Produced
-              when you buy. {TESTING_ORDERED}{" "}
+              when you buy. {TESTING_ORDERED}
               {NEXT_SHIPMENT.active ? (
-                <>Next shipment {NEXT_SHIPMENT.estimatedShipLabel}.</>
+                <> Next shipment {NEXT_SHIPMENT.estimatedShipLabel}.</>
               ) : null}
             </p>
             <div className="flex flex-wrap gap-3">
@@ -56,21 +55,7 @@ function HomePage() {
               </Button>
             </div>
             <p className="text-[11px] tracking-[0.14em] text-[var(--color-fg-subtle)] uppercase">
-              {LAUNCH.suppliesLabel} · Silver · stone · white
-            </p>
-          </div>
-
-          {/* Framed product still — matches BPC vial language */}
-          <div className="mx-auto w-full max-w-md">
-            <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white/70 shadow-[var(--shadow-soft)] backdrop-blur-[2px]">
-              <img
-                src="/products/hero-canva.png"
-                alt="Grael Peptides — Quiet. Clear. Research-ready."
-                className="aspect-[4/5] w-full object-cover object-top"
-              />
-            </div>
-            <p className="mt-3 text-center text-[11px] tracking-[0.14em] text-[var(--color-fg-subtle)] uppercase">
-              Canva poster · studio vial · Traceabl
+              {LAUNCH.suppliesLabel}
             </p>
           </div>
         </div>
