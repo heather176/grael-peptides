@@ -15,10 +15,13 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppAboutRouteImport } from './routes/_app/about'
 import { Route as AppCartRouteImport } from './routes/_app/cart'
 import { Route as AppCatalogRouteImport } from './routes/_app/catalog'
+import { Route as AppLabRouteImport } from './routes/_app/lab'
 import { Route as AppLabelsRouteImport } from './routes/_app/labels'
 import { Route as AppPamphletRouteImport } from './routes/_app/pamphlet'
 import { Route as AppPreorderRouteImport } from './routes/_app/preorder'
 import { Route as AppTransparencyRouteImport } from './routes/_app/transparency'
+import { Route as AppLabIndexRouteImport } from './routes/_app/lab/index'
+import { Route as AppLabWholesaleRouteImport } from './routes/_app/lab/wholesale'
 import { Route as AppProductsSkuRouteImport } from './routes/_app/products.$sku'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -51,6 +54,11 @@ const AppCatalogRoute = AppCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLabRoute = AppLabRouteImport.update({
+  id: '/lab',
+  path: '/lab',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLabelsRoute = AppLabelsRouteImport.update({
   id: '/labels',
   path: '/labels',
@@ -71,6 +79,16 @@ const AppTransparencyRoute = AppTransparencyRouteImport.update({
   path: '/transparency',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLabIndexRoute = AppLabIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppLabRoute,
+} as any)
+const AppLabWholesaleRoute = AppLabWholesaleRouteImport.update({
+  id: '/wholesale',
+  path: '/wholesale',
+  getParentRoute: () => AppLabRoute,
+} as any)
 const AppProductsSkuRoute = AppProductsSkuRouteImport.update({
   id: '/products/$sku',
   path: '/products/$sku',
@@ -88,12 +106,15 @@ export interface FileRoutesByFullPath {
   '/about': typeof AppAboutRoute
   '/cart': typeof AppCartRoute
   '/catalog': typeof AppCatalogRoute
+  '/lab': typeof AppLabRouteWithChildren
   '/labels': typeof AppLabelsRoute
   '/pamphlet': typeof AppPamphletRoute
   '/preorder': typeof AppPreorderRoute
   '/transparency': typeof AppTransparencyRoute
+  '/lab/wholesale': typeof AppLabWholesaleRoute
   '/products/$sku': typeof AppProductsSkuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/lab/': typeof AppLabIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -105,8 +126,10 @@ export interface FileRoutesByTo {
   '/preorder': typeof AppPreorderRoute
   '/transparency': typeof AppTransparencyRoute
   '/': typeof AppIndexRoute
+  '/lab/wholesale': typeof AppLabWholesaleRoute
   '/products/$sku': typeof AppProductsSkuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/lab': typeof AppLabIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -115,13 +138,16 @@ export interface FileRoutesById {
   '/_app/about': typeof AppAboutRoute
   '/_app/cart': typeof AppCartRoute
   '/_app/catalog': typeof AppCatalogRoute
+  '/_app/lab': typeof AppLabRouteWithChildren
   '/_app/labels': typeof AppLabelsRoute
   '/_app/pamphlet': typeof AppPamphletRoute
   '/_app/preorder': typeof AppPreorderRoute
   '/_app/transparency': typeof AppTransparencyRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/lab/wholesale': typeof AppLabWholesaleRoute
   '/_app/products/$sku': typeof AppProductsSkuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_app/lab/': typeof AppLabIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,12 +157,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/cart'
     | '/catalog'
+    | '/lab'
     | '/labels'
     | '/pamphlet'
     | '/preorder'
     | '/transparency'
+    | '/lab/wholesale'
     | '/products/$sku'
     | '/api/auth/$'
+    | '/lab/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -148,8 +177,10 @@ export interface FileRouteTypes {
     | '/preorder'
     | '/transparency'
     | '/'
+    | '/lab/wholesale'
     | '/products/$sku'
     | '/api/auth/$'
+    | '/lab'
   id:
     | '__root__'
     | '/_app'
@@ -157,13 +188,16 @@ export interface FileRouteTypes {
     | '/_app/about'
     | '/_app/cart'
     | '/_app/catalog'
+    | '/_app/lab'
     | '/_app/labels'
     | '/_app/pamphlet'
     | '/_app/preorder'
     | '/_app/transparency'
     | '/_app/'
+    | '/_app/lab/wholesale'
     | '/_app/products/$sku'
     | '/api/auth/$'
+    | '/_app/lab/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCatalogRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/lab': {
+      id: '/_app/lab'
+      path: '/lab'
+      fullPath: '/lab'
+      preLoaderRoute: typeof AppLabRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/labels': {
       id: '/_app/labels'
       path: '/labels'
@@ -244,6 +285,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransparencyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/lab/': {
+      id: '/_app/lab/'
+      path: '/'
+      fullPath: '/lab/'
+      preLoaderRoute: typeof AppLabIndexRouteImport
+      parentRoute: typeof AppLabRoute
+    }
+    '/_app/lab/wholesale': {
+      id: '/_app/lab/wholesale'
+      path: '/wholesale'
+      fullPath: '/lab/wholesale'
+      preLoaderRoute: typeof AppLabWholesaleRouteImport
+      parentRoute: typeof AppLabRoute
+    }
     '/_app/products/$sku': {
       id: '/_app/products/$sku'
       path: '/products/$sku'
@@ -261,10 +316,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppLabRouteChildren {
+  AppLabWholesaleRoute: typeof AppLabWholesaleRoute
+  AppLabIndexRoute: typeof AppLabIndexRoute
+}
+
+const AppLabRouteChildren: AppLabRouteChildren = {
+  AppLabWholesaleRoute: AppLabWholesaleRoute,
+  AppLabIndexRoute: AppLabIndexRoute,
+}
+
+const AppLabRouteWithChildren =
+  AppLabRoute._addFileChildren(AppLabRouteChildren)
+
 interface AppRouteChildren {
   AppAboutRoute: typeof AppAboutRoute
   AppCartRoute: typeof AppCartRoute
   AppCatalogRoute: typeof AppCatalogRoute
+  AppLabRoute: typeof AppLabRouteWithChildren
   AppLabelsRoute: typeof AppLabelsRoute
   AppPamphletRoute: typeof AppPamphletRoute
   AppPreorderRoute: typeof AppPreorderRoute
@@ -277,6 +346,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAboutRoute: AppAboutRoute,
   AppCartRoute: AppCartRoute,
   AppCatalogRoute: AppCatalogRoute,
+  AppLabRoute: AppLabRouteWithChildren,
   AppLabelsRoute: AppLabelsRoute,
   AppPamphletRoute: AppPamphletRoute,
   AppPreorderRoute: AppPreorderRoute,
