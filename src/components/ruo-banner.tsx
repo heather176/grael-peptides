@@ -1,4 +1,5 @@
 import { AlertTriangle } from "lucide-react";
+import { TESTING_ORDERED } from "@/lib/products";
 
 export function RuoBanner({ compact = false }: { compact?: boolean }) {
   return (
@@ -12,8 +13,8 @@ export function RuoBanner({ compact = false }: { compact?: boolean }) {
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-warning)]" strokeWidth={1.75} />
       <p className="leading-snug">
         <span className="font-semibold text-[var(--color-fg)]">Research Use Only.</span>{" "}
-        Not for human or animal consumption, clinical treatment, or diagnostic use. Independent
-        Traceable COAs ship with each batch.
+        Not for human or animal consumption, clinical treatment, or diagnostic use.{" "}
+        {TESTING_ORDERED}
       </p>
     </div>
   );

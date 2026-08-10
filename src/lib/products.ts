@@ -36,48 +36,51 @@ export type Product = {
   badge?: string;
 };
 
+export const TESTING_ORDERED =
+  "Independent third-party testing has been ordered for all peptides and will be posted shortly.";
+
 export const LAUNCH = {
   active: true,
   label: "Launch open",
-  discountLabel: "15% off list",
+  discountLabel: "",
   suppliesLabel: "While supplies last",
-  note: "Launch pricing · unbreakable 10-vial packs. We order a pack from our supplier when you buy.",
-  coaNote: "Traceabl COA turnaround: target 5–7 business days after receipt.",
+  note: "Single vial default · 10-pack available · produced when you buy.",
+  coaNote: TESTING_ORDERED,
 } as const;
 
 export const PRESALE = {
-  active: LAUNCH.active,
+  active: false,
   label: LAUNCH.label,
-  discountLabel: LAUNCH.discountLabel,
+  discountLabel: "",
   note: `${LAUNCH.suppliesLabel}. ${LAUNCH.note}`,
 } as const;
 
 export const NEXT_SHIPMENT = {
   active: true,
   label: "Purchase next shipment",
-  estimatedShipDate: "2026-08-18",
-  estimatedShipLabel: "August 18, 2026",
-  shortLabel: "Next ship ~Aug 18",
-  daysEstimate: 10,
+  estimatedShipDate: "2026-08-12",
+  estimatedShipLabel: "August 12, 2026",
+  shortLabel: "Next ship Aug 12",
+  daysEstimate: 2,
   note:
-    "Reserve the next shipment wave. Your prices are locked at reserve — you are not charged today. When the next order goes out (~August 18, 2026), we charge the reserved total and place the supplier order.",
+    "Reserve the next shipment wave. Your prices are locked at reserve — you are not charged today. When the next production run goes out (August 12, 2026), we charge the reserved total and produce your packs.",
   cartNote:
-    "Next shipment: prices reserved now · charged when the next order goes out (~Aug 18) · not charged today.",
-  reserveHeadline: "Prices reserved · charged when next order goes out",
+    "Next shipment: prices reserved now · charged when the next production run goes out (Aug 12) · not charged today.",
+  reserveHeadline: "Prices reserved · charged when next production run goes out",
   chargeWhen:
-    "Charged when the next order goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
-  shortCharge: "Reserved price · charge on next order",
+    "Charged when the next production run goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
+  shortCharge: "Reserved price · charge on next production run",
 } as const;
 
 export const STRIPE_MULTI_CHECKOUT =
-  "https://buy.stripe.com/6oU7sL15Zg1gcT5bDUfAc0P";
+  "https://buy.stripe.com/00waEX15ZaGW6uHcHYfAc1e";
 
 export const ORDER = {
   payFirst: true,
   minProductSubtotal: 400,
   mailOrder: true,
   flowNote:
-    "Mail-order: pay online (or partner invoice) → we place the supplier order → vials ship to you",
+    "Mail-order: pay online (or partner invoice) → we produce your packs → vials ship to you",
   flowDetail:
     "In-stock checkout charges now. Next shipment reserves prices and charges when the consolidated order goes out.",
 } as const;
@@ -106,8 +109,8 @@ export const FORM_LABELS: Record<Product["form"], string> = {
   "liquid-clear": "Liquid",
 };
 
-/** Launch: unbreakable 10-vial packs only (single SKUs kept, not sold). */
-export const SELL_SINGLES = false;
+/** Launch: single vial + 10-vial pack per compound (default display = single). */
+export const SELL_SINGLES = true;
 
 export const products: Product[] = [
   {
@@ -117,10 +120,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Tirzepatide",
     category: "metabolic",
-    strength: "15 mg × 10 vials",
+    strength: "10-vial × 15 mg",
     vials: 10,
-    price: 699,
-    listPrice: 822,
+    price: 700,
+    listPrice: 820,
     short: "Dual GLP-1 / GIP receptor research compound",
     description:
       "Research-grade Tirzepatide for metabolic pathway studies. Dual agonist profile used in controlled laboratory models of energy balance and glycemic signaling.",
@@ -131,7 +134,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXcDi3y8Lwmj8wvvLRykz",
     paymentLink: "https://buy.stripe.com/3cIdR98yr7uKcT537ofAc0Q",
     form: "lyophilized-cream",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-tirz.jpg",
     vialLabel: "15 mg",
     featured: true,
     badge: "Core",
@@ -143,10 +146,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Tirzepatide",
     category: "metabolic",
-    strength: "15 mg · single vial",
+    strength: "1-vial × 15 mg",
     vials: 1,
-    price: 79,
-    listPrice: 93,
+    price: 80,
+    listPrice: 90,
     short: "Dual GLP-1 / GIP receptor research compound",
     description:
       "Research-grade Tirzepatide for metabolic pathway studies. Dual agonist profile used in controlled laboratory models of energy balance and glycemic signaling.",
@@ -157,7 +160,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXbDi3y8Lwmj8PD2dqOOs",
     paymentLink: "https://buy.stripe.com/dRm14ncOH02i3ivdM2fAc0R",
     form: "lyophilized-cream",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-tirz.jpg",
     vialLabel: "15 mg",
     badge: "Single",
   },
@@ -168,10 +171,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Semaglutide",
     category: "metabolic",
-    strength: "15 mg × 10 vials",
+    strength: "10-vial × 15 mg",
     vials: 10,
-    price: 599,
-    listPrice: 705,
+    price: 600,
+    listPrice: 700,
     short: "GLP-1 receptor agonist for metabolic research",
     description:
       "Lyophilized Semaglutide for in-vitro and preclinical metabolic research. Long-acting GLP-1 pathway reference standard.",
@@ -182,7 +185,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXfDi3y8Lwmj8OAozWm3c",
     paymentLink: "https://buy.stripe.com/14AfZh8yr9CS9GT6jAfAc0S",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-sema.jpg",
     vialLabel: "15 mg",
     featured: true,
     badge: "Core",
@@ -194,10 +197,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Semaglutide",
     category: "metabolic",
-    strength: "15 mg · single vial",
+    strength: "1-vial × 15 mg",
     vials: 1,
-    price: 69,
-    listPrice: 81,
+    price: 70,
+    listPrice: 80,
     short: "GLP-1 receptor agonist for metabolic research",
     description:
       "Lyophilized Semaglutide for in-vitro and preclinical metabolic research. Long-acting GLP-1 pathway reference standard.",
@@ -208,7 +211,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXeDi3y8Lwmj80bksXApu",
     paymentLink: "https://buy.stripe.com/14A7sL7un16m1an37ofAc0T",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-sema.jpg",
     vialLabel: "15 mg",
     badge: "Single",
   },
@@ -219,10 +222,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Retatrutide",
     category: "metabolic",
-    strength: "10 mg × 10 vials",
+    strength: "10-vial × 10 mg",
     vials: 10,
-    price: 849,
-    listPrice: 999,
+    price: 850,
+    listPrice: 1000,
     short: "Triple agonist metabolic research compound",
     description:
       "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
@@ -233,7 +236,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXiDi3y8Lwmj8nCuiMTm8",
     paymentLink: "https://buy.stripe.com/aFadR915Z6qG5qD0ZgfAc0U",
     form: "lyophilized-cream",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-reta.jpg",
     vialLabel: "10 mg",
     featured: true,
     badge: "Rising",
@@ -245,10 +248,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Retatrutide",
     category: "metabolic",
-    strength: "10 mg · single vial",
+    strength: "1-vial × 10 mg",
     vials: 1,
-    price: 99,
-    listPrice: 116,
+    price: 100,
+    listPrice: 120,
     short: "Triple agonist metabolic research compound",
     description:
       "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
@@ -259,7 +262,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXgDi3y8Lwmj80GcCWhu7",
     paymentLink: "https://buy.stripe.com/eVqcN52a3g1gbP1bDUfAc0V",
     form: "lyophilized-cream",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-reta.jpg",
     vialLabel: "10 mg",
     badge: "Single",
   },
@@ -270,10 +273,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "BPC-157",
     category: "healing",
-    strength: "10 mg × 10 vials",
+    strength: "10-vial × 10 mg",
     vials: 10,
-    price: 399,
-    listPrice: 469,
+    price: 400,
+    listPrice: 470,
     short: "Body protection compound for tissue research",
     description:
       "BPC-157 for soft-tissue and angiogenesis pathway research. Stable research peptide widely studied in repair models.",
@@ -284,7 +287,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXnDi3y8Lwmj83f6PYPCM",
     paymentLink: "https://buy.stripe.com/eVqdR92a3bL0aKXdM2fAc0W",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-bpc.jpg",
     vialLabel: "10 mg",
     featured: true,
   },
@@ -295,10 +298,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "BPC-157",
     category: "healing",
-    strength: "10 mg · single vial",
+    strength: "1-vial × 10 mg",
     vials: 1,
-    price: 49,
-    listPrice: 58,
+    price: 50,
+    listPrice: 60,
     short: "Body protection compound for tissue research",
     description:
       "BPC-157 for soft-tissue and angiogenesis pathway research. Stable research peptide widely studied in repair models.",
@@ -309,7 +312,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXmDi3y8Lwmj8zBsu7JAw",
     paymentLink: "https://buy.stripe.com/3cI28rbKD5mC1angYefAc0X",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-bpc.jpg",
     vialLabel: "10 mg",
     badge: "Single",
   },
@@ -320,10 +323,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "TB-500",
     category: "healing",
-    strength: "5 mg × 10 vials",
+    strength: "10-vial × 5 mg",
     vials: 10,
-    price: 449,
-    listPrice: 528,
+    price: 450,
+    listPrice: 530,
     short: "Thymosin Beta-4 fragment for recovery research",
     description:
       "TB-500 (Thymosin Beta-4 related) for cytoskeletal and recovery pathway research. Frequently paired with BPC-157.",
@@ -334,7 +337,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXpDi3y8Lwmj8WeWId8Rx",
     paymentLink: "https://buy.stripe.com/14AfZheWP6qG1andM2fAc0Y",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-tb.jpg",
     vialLabel: "5 mg",
   },
   {
@@ -344,10 +347,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "TB-500",
     category: "healing",
-    strength: "5 mg · single vial",
+    strength: "1-vial × 5 mg",
     vials: 1,
-    price: 55,
-    listPrice: 65,
+    price: 60,
+    listPrice: 70,
     short: "Thymosin Beta-4 fragment for recovery research",
     description:
       "TB-500 (Thymosin Beta-4 related) for cytoskeletal and recovery pathway research. Frequently paired with BPC-157.",
@@ -358,7 +361,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXoDi3y8Lwmj8LVLj9e0V",
     paymentLink: "https://buy.stripe.com/00w4gzdSLdT87yL9vMfAc0Z",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-tb.jpg",
     vialLabel: "5 mg",
     badge: "Single",
   },
@@ -369,10 +372,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "BPC-157 + TB-500",
     category: "healing",
-    strength: "5 mg + 5 mg × 10 vials",
+    strength: "10-vial × 5 mg + 5 mg",
     vials: 10,
-    price: 579,
-    listPrice: 681,
+    price: 580,
+    listPrice: 680,
     short: "Dual repair blend for co-administration research",
     description:
       "Pre-combined BPC-157 and TB-500 blend for comparative dual-compound tissue research workflows.",
@@ -383,7 +386,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXrDi3y8Lwmj8rtKJ1INO",
     paymentLink: "https://buy.stripe.com/5kQbJ17un8yObP10ZgfAc10",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-blend.jpg",
     vialLabel: "5 mg + 5 mg",
     featured: true,
     badge: "Blend",
@@ -395,10 +398,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "BPC-157 + TB-500",
     category: "healing",
-    strength: "5 mg + 5 mg · single vial",
+    strength: "1-vial × 5 mg + 5 mg",
     vials: 1,
-    price: 69,
-    listPrice: 81,
+    price: 70,
+    listPrice: 80,
     short: "Dual repair blend for co-administration research",
     description:
       "Pre-combined BPC-157 and TB-500 blend for comparative dual-compound tissue research workflows.",
@@ -409,7 +412,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXqDi3y8Lwmj8VCNRGrEE",
     paymentLink: "https://buy.stripe.com/3cI3cv6qj7uKbP1eQ6fAc11",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-blend.jpg",
     vialLabel: "5 mg + 5 mg",
     badge: "Single",
   },
@@ -420,10 +423,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "MOTS-c",
     category: "cellular",
-    strength: "10 mg × 10 vials",
+    strength: "10-vial × 10 mg",
     vials: 10,
-    price: 399,
-    listPrice: 469,
+    price: 400,
+    listPrice: 470,
     short: "Mitochondrial-derived peptide for metabolic research",
     description:
       "MOTS-c for mitochondrial and exercise-mimetic pathway research in cellular energy models.",
@@ -434,7 +437,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXtDi3y8Lwmj8n9hJ24Jq",
     paymentLink: "https://buy.stripe.com/bJe00j3e702ibP16jAfAc12",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-mots.jpg",
     vialLabel: "10 mg",
   },
   {
@@ -444,10 +447,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "MOTS-c",
     category: "cellular",
-    strength: "10 mg · single vial",
+    strength: "1-vial × 10 mg",
     vials: 1,
-    price: 49,
-    listPrice: 58,
+    price: 50,
+    listPrice: 60,
     short: "Mitochondrial-derived peptide for metabolic research",
     description:
       "MOTS-c for mitochondrial and exercise-mimetic pathway research in cellular energy models.",
@@ -458,7 +461,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXsDi3y8Lwmj8M6R9fafr",
     paymentLink: "https://buy.stripe.com/bJeeVd9Cv5mCg5heQ6fAc13",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-mots.jpg",
     vialLabel: "10 mg",
     badge: "Single",
   },
@@ -469,10 +472,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "NAD+",
     category: "cellular",
-    strength: "100 mg × 10 vials",
+    strength: "10-vial × 100 mg",
     vials: 10,
-    price: 279,
-    listPrice: 328,
+    price: 280,
+    listPrice: 330,
     short: "Nicotinamide adenine dinucleotide research stock",
     description:
       "NAD+ for cellular energy, redox, and sirtuin pathway laboratory research.",
@@ -483,7 +486,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXyDi3y8Lwmj8OA8qocd6",
     paymentLink: "https://buy.stripe.com/dRm14n2a3g1g5qD9vMfAc14",
     form: "lyophilized-amber",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-nad.jpg",
     vialLabel: "100 mg",
   },
   {
@@ -493,10 +496,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "NAD+",
     category: "cellular",
-    strength: "100 mg · single vial",
+    strength: "1-vial × 100 mg",
     vials: 1,
-    price: 35,
-    listPrice: 41,
+    price: 40,
+    listPrice: 50,
     short: "Nicotinamide adenine dinucleotide research stock",
     description:
       "NAD+ for cellular energy, redox, and sirtuin pathway laboratory research.",
@@ -507,7 +510,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXxDi3y8Lwmj8IntW9THg",
     paymentLink: "https://buy.stripe.com/28EbJ1cOH6qGcT59vMfAc15",
     form: "lyophilized-amber",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-nad.jpg",
     vialLabel: "100 mg",
     badge: "Single",
   },
@@ -518,10 +521,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "GHK-Cu",
     category: "longevity",
-    strength: "50 mg × 10 vials",
+    strength: "10-vial × 50 mg",
     vials: 10,
-    price: 279,
-    listPrice: 328,
+    price: 280,
+    listPrice: 330,
     short: "Copper peptide for extracellular matrix research",
     description:
       "GHK-Cu for skin matrix, remodeling, and cosmetic-adjacent laboratory research models.",
@@ -532,7 +535,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY1Di3y8Lwmj8vnqy504W",
     paymentLink: "https://buy.stripe.com/aFaaEX9Cv16mdX97nEfAc16",
     form: "lyophilized-blue",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-ghk.jpg",
     vialLabel: "50 mg",
   },
   {
@@ -542,10 +545,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "GHK-Cu",
     category: "longevity",
-    strength: "50 mg · single vial",
+    strength: "1-vial × 50 mg",
     vials: 1,
-    price: 35,
-    listPrice: 41,
+    price: 40,
+    listPrice: 50,
     short: "Copper peptide for extracellular matrix research",
     description:
       "GHK-Cu for skin matrix, remodeling, and cosmetic-adjacent laboratory research models.",
@@ -556,7 +559,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GXzDi3y8Lwmj8wn5viNac",
     paymentLink: "https://buy.stripe.com/7sY9ATeWPeXc9GTgYefAc17",
     form: "lyophilized-blue",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-ghk.jpg",
     vialLabel: "50 mg",
     badge: "Single",
   },
@@ -567,10 +570,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Glutathione",
     category: "cellular",
-    strength: "600 mg × 10 vials",
+    strength: "10-vial × 600 mg",
     vials: 10,
-    price: 329,
-    listPrice: 387,
+    price: 330,
+    listPrice: 390,
     short: "Master antioxidant tripeptide for redox research",
     description:
       "Reduced Glutathione for oxidative stress and detoxification pathway research.",
@@ -581,7 +584,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY3Di3y8Lwmj8DfEja04J",
     paymentLink: "https://buy.stripe.com/fZudR901V3eug5hfUafAc18",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-glut.jpg",
     vialLabel: "600 mg",
   },
   {
@@ -591,10 +594,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Glutathione",
     category: "cellular",
-    strength: "600 mg · single vial",
+    strength: "1-vial × 600 mg",
     vials: 1,
-    price: 39,
-    listPrice: 46,
+    price: 40,
+    listPrice: 50,
     short: "Master antioxidant tripeptide for redox research",
     description:
       "Reduced Glutathione for oxidative stress and detoxification pathway research.",
@@ -605,7 +608,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY2Di3y8Lwmj81mq4vFt8",
     paymentLink: "https://buy.stripe.com/cNicN5g0T7uK9GTbDUfAc19",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-glut.jpg",
     vialLabel: "600 mg",
     badge: "Single",
   },
@@ -616,10 +619,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Epitalon",
     category: "longevity",
-    strength: "10 mg × 10 vials",
+    strength: "10-vial × 10 mg",
     vials: 10,
-    price: 279,
-    listPrice: 328,
+    price: 280,
+    listPrice: 330,
     short: "Tetrapeptide studied in telomere / aging models",
     description:
       "Epitalon for longevity and pineal peptide pathway laboratory research.",
@@ -630,7 +633,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY6Di3y8Lwmj8YGI2vUv9",
     paymentLink: "https://buy.stripe.com/14A6oHg0T3eu5qDeQ6fAc1a",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-epi.jpg",
     vialLabel: "10 mg",
   },
   {
@@ -640,10 +643,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Epitalon",
     category: "longevity",
-    strength: "10 mg · single vial",
+    strength: "1-vial × 10 mg",
     vials: 1,
-    price: 35,
-    listPrice: 41,
+    price: 40,
+    listPrice: 50,
     short: "Tetrapeptide studied in telomere / aging models",
     description:
       "Epitalon for longevity and pineal peptide pathway laboratory research.",
@@ -654,7 +657,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY5Di3y8Lwmj85hB9FfMD",
     paymentLink: "https://buy.stripe.com/cNi9AT3e74iy5qDfUafAc1b",
     form: "lyophilized-white",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-epi.jpg",
     vialLabel: "10 mg",
     badge: "Single",
   },
@@ -665,10 +668,10 @@ export const products: Product[] = [
     packLabel: "10-vial pack",
     name: "Bacteriostatic Water",
     category: "support",
-    strength: "3 ml × 10 vials",
+    strength: "10-vial × 3 ml",
     vials: 10,
-    price: 99,
-    listPrice: 116,
+    price: 100,
+    listPrice: 120,
     short: "0.9% benzyl alcohol bacteriostatic water",
     description:
       "Research reconstitution solvent. Pair with lyophilized peptides per laboratory protocol.",
@@ -679,7 +682,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY9Di3y8Lwmj8zE3XBVbK",
     paymentLink: "https://buy.stripe.com/dRmeVdg0T16mg5heQ6fAc1c",
     form: "liquid-clear",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-bac.jpg",
     vialLabel: "3 ml",
     badge: "Support",
   },
@@ -690,10 +693,10 @@ export const products: Product[] = [
     packLabel: "Single vial",
     name: "Bacteriostatic Water",
     category: "support",
-    strength: "3 ml · single vial",
+    strength: "1-vial × 3 ml",
     vials: 1,
-    price: 14,
-    listPrice: 16,
+    price: 15,
+    listPrice: 20,
     short: "0.9% benzyl alcohol bacteriostatic water",
     description:
       "Research reconstitution solvent. Pair with lyophilized peptides per laboratory protocol.",
@@ -704,7 +707,7 @@ export const products: Product[] = [
     stripePriceId: "price_1U2GY7Di3y8Lwmj8ZKMp2QEw",
     paymentLink: "https://buy.stripe.com/6oU7sLg0TdT8g5hgYefAc1d",
     form: "liquid-clear",
-    image: "/products/vial-unlabeled.jpg",
+    image: "/products/vial-bac.jpg",
     vialLabel: "3 ml",
     badge: "Support",
   }
@@ -720,7 +723,7 @@ export function getProduct(sku: string) {
   return found;
 }
 
-/** Primary catalog cards: one per compound (10-vial pack). */
+/** Primary catalog cards: one per compound (card price leads with single vial). */
 export function catalogProducts() {
   return products.filter((p) => p.pack === "kit10");
 }
@@ -729,11 +732,15 @@ export function featuredProducts() {
   return products.filter((p) => p.featured && p.pack === "kit10");
 }
 
-/** Packs shown on product page (kits only while SELL_SINGLES is false). */
+/** Pack options: single vial first, then 10-pack. */
 export function siblingPacks(product: Product) {
   const sibs = products.filter((p) => p.baseSku === product.baseSku);
-  if (!SELL_SINGLES) return sibs.filter((p) => p.pack === "kit10");
-  return sibs;
+  const list = !SELL_SINGLES ? sibs.filter((p) => p.pack === "kit10") : sibs;
+  return [...list].sort((a, b) => {
+    if (a.pack === "vial" && b.pack !== "vial") return -1;
+    if (b.pack === "vial" && a.pack !== "vial") return 1;
+    return 0;
+  });
 }
 
 export function vialPack(baseSku: string) {
@@ -749,7 +756,18 @@ export function sellableProducts() {
   return SELL_SINGLES ? products : products.filter((p) => p.pack === "kit10");
 }
 
+export function packPurchaseLabel(product: Product) {
+  if (product.pack === "vial") return `Buy 1 vial · $${product.price}`;
+  return `Buy 10-pack · $${product.price}`;
+}
+
+export function packShortLabel(product: Product) {
+  return product.pack === "vial" ? "1 vial" : "10-pack";
+}
+
 export function discountPercent(product: Product) {
   if (product.listPrice <= product.price) return 0;
+  // Public catalog shows flat launch prices (no pre-sale callout)
+  if (!PRESALE.active) return 0;
   return Math.round((1 - product.price / product.listPrice) * 100);
 }

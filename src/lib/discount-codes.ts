@@ -2,7 +2,7 @@
  * Wholesale / partner discount codes for Grael Peptides.
  *
  * percentOff = % off LIST price (not launch). Pre-sale 15% does NOT stack.
- * Final unit = listPrice × (1 − percentOff/100).
+ * Final unit = listPrice × (1 − percentOff/100), rounded to nearest $10.
  * Never apply percentOff to product.price (that double-counts pre-sale).
  *
  * Stripe: checkout uses launch prices; stripePercentOff maps list% → launch%.
@@ -40,7 +40,7 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     stripePercentOff: 29, // ~40% off list when charged at launch prices
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "40% off list (not stacked with pre-sale). $100 ship · $400 min product.",
+    note: "40% off list, rounded to nearest $10 (not stacked with pre-sale). $100 ship · $400 min product.",
     stripePromoId: "promo_1U2GoYDi3y8Lwmj8ZBFhDxL1",
     stripeCouponId: "grael_ws_list40",
   },
@@ -52,7 +52,7 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
     stripePercentOff: 6, // ~20% off list vs ~15% launch
     active: true,
     expiresAt: "2026-12-31T23:59:59.000Z",
-    note: "20% off list (replaces pre-sale 15%, does not stack).",
+    note: "20% off list, rounded to nearest $10 (replaces pre-sale 15%, does not stack).",
     stripePromoId: "promo_1U2F6uDi3y8Lwmj8jdiVTQbY",
     stripeCouponId: "grael_wholesale_20",
   },
@@ -96,14 +96,14 @@ export function lookupDiscountCode(raw: string, now = new Date()): DiscountLooku
   return { ok: true, def };
 }
 
-/** Apply % off a base amount (use listPrice for wholesale — never launch). */
+/** Apply % off a base amount (use listPrice for wholesale — never launch). Nearest $10. */
 export function unitPriceWithDiscount(basePrice: number, percentOff: number) {
   const p = Math.max(0, Math.min(100, percentOff));
-  return Math.round(basePrice * (1 - p / 100) * 100) / 100;
+  return Math.round((basePrice * (1 - p / 100)) / 10) * 10;
 }
 
 /**
- * Final charged unit when a code is active: % off LIST only.
+ * Final charged unit when a code is active: % off LIST only, nearest $10.
  * Public (no code): launch price (already ~15% off list).
  */
 export function unitPriceForProduct(

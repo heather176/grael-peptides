@@ -1,19 +1,13 @@
 /**
  * Inventory model (launch):
- * - Sold as unbreakable 10-vial packs only.
- * - You can order a 10-pack from the supplier whenever a customer buys one
- *   (made-to-order / order-triggered). Kits are always available to purchase.
- * - Optional on-hand notes for internal awareness only — do not block checkout.
+ * - 10-vial packs for customers — produced when they buy.
+ * - Singles only when stock is on hand (BROKEN_VIALS). Otherwise: sold out.
  */
 
 import type { Product } from "@/lib/products";
 
 export type StockStatus = "in_stock" | "made_to_order" | "low" | "out" | "kit_unavailable";
 
-/**
- * Optional on-hand snapshot (vials). Informational only.
- * BC10: 8 vials already in house; still sell full kits — you reorder packs on demand.
- */
 export const VIALS_ON_HAND: Record<string, number> = {
   TR15: 100,
   SM15: 100,
@@ -29,19 +23,39 @@ export const VIALS_ON_HAND: Record<string, number> = {
   WA3: 100,
 };
 
-/** When true, kit buy is never blocked by VIALS_ON_HAND (supplier reorder on order). */
+/** Single vials for sale. 0 = sold out. BPC-157 (BC10) has 8. */
+export const BROKEN_VIALS: Record<string, number> = {
+  TR15: 0,
+  SM15: 0,
+  RT10: 0,
+  BC10: 8,
+  BT5: 0,
+  BB10: 0,
+  MS10: 0,
+  NJ100: 0,
+  CU50: 0,
+  GTT600: 0,
+  ET10: 0,
+  WA3: 0,
+};
+
 export const ORDER_TRIGGERED_KITS = true;
 
 export const INVENTORY_NOTE =
-  "10-packs made to order · we place a supplier pack when you buy · while supplies last on wave capacity.";
+  "10-vial packs for customers · singles when in stock · packs produced when you buy.";
 
 export function vialsOnHand(baseSku: string): number {
   return Math.max(0, VIALS_ON_HAND[baseSku] ?? 0);
 }
 
+export function brokenVialsOnHand(baseSku: string): number {
+  return Math.max(0, BROKEN_VIALS[baseSku] ?? 0);
+}
+
 export function kitsAvailable(baseSku: string): number {
-  if (ORDER_TRIGGERED_KITS) return 999; // always orderable
-  return Math.floor(vialsOnHand(baseSku) / 10);
+  if (ORDER_TRIGGERED_KITS) return 999;
+  const intact = Math.max(0, vialsOnHand(baseSku) - brokenVialsOnHand(baseSku));
+  return Math.floor(intact / 10);
 }
 
 export function stockForProduct(product: Product): {
@@ -52,35 +66,35 @@ export function stockForProduct(product: Product): {
   shortLabel: string;
 } {
   const vials = vialsOnHand(product.baseSku);
+  const singles = brokenVialsOnHand(product.baseSku);
 
   if (product.pack === "kit10") {
     if (ORDER_TRIGGERED_KITS) {
-      const onHandKits = Math.floor(vials / 10);
+      const onHandKits = Math.floor(Math.max(0, vials - singles) / 10);
       return {
         vials,
         unitsAvailable: 999,
         status: "made_to_order",
+        // Short — avoid stacking “10-pack” phrases in the UI
         label:
           onHandKits > 0
-            ? `10-pack available · ${onHandKits} on hand · more ordered when you buy`
-            : vials > 0
-              ? `10-pack available · ${vials} vials on hand · full pack ordered when you buy`
-              : "10-pack available · ordered from supplier when you buy",
-        shortLabel: onHandKits > 0 ? `${onHandKits}+ kits` : "Order on demand",
+            ? `${onHandKits} on hand · more produced when you buy`
+            : "Produced when you buy",
+        shortLabel: onHandKits > 0 ? `${onHandKits}+ on hand` : "On order",
       };
     }
 
-    const kits = Math.floor(vials / 10);
+    const kits = kitsAvailable(product.baseSku);
     if (kits <= 0) {
       return {
         vials,
         unitsAvailable: 0,
-        status: vials > 0 ? "kit_unavailable" : "out",
+        status: singles > 0 ? "kit_unavailable" : "out",
         label:
-          vials > 0
-            ? `${vials} vial${vials === 1 ? "" : "s"} on hand — not enough for a full 10-pack`
-            : "10-packs sold out · reserve next shipment",
-        shortLabel: vials > 0 ? "Need 10 for kit" : "Sold out",
+          singles > 0
+            ? `${singles} single${singles === 1 ? "" : "s"} available · packs sold out`
+            : "Sold out · reserve next shipment",
+        shortLabel: singles > 0 ? "Singles only" : "Sold out",
       };
     }
     const low = kits <= 2;
@@ -88,13 +102,12 @@ export function stockForProduct(product: Product): {
       vials,
       unitsAvailable: kits,
       status: low ? "low" : "in_stock",
-      label: `${kits} × 10-vial kit${kits === 1 ? "" : "s"} in stock`,
-      shortLabel: low ? `${kits} kits left` : `${kits} kits`,
+      label: `${kits} pack${kits === 1 ? "" : "s"} available`,
+      shortLabel: low ? `${kits} left` : `${kits} packs`,
     };
   }
 
-  // single vial path (disabled at launch via SELL_SINGLES)
-  if (vials <= 0) {
+  if (singles <= 0) {
     return {
       vials: 0,
       unitsAvailable: 0,
@@ -104,11 +117,11 @@ export function stockForProduct(product: Product): {
     };
   }
   return {
-    vials,
-    unitsAvailable: vials,
-    status: vials <= 5 ? "low" : "in_stock",
-    label: `${vials} single vial${vials === 1 ? "" : "s"} in stock`,
-    shortLabel: `${vials} in stock`,
+    vials: singles,
+    unitsAvailable: singles,
+    status: singles <= 5 ? "low" : "in_stock",
+    label: `${singles} single${singles === 1 ? "" : "s"} available`,
+    shortLabel: `${singles} left`,
   };
 }
 

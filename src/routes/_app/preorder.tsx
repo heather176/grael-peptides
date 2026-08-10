@@ -133,7 +133,7 @@ function PreorderPage() {
           <p className="mt-3 text-sm text-[var(--color-fg-muted)]">
             <strong className="text-[var(--color-fg)]">You are not charged today.</strong> When the
             next order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge this reserved total
-            + {formatUsd(SHIPPING.amount)} shipping and place the supplier order. Confirmation to{" "}
+            + {formatUsd(SHIPPING.amount)} shipping and produce your packs. Confirmation to{" "}
             <span className="text-[var(--color-fg)]">{result.email}</span>.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -340,7 +340,7 @@ function PreorderPage() {
               {def ? ` with ${def.label} (−${def.percentOff}%)` : ""}. Your card is{" "}
               <strong className="text-[var(--color-fg)]">not charged now</strong>. When the next
               order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge the reserved total +{" "}
-              {formatUsd(SHIPPING.amount)} shipping and place the supplier order.
+              {formatUsd(SHIPPING.amount)} shipping and produce your packs.
             </p>
           </div>
 
@@ -356,7 +356,7 @@ function PreorderPage() {
               </li>
               <li>
                 When the next order goes out (~{NEXT_SHIPMENT.estimatedShipLabel}), we charge the
-                reserved total + shipping and place the supplier order.
+                reserved total + shipping and produce your packs.
               </li>
               <li>Traceabl COAs attach per batch; vials ship with QR labels.</li>
             </ol>

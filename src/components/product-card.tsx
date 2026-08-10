@@ -1,30 +1,29 @@
 import { Link } from "@tanstack/react-router";
-import { ExternalLink, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { CanaryBadge } from "@/components/canary-badge";
+import { PackBuySelect } from "@/components/pack-buy-select";
 import { PriceDisplay } from "@/components/price-display";
+import { TraceablBadge } from "@/components/traceabl-badge";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useCart } from "@/lib/cart-store";
-import { withPromoCode } from "@/lib/discount-codes";
-import { useDiscount } from "@/lib/discount-store";
-import { canBuyNow, stockForProduct } from "@/lib/inventory";
+import { brokenVialsOnHand, stockForProduct } from "@/lib/inventory";
 import type { Product } from "@/lib/products";
-import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, kitPack, vialPack } from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
+import { formatUsd } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
-  const add = useCart((s) => s.add);
-  const code = useDiscount((s) => s.activeDef()?.code ?? null);
   const batch = requireBatch(product.sku);
-  const buyHref = withPromoCode(product.paymentLink, code);
-  const kitStock = stockForProduct(product);
-  const kitBuyable = canBuyNow(product);
+  const kit = kitPack(product.baseSku) ?? product;
+  const single = vialPack(product.baseSku);
+  const singles = brokenVialsOnHand(product.baseSku);
+  const kitStock = stockForProduct(kit);
+  // Card price defaults to single vial
+  const priceProduct = single ?? product;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-border-strong)]">
       <Link
         to="/products/$sku"
-        params={{ sku: product.baseSku }}
+        params={{ sku: single?.sku ?? product.baseSku }}
         className="flex flex-1 flex-col no-underline text-inherit"
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-white">
@@ -36,15 +35,18 @@ export function ProductCard({ product }: { product: Product }) {
           />
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             <Badge className="bg-white/95 text-[10px] font-medium tracking-wide">
-              {product.vialLabel} × 10
+              {product.vialLabel ?? product.strength}
             </Badge>
+            {singles > 0 ? (
+              <Badge className="border-[var(--color-border-strong)] bg-white/95 text-[10px] font-medium tracking-wide">
+                {singles} singles
+              </Badge>
+            ) : null}
             <Badge
               className={
                 kitStock.status === "in_stock" || kitStock.status === "made_to_order"
-                  ? "border-[var(--color-primary)]/25 bg-[var(--color-primary)]/12 text-[10px] font-medium tracking-wide text-[var(--color-primary)]"
-                  : kitStock.status === "low" || kitStock.status === "kit_unavailable"
-                    ? "border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 text-[10px] font-medium tracking-wide text-[var(--color-warning)]"
-                    : "border-[var(--color-danger)]/25 bg-[var(--color-danger)]/10 text-[10px] font-medium tracking-wide text-[var(--color-danger)]"
+                  ? "border-[var(--color-border-strong)] bg-white/95 text-[10px] font-medium tracking-wide text-[var(--color-fg-muted)]"
+                  : "border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 text-[10px] font-medium tracking-wide text-[var(--color-warning)]"
               }
             >
               {kitStock.shortLabel}
@@ -58,18 +60,24 @@ export function ProductCard({ product }: { product: Product }) {
               <h3 className="font-display text-xl font-semibold leading-tight tracking-tight text-[var(--color-fg)]">
                 {product.name}
               </h3>
-              <p className="text-sm text-[var(--color-fg-muted)]">10-vial pack · unbreakable</p>
+              <p className="text-sm text-[var(--color-fg-muted)]">
+                {single?.vialLabel ?? product.vialLabel ?? "1 vial"}
+              </p>
+              <p className="text-[11px] text-[var(--color-fg-subtle)]">
+                {singles > 0
+                  ? `${singles} single vial${singles === 1 ? "" : "s"} available`
+                  : "Singles sold out"}
+              </p>
             </div>
-            <PriceDisplay product={product} size="sm" className="shrink-0 justify-end text-right" />
+            <div className="shrink-0 text-right">
+              <PriceDisplay product={priceProduct} size="sm" className="justify-end" />
+              {kit && single ? (
+                <p className="mt-0.5 text-[11px] tabular text-[var(--color-fg-subtle)]">
+                  or {formatUsd(kit.price)} / 10-pack
+                </p>
+              ) : null}
+            </div>
           </div>
-          <p className="text-[11px] text-[var(--color-fg-subtle)]">{kitStock.label}</p>
-          <p className="font-mono text-xs text-[var(--color-fg-muted)]">
-            Batch {batch.batchId}
-            <span className="text-[var(--color-fg-subtle)]"> · </span>
-            <span className="tabular text-[var(--color-primary)]">
-              {batch.purityPercent.toFixed(1)}%
-            </span>
-          </p>
           <p className="line-clamp-2 text-sm leading-relaxed text-[var(--color-fg-muted)]">
             {product.short}
           </p>
@@ -83,41 +91,17 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
       </Link>
-      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] px-4 py-3">
-        {kitBuyable ? (
-          <>
-            <Button size="sm" className="h-8 px-3 text-xs" asChild>
-              <a href={buyHref} target="_blank" rel="noreferrer">
-                Buy 10-pack
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
-              </a>
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 px-3 text-xs"
-              onClick={() => {
-                add(product.sku);
-                toast.success(`${product.name} 10-pack added`);
-              }}
-            >
-              <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-              Cart
-            </Button>
-          </>
-        ) : (
-          <Button size="sm" className="h-8 px-3 text-xs" variant="secondary" asChild>
-            <Link to="/preorder">Next shipment</Link>
-          </Button>
-        )}
-        <a
-          href={batch.coaUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="ml-auto text-xs font-medium text-[var(--color-primary)] no-underline hover:underline"
-        >
-          COA
-        </a>
+
+      <div className="relative z-10 flex flex-col gap-2 px-4 pb-3">
+        <TraceablBadge batch={batch} size="sm" />
+        <CanaryBadge size="sm" className="w-full" />
+      </div>
+
+      <div className="border-t border-[var(--color-border)] px-4 py-3">
+        <PackBuySelect product={product} layout="card" defaultPack="vial" />
+        <p className="mt-2 text-right text-[10px] text-[var(--color-fg-subtle)]">
+          {LAUNCH.suppliesLabel}
+        </p>
       </div>
     </article>
   );

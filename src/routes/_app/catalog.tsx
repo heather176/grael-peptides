@@ -39,9 +39,15 @@ function CatalogPage() {
           Research products
         </h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
-          {all.length} compounds · live stock · unbreakable 10-packs · ordered when you buy
-          {LAUNCH.active ? ` · ${LAUNCH.discountLabel} · ${LAUNCH.suppliesLabel}` : null}
-          {NEXT_SHIPMENT.active ? ` · Next shipment ~${NEXT_SHIPMENT.estimatedShipLabel}` : null}
+          {all.length} compounds · prices lead with{" "}
+          <strong className="font-medium text-[var(--color-fg)]">1 vial</strong>
+          {" · "}
+          <strong className="font-medium text-[var(--color-fg)]">10-pack</strong> option on every
+          product
+          {LAUNCH.active ? ` · ${LAUNCH.suppliesLabel}` : null}
+          {NEXT_SHIPMENT.active
+            ? ` · Next shipment ${NEXT_SHIPMENT.estimatedShipLabel}`
+            : null}
         </p>
       </div>
 

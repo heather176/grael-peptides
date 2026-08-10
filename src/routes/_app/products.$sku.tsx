@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { ArrowLeft, ExternalLink, Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BatchCoaPanel } from "@/components/batch-coa";
+import { CanaryBadge } from "@/components/canary-badge";
 import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
@@ -91,11 +92,12 @@ function ProductDetailPage() {
           </div>
 
           <BatchCoaPanel batch={batch} />
+          <CanaryBadge size="md" className="w-full" />
 
           {packs.length > 1 ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
               <p className="mb-2 text-xs font-medium tracking-[0.12em] text-[var(--color-fg-subtle)] uppercase">
-                Choose pack size
+                Choose size · 1 vial or 10-pack
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {packs.map((pack) => {
@@ -126,8 +128,11 @@ function ProductDetailPage() {
             </div>
           ) : (
             <p className="text-sm text-[var(--color-fg-muted)]">
-              Unbreakable <span className="font-medium text-[var(--color-fg)]">10-vial pack</span> only
-              · we order a pack from our supplier when you buy · not sold as singles.
+              Available as{" "}
+              <span className="font-medium text-[var(--color-fg)]">
+                {product.pack === "vial" ? "1 vial" : "10-pack"}
+              </span>
+              .
             </p>
           )}
 

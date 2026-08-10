@@ -3,12 +3,14 @@ import { ExternalLink, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
+import { TraceablBadgeChip } from "@/components/traceabl-badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-store";
 import { unitPriceForProduct, withPromoCode } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
 import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT, ORDER, PRESALE, SHIPPING, STRIPE_MULTI_CHECKOUT } from "@/lib/products";
+import { requireBatch } from "@/lib/traceabl-batches";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/cart")({
@@ -56,10 +58,8 @@ function CartPage() {
         <h1 className="font-display text-3xl font-semibold tracking-tight">Cart</h1>
         <p className="text-sm text-[var(--color-fg-muted)]">
           {LAUNCH.active
-            ? `${LAUNCH.suppliesLabel} · pay with Stripe for current stock · or reserve next shipment (~${NEXT_SHIPMENT.estimatedShipLabel}).`
-            : PRESALE.active
-              ? "Launch prices · pay securely with Stripe · ships after Traceabl batch COA."
-              : "Pay securely with Stripe. Research use only."}
+            ? `${LAUNCH.suppliesLabel} · pay with Stripe · singles and 10-packs · or reserve next shipment (${NEXT_SHIPMENT.estimatedShipLabel}).`
+            : "Pay securely with Stripe. Research use only."}
         </p>
       </div>
 
@@ -106,6 +106,9 @@ function CartPage() {
                     <p className="mt-1 font-mono text-xs text-[var(--color-fg-subtle)]">
                       {product.sku} · {product.strength}
                     </p>
+                    <div className="mt-1.5">
+                      <TraceablBadgeChip batch={requireBatch(product.sku)} />
+                    </div>
                     <PriceDisplay product={product} size="sm" className="mt-1" />
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -178,9 +181,9 @@ function CartPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {LAUNCH.suppliesLabel}. In-stock checkout: pay now — we place the supplier order
-              after payment. {SHIPPING.note}. Minimum product subtotal{" "}
-              {formatUsd(ORDER.minProductSubtotal)}. Wholesale cash/wire: email{" "}
+              {LAUNCH.suppliesLabel}. Pay now — 10-packs produced when you buy. {SHIPPING.note}.
+              Minimum product subtotal {formatUsd(ORDER.minProductSubtotal)}. Wholesale cash/wire:
+              email{" "}
               <a
                 href={CONTACT.emailMailto}
                 className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"

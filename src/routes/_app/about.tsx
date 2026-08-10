@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CONTACT } from "@/lib/mail-order";
+import { TESTING_ORDERED } from "@/lib/products";
 
 export const Route = createFileRoute("/_app/about")({
   component: AboutPage,
@@ -34,9 +35,9 @@ function AboutPage() {
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Traceabl</h2>
           <p>
-            Traceabl (traceabl.us) provides independent purity testing and Certificates of
-            Analysis. Grael labels are designed to carry Traceabl QR codes so every batch is
-            externally verifiable.
+            Traceabl (traceabl.us) provides independent purity testing and Certificates of Analysis.
+            Product pages link to the online certificate on Traceabl — the same place a vial QR
+            opens.
           </p>
           <Button variant="secondary" asChild>
             <Link to="/transparency">See Traceabl flow</Link>
@@ -44,23 +45,21 @@ function AboutPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
-            Mail order
-          </h2>
+          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Mail order</h2>
           <p>
-            Grael is a mail-order research catalog. Order on graelpeptides.com, pay by card
-            (or partner invoice for cash/wire wholesale), and we ship US only. Next-shipment
-            reserves lock prices until the consolidated order goes out.
+            Grael is a mail-order research catalog. Order on graelpeptides.com, pay by card (or
+            partner invoice for cash/wire wholesale), and we ship US only. Next-shipment reserves
+            lock prices until the consolidated order goes out.
           </p>
         </section>
 
-        <section className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 space-y-3">
+        <section className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
             {CONTACT.cashInvoice.title}
           </h2>
           <p className="text-[var(--color-fg-muted)]">
-            Wholesale partners who want to pay cash, wire, or Zelle: request a Stripe invoice.
-            Do not mail cash. After settlement we mark the invoice paid and place your order.
+            Wholesale partners who want to pay cash, wire, or Zelle: request a Stripe invoice. Do not
+            mail cash. After settlement we mark the invoice paid and place your order.
           </p>
           <p className="font-mono text-sm text-[var(--color-primary)]">{CONTACT.email}</p>
           <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--color-fg-muted)]">
@@ -80,12 +79,11 @@ function AboutPage() {
         </section>
 
         <section className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
-            Launch
-          </h2>
+          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Launch</h2>
           <p className="mt-2">
-            While supplies last. Unbreakable 10-vial packs only (no singles). Packs are ordered from our supplier when you buy. Partner wholesale sheets are
-            printed without codes — codes go by text only.
+            While supplies last. 10-vial packs for customers — produced when you buy. Single vials
+            when we have them in stock; otherwise they show as sold out. {TESTING_ORDERED} Partner
+            wholesale sheets are printed without codes — codes go by text only.
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <Button asChild>

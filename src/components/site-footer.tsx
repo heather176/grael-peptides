@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { CONTACT } from "@/lib/mail-order";
-import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
+import { LAUNCH, NEXT_SHIPMENT, TESTING_ORDERED } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.5.7";
+const VERSION = "1.6.1";
 
 export function SiteFooter() {
   return (
@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div className="space-y-2">
           <p className="font-display text-xl font-semibold tracking-tight">Grael Peptides</p>
           <p className="max-w-xs text-sm text-[var(--color-fg-muted)]">
-            Research products. Lab tested. Traceabl batch COAs. {LAUNCH.suppliesLabel}.
+            Research products. Produced when you buy. {LAUNCH.suppliesLabel}. {TESTING_ORDERED}
           </p>
           {NEXT_SHIPMENT.active ? (
             <p className="max-w-xs text-xs text-[var(--color-fg-subtle)]">
@@ -34,7 +34,7 @@ export function SiteFooter() {
             to="/pamphlet"
             className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
           >
-            Partner sheet
+            Wholesale pamphlet
           </Link>
           <a
             href={CONTACT.emailMailto}

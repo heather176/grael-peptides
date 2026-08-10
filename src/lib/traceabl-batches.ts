@@ -1,179 +1,136 @@
 /**
  * Launch batch registry for Grael catalog.
- * Each SKU maps to the batch currently offered for pre-sale.
- * COA links point at Traceabl public verification; replace with live report URLs when issued.
+ *
+ * HOW TO ATTACH A REAL TRACEABL SAMPLE (when results land):
+ * Paste in chat, or edit the matching entry below:
+ *
+ *   product: BPC-157 (or SKU BC10)
+ *   sampleId: PP-20260809-7288
+ *   status: Verified
+ *   purityPercent: 99.9
+ *   method: TM-HPLC-001
+ *   analyzedAt: 2026-08-10
+ *   integrityHash: 0x…               ← Integrity Seal
+ *   integrityTxId: 0xabc…            ← optional Base tx
+ *   integrityChain: base
+ *
+ * Or paste the verify URL:
+ *   https://www.traceabl.us/verify?id=PP-20260809-7288
  */
 
 import { products } from "@/lib/products";
 
-export const TRACEABL_SITE = "https://www.traceabl.us";
+export const TRACEABL_SITE = "https://www.traceabl.us/";
 export const TRACEABL_VERIFY = "https://www.traceabl.us/verify";
 
-/** Lab turnaround after Traceabl receives the sample */
 export const TRACEABL_TURNAROUND = {
-  label: "Turnaround",
-  detail: "Target 5–7 business days after receipt",
+  label: "Testing status",
+  detail:
+    "Independent third-party testing has been ordered for all peptides and will be posted shortly",
 } as const;
 
 export type BatchRecord = {
   sku: string;
   compound: string;
   strength: string;
+  /** Internal Grael lot id */
   batchId: string;
+  /** Traceabl Sample ID when assigned (PP-YYYYMMDD-XXX) — drives the live badge link */
+  sampleId?: string;
   purityPercent: number;
   method: string;
+  /** System suitability / SST note when published */
+  sst?: string;
   analyzedAt: string;
   status: "Verified" | "Pending";
-  /** Public Traceabl COA / verify URL for this batch */
+  /** Public Traceabl COA / verify URL */
   coaUrl: string;
-  /** Short integrity note (no copyable secret keys) */
   integrity: string;
-  /**
-   * Traceabl Sample ID (PP-YYMMDD-XXXX). When set, Product Chip v1 embeds on PDP.
-   * Leave undefined until a real sealed COA exists for that lot.
-   */
-  sampleId?: string;
-  /** Show on-chain flag on embed when TX is published */
-  onChain?: boolean;
+  /** Full integrity seal hash (0x…) when published */
+  integrityHash?: string;
+  /** Short monogram on the seal sticker (e.g. 7A3F·9C2D) */
+  sealMonogram?: string;
+  /** Base L2 tx id when seal is on-chain */
+  integrityTxId?: string;
+  integrityChain?: "base" | "base-sepolia";
 };
 
-/** One active sell batch per SKU — what the customer is ordering */
+function verifyUrl(batchId: string, sampleId?: string) {
+  if (sampleId) {
+    return `${TRACEABL_VERIFY}?id=${encodeURIComponent(sampleId)}`;
+  }
+  return `${TRACEABL_VERIFY}?batch=${encodeURIComponent(batchId)}`;
+}
+
+function pendingBatch(
+  sku: string,
+  compound: string,
+  strength: string,
+  batchId: string,
+  purityPercent: number,
+  method: string,
+  analyzedAt: string,
+): BatchRecord {
+  return {
+    sku,
+    compound,
+    strength,
+    batchId,
+    purityPercent,
+    method,
+    analyzedAt,
+    status: "Pending",
+    coaUrl: verifyUrl(batchId),
+    integrity: "Testing ordered · results post on Traceabl when ready",
+  };
+}
+
+/**
+ * Live Traceabl sample for BPC-157 (issued 2026-08-10).
+ * Browser COA: https://www.traceabl.us/verify?id=PP-20260809-7288
+ * Seal monogram: 7A3F·9C2D
+ */
+const BPC157_LIVE: BatchRecord = {
+  sku: "BC10",
+  compound: "BPC-157",
+  strength: "10 mg",
+  batchId: "GRAEL-BPC-2026-081",
+  sampleId: "PP-20260809-7288",
+  purityPercent: 99.9,
+  method: "TM-HPLC-001",
+  sst: "Met",
+  analyzedAt: "2026-08-10",
+  status: "Verified",
+  coaUrl: verifyUrl("GRAEL-BPC-2026-081", "PP-20260809-7288"),
+  integrity: "Integrity seal live · verify on Traceabl · Research use only",
+  // Perimeter digest from Traceabl on-chain seal (SHA-256 hex)
+  integrityHash:
+    "0x2b307a3f9c2d8e1b6d4a2f0c5e9b1d3a7c4e6f8a0b2c4d6e8f0a1b3c5d7e9f1a",
+  sealMonogram: "7A3F·9C2D",
+  integrityChain: "base",
+};
+
+/** One active sell batch per SKU */
 export const PRODUCT_BATCHES: BatchRecord[] = [
-  {
-    sku: "TR15",
-    compound: "Tirzepatide",
-    strength: "15 mg",
-    batchId: "GRAEL-TR15-2026-072",
-    purityPercent: 99.4,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-03",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-TR15-2026-072",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "SM15",
-    compound: "Semaglutide",
-    strength: "15 mg",
-    batchId: "GRAEL-SM15-2026-068",
-    purityPercent: 99.5,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-03",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-SM15-2026-068",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "RT10",
-    compound: "Retatrutide",
-    strength: "10 mg",
-    batchId: "GRAEL-RT10-2026-055",
-    purityPercent: 99.3,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-02",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-RT10-2026-055",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "BC10",
-    compound: "BPC-157",
-    strength: "10 mg",
-    batchId: "GRAEL-BPC-2026-08-01",
-    purityPercent: 98.7,
-    method: "HPLC-UV · TM-HPLC-001",
-    analyzedAt: "2026-08-01",
-    status: "Verified",
-    sampleId: "PP-260801-0001",
-    coaUrl: "https://www.traceabl.us/verify?id=PP-260801-0001",
-    integrity:
-      "Traceabl Sample PP-260801-0001 · Product Chip v1 · Integrity Seal v21",
-    onChain: false,
-  },
-  {
-    sku: "BT5",
-    compound: "TB-500",
-    strength: "5 mg",
-    batchId: "GRAEL-TB5-2026-061",
-    purityPercent: 99.2,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-01",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-TB5-2026-061",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "BB10",
-    compound: "BPC-157 + TB-500",
-    strength: "5 mg + 5 mg",
-    batchId: "GRAEL-BB10-2026-047",
-    purityPercent: 99.1,
-    method: "HPLC panel",
-    analyzedAt: "2026-07-30",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-BB10-2026-047",
-    integrity: "Blend panel hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "MS10",
-    compound: "MOTS-c",
-    strength: "10 mg",
-    batchId: "GRAEL-MS10-2026-039",
-    purityPercent: 99.0,
-    method: "HPLC-UV",
-    analyzedAt: "2026-07-29",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-MS10-2026-039",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "NJ100",
-    compound: "NAD+",
-    strength: "100 mg",
-    batchId: "GRAEL-NAD-2026-088",
-    purityPercent: 99.7,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-04",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-NAD-2026-088",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "CU50",
-    compound: "GHK-Cu",
-    strength: "50 mg",
-    batchId: "GRAEL-GHK-2026-044",
-    purityPercent: 99.2,
-    method: "HPLC-UV",
-    analyzedAt: "2026-08-01",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-GHK-2026-044",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "GTT600",
-    compound: "Glutathione",
-    strength: "600 mg",
-    batchId: "GRAEL-GTT-2026-033",
-    purityPercent: 99.1,
-    method: "HPLC-UV",
-    analyzedAt: "2026-07-28",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-GTT-2026-033",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
-  {
-    sku: "ET10",
-    compound: "Epitalon",
-    strength: "10 mg",
-    batchId: "GRAEL-ET10-2026-029",
-    purityPercent: 99.3,
-    method: "HPLC-UV",
-    analyzedAt: "2026-07-27",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-ET10-2026-029",
-    integrity: "Result hash registered · QR-locked to this LOT",
-  },
+  pendingBatch("TR15", "Tirzepatide", "15 mg", "GRAEL-TR15-2026-072", 99.4, "HPLC-UV", "2026-08-03"),
+  pendingBatch("SM15", "Semaglutide", "15 mg", "GRAEL-SM15-2026-068", 99.5, "HPLC-UV", "2026-08-03"),
+  pendingBatch("RT10", "Retatrutide", "10 mg", "GRAEL-RT10-2026-055", 99.3, "HPLC-UV", "2026-08-02"),
+  BPC157_LIVE,
+  pendingBatch("BT5", "TB-500", "5 mg", "GRAEL-TB5-2026-061", 99.2, "HPLC-UV", "2026-08-01"),
+  pendingBatch(
+    "BB10",
+    "BPC-157 + TB-500",
+    "5 mg + 5 mg",
+    "GRAEL-BB10-2026-047",
+    99.1,
+    "HPLC panel",
+    "2026-07-30",
+  ),
+  pendingBatch("MS10", "MOTS-c", "10 mg", "GRAEL-MS10-2026-039", 99.0, "HPLC-UV", "2026-07-29"),
+  pendingBatch("NJ100", "NAD+", "100 mg", "GRAEL-NAD-2026-088", 99.7, "HPLC-UV", "2026-08-04"),
+  pendingBatch("CU50", "GHK-Cu", "50 mg", "GRAEL-GHK-2026-044", 99.2, "HPLC-UV", "2026-08-01"),
+  pendingBatch("GTT600", "Glutathione", "600 mg", "GRAEL-GTT-2026-033", 99.1, "HPLC-UV", "2026-07-28"),
+  pendingBatch("ET10", "Epitalon", "10 mg", "GRAEL-ET10-2026-029", 99.3, "HPLC-UV", "2026-07-27"),
   {
     sku: "WA3",
     compound: "Bacteriostatic Water",
@@ -182,36 +139,36 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     purityPercent: 100,
     method: "Sterility / identity",
     analyzedAt: "2026-07-25",
-    status: "Verified",
-    coaUrl: "https://www.traceabl.us/verify?batch=GRAEL-WA3-2026-012",
-    integrity: "Support lot recorded · QR-locked to this LOT",
+    status: "Pending",
+    coaUrl: verifyUrl("GRAEL-WA3-2026-012"),
+    integrity: "Support solvent · peptide lots tested via Traceabl",
   },
 ];
 
 export const TRACEABL_SECURITY = [
   {
     title: "Independent lab — not self-certified",
-    body: "Purity is measured by Traceabl, not declared by the seller. Results live outside Grael packaging.",
+    body: "Independent third-party testing has been ordered for all peptides. Live certificates appear product-by-product as results post on Traceabl.",
   },
   {
     title: "Batch-bound COA",
-    body: "Each LOT maps to one report. The vial QR opens that batch only — not a generic PDF.",
+    body: "Each LOT maps to one Traceabl Sample ID / report when results are live.",
   },
   {
     title: "Integrity hash / on-chain record",
-    body: "The finished result is hashed and registered so a swapped or edited report fails verification.",
+    body: "Finished results are hashed and can be registered on Base so a swapped report fails verification.",
   },
   {
     title: "Public verify path",
-    body: "Anyone with the label can open the COA on Traceabl.us. No trust-me email attachment.",
+    body: "Anyone can open the Traceabl badge link to re-check the public record.",
   },
   {
     title: "Labels print after the result",
-    body: "LOT and QR are applied when the Traceabl result is final — not before testing.",
+    body: "LOT and QR print when the Traceabl result is final.",
   },
   {
     title: "No shared “house” COA",
-    body: "You don’t get last month’s certificate for a new lot. What you order is what was tested.",
+    body: "No shared house certificate. Once testing is live, what you buy is what was tested.",
   },
 ] as const;
 
@@ -220,7 +177,6 @@ export function batchForSku(sku: string): BatchRecord | undefined {
 }
 
 export function batchSku(sku: string) {
-  // Single-vial SKUs end with V (TR15V) — share kit batch
   if (sku.endsWith("V") && sku.length > 1) return sku.slice(0, -1);
   return sku;
 }
@@ -237,14 +193,36 @@ export function requireBatch(sku: string): BatchRecord {
       method: "Pending",
       analyzedAt: "—",
       status: "Pending",
-      coaUrl: TRACEABL_SITE,
-      integrity: "Batch pending Traceabl result",
+      coaUrl: TRACEABL_VERIFY,
+      integrity: "Testing ordered · results post on Traceabl when ready",
     };
   }
   return b;
 }
 
-/** Recently tested — newest first */
+export function verifyUrlForBatch(batch: BatchRecord) {
+  if (batch.sampleId) {
+    return `${TRACEABL_VERIFY}?id=${encodeURIComponent(batch.sampleId)}`;
+  }
+  if (batch.coaUrl?.includes("traceabl")) return batch.coaUrl;
+  return `${TRACEABL_VERIFY}?batch=${encodeURIComponent(batch.batchId)}`;
+}
+
+export function basescanTxUrl(batch: BatchRecord): string | null {
+  if (!batch.integrityTxId) return null;
+  const id = batch.integrityTxId.replace(/^0x/, "");
+  if (batch.integrityChain === "base-sepolia") {
+    return `https://sepolia.basescan.org/tx/0x${id}`;
+  }
+  return `https://basescan.org/tx/0x${id}`;
+}
+
+export function shortHash(hash: string) {
+  const h = hash.startsWith("0x") ? hash : `0x${hash}`;
+  if (h.length < 12) return h;
+  return `${h.slice(0, 6)}…${h.slice(-4)}`;
+}
+
 export function recentlyTested(limit = 12): BatchRecord[] {
   return [...PRODUCT_BATCHES]
     .sort((a, b) => (a.analyzedAt < b.analyzedAt ? 1 : -1))

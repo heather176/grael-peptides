@@ -25,10 +25,11 @@ function PamphletPage() {
             Print
           </p>
           <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Partner pamphlet
+            Wholesale pamphlet
           </h1>
           <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Mail-order sheet · invoice contact · cash option. Code stays off the print — text it.
+            Partner price sheet · suggested retail · invoice contact. Code stays off the print —
+            text it.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -111,14 +112,17 @@ function PamphletPage() {
                 <li>{MAIL_ORDER.shippingNote}</li>
                 <li>{MAIL_ORDER.shipEstimate}</li>
                 <li>{MAIL_ORDER.nextShip}</li>
-                <li>10-vial packs + single vials</li>
+                <li>
+                  10-vial packs for customers · singles when in stock · produced when you buy
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-3">
             <p className="text-sm text-[var(--color-fg-muted)]">{MAIL_ORDER.partnerCodeNote}</p>
-            <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.ruo}</p>
+            <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
+            <p className="mt-1 text-xs text-[var(--color-fg-subtle)]">{MAIL_ORDER.ruo}</p>
           </div>
         </section>
 
@@ -129,7 +133,13 @@ function PamphletPage() {
                 {MAIL_ORDER.partnerLabel}
               </h2>
               <p className="text-sm text-[var(--color-fg-muted)]">
-                {MAIL_ORDER.partnerDiscountLabel} · unbreakable 10-packs only · card or invoice
+                {MAIL_ORDER.partnerDiscountLabel} · 10-packs for customers · card or invoice
+              </p>
+              <p className="mt-1 text-xs text-[var(--color-fg-subtle)]">
+                <span className="font-medium text-[var(--color-fg-muted)]">Your wholesale</span> =
+                what you pay us.{" "}
+                <span className="font-medium text-[var(--color-fg-muted)]">Suggested retail</span> =
+                what customers pay online (helps you sell).
               </p>
             </div>
             <p className="text-xs text-[var(--color-fg-subtle)]">
@@ -138,15 +148,16 @@ function PamphletPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[520px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border-strong)] text-[11px] tracking-[0.08em] text-[var(--color-fg-subtle)] uppercase">
                   <th className="py-2 pr-2 font-medium">Compound</th>
                   <th className="py-2 pr-2 font-medium">Size</th>
-                  <th className="py-2 pr-2 text-right font-medium">10-pack public</th>
-                  <th className="py-2 text-right font-medium text-[var(--color-primary)]">
-                    10-pack partner
+                  <th className="py-2 pr-2 text-right font-medium text-[var(--color-primary)]">
+                    Your wholesale
                   </th>
+                  <th className="py-2 pr-2 text-right font-medium">Suggested retail</th>
+                  <th className="py-2 text-right font-medium">Your margin</th>
                 </tr>
               </thead>
               <tbody>
@@ -159,11 +170,14 @@ function PamphletPage() {
                     <td className="py-2.5 pr-2 font-mono text-xs text-[var(--color-fg-muted)]">
                       {r.strength}
                     </td>
-                    <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
-                      {formatMoney(r.kitLaunch)}
+                    <td className="py-2.5 pr-2 text-right font-medium tabular text-[var(--color-primary)]">
+                      {formatMoney(r.wholesale)}
                     </td>
-                    <td className="py-2.5 text-right font-medium tabular text-[var(--color-primary)]">
-                      {formatMoney(r.kitPartner)}
+                    <td className="py-2.5 pr-2 text-right tabular text-[var(--color-fg-muted)]">
+                      {formatMoney(r.suggestedRetail)}
+                    </td>
+                    <td className="py-2.5 text-right tabular text-[var(--color-fg-muted)]">
+                      {formatMoney(r.margin)}
                     </td>
                   </tr>
                 ))}

@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import { TraceablBadgeChip } from "@/components/traceabl-badge";
 import { Button } from "@/components/ui/button";
-import { catalogProducts, featuredProducts, type Product } from "@/lib/products";
+import {
+  catalogProducts,
+  featuredProducts,
+  TESTING_ORDERED,
+  type Product,
+} from "@/lib/products";
 import { requireBatch } from "@/lib/traceabl-batches";
 import { formatUsd } from "@/lib/utils";
 
@@ -9,7 +15,7 @@ import { formatUsd } from "@/lib/utils";
 export function ShopProductsCard({
   limit = 8,
   title = "Research products for sale",
-  subtitle = "Pre-sale · Traceabl batch COA per lot",
+  subtitle = "10-packs for customers · produced when you buy · testing ordered",
 }: {
   limit?: number;
   title?: string;
@@ -38,31 +44,33 @@ export function ShopProductsCard({
           const batch = requireBatch(p.sku);
           return (
             <li key={p.sku}>
-              <Link
-                to="/products/$sku"
-                params={{ sku: p.sku }}
-                className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2.5 no-underline transition-colors hover:border-[var(--color-border-strong)]"
-              >
-                <span className="min-w-0">
+              <div className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2.5">
+                <Link
+                  to="/products/$sku"
+                  params={{ sku: p.sku }}
+                  className="min-w-0 flex-1 no-underline"
+                >
                   <span className="block text-sm font-medium text-[var(--color-fg)]">{p.name}</span>
                   <span className="block text-xs text-[var(--color-fg-subtle)]">
-                    {p.vialLabel}
-                    {p.vials > 1 ? ` · ${p.vials} vials` : ""}
+                    {p.strength}
                     {" · "}
                     <span className="font-mono">Batch {batch.batchId}</span>
                   </span>
-                </span>
-                <span className="shrink-0 text-sm font-semibold tabular text-[var(--color-fg)]">
-                  {formatUsd(p.price)}
-                </span>
-              </Link>
+                </Link>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="text-sm font-semibold tabular text-[var(--color-fg)]">
+                    {formatUsd(p.price)}
+                  </span>
+                  <TraceablBadgeChip batch={batch} />
+                </div>
+              </div>
             </li>
           );
         })}
       </ul>
 
       <p className="mt-4 text-xs leading-relaxed text-[var(--color-fg-subtle)]">
-        Research use only. Lab tested · Traceabl COA linked on each product.
+        Research use only. {TESTING_ORDERED} Each Traceabl chip opens the public ledger.
       </p>
 
       <Button className="mt-4" size="sm" asChild>

@@ -26,7 +26,8 @@ function TraceablTestingPage() {
           Independent purity testing from Traceabl
         </h1>
         <p className="text-[var(--color-fg-muted)] leading-relaxed">
-          Grael does not self-certify purity. Each batch is measured by{" "}
+          Independent third-party testing has been ordered for all peptides and will be posted
+          shortly. Results will be measured by{" "}
           <a
             href={TRACEABL_SITE}
             target="_blank"
@@ -35,8 +36,8 @@ function TraceablTestingPage() {
           >
             Traceabl.us
           </a>
-          . Security is the point: a batch-bound report, integrity hash, and a public verify path so
-          the COA cannot be quietly swapped.
+          {" "}
+          with a batch-bound report, integrity hash, and public verify path.
         </p>
         <p className="inline-flex flex-wrap items-baseline gap-x-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-3 py-2 text-sm">
           <span className="font-medium text-[var(--color-fg)]">{TRACEABL_TURNAROUND.label}</span>
@@ -126,7 +127,7 @@ function TraceablTestingPage() {
       </section>
 
       <p className="text-xs text-[var(--color-fg-subtle)] leading-relaxed">
-        Pending launch lots: {TRACEABL_TURNAROUND.detail.toLowerCase()}. COA links open Traceabl’s
+        Testing status: {TRACEABL_TURNAROUND.detail.toLowerCase()}. COA links open Traceabl’s
         public path for that batch ID. Research use only.
       </p>
     </main>

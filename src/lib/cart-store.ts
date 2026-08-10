@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getProduct, SELL_SINGLES, products, type Product } from "@/lib/products";
+import { getProduct, products, type Product } from "@/lib/products";
 
 export type CartLine = {
   sku: string;
@@ -22,12 +22,7 @@ type CartState = {
 
 function resolveSellableSku(sku: string): string | null {
   const raw = products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
-  if (!raw) return null;
-  if (!SELL_SINGLES && raw.pack === "vial") {
-    const kit = products.find((p) => p.baseSku === raw.baseSku && p.pack === "kit10");
-    return kit?.sku ?? null;
-  }
-  return raw.sku;
+  return raw?.sku ?? null;
 }
 
 export const useCart = create<CartState>()(
@@ -44,11 +39,11 @@ export const useCart = create<CartState>()(
           if (existing) {
             return {
               lines: state.lines.map((l) =>
-                l.sku === resolved ? { ...l, qty: Math.min(20, l.qty + qty) } : l,
+                l.sku === resolved ? { ...l, qty: Math.min(50, l.qty + qty) } : l,
               ),
             };
           }
-          return { lines: [...state.lines, { sku: resolved, qty: Math.min(20, qty) }] };
+          return { lines: [...state.lines, { sku: resolved, qty: Math.min(50, qty) }] };
         });
       },
       setQty: (sku, qty) => {
@@ -58,7 +53,7 @@ export const useCart = create<CartState>()(
         }
         set((state) => ({
           lines: state.lines.map((l) =>
-            l.sku === sku ? { ...l, qty: Math.min(20, Math.floor(qty)) } : l,
+            l.sku === sku ? { ...l, qty: Math.min(50, Math.floor(qty)) } : l,
           ),
         }));
       },
@@ -81,7 +76,7 @@ export const useCart = create<CartState>()(
           .filter((x): x is CartLine & { product: Product } => x !== null),
     }),
     {
-      name: "grael-cart-v1",
+      name: "grael-cart-v2",
       partialize: (state) => ({ lines: state.lines }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

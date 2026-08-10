@@ -4,8 +4,8 @@ import { useDiscount } from "@/lib/discount-store";
 import { cn, formatUsd } from "@/lib/utils";
 
 /**
- * Public: launch price (pre-sale off list).
- * Wholesale code: % off LIST only — never stacked on top of pre-sale.
+ * Public: flat launch price (no pre-sale callout).
+ * Wholesale code: % off LIST only.
  */
 export function PriceDisplay({
   product,
@@ -53,7 +53,7 @@ export function PriceDisplay({
             −{wholesalePct}% off list
           </span>
         </>
-      ) : PRESALE.active && product.listPrice > product.price ? (
+      ) : PRESALE.active && off > 0 && product.listPrice > product.price ? (
         <>
           <span
             className={cn(
@@ -64,7 +64,7 @@ export function PriceDisplay({
             {formatUsd(product.listPrice)}
           </span>
           <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
-            −{off}% pre-sale
+            −{off}%
           </span>
         </>
       ) : null}

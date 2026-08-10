@@ -2,27 +2,38 @@
 @import "tw-animate-css";
 
 @theme {
-  /* Scandinavian pharmacy aesthetic — pure white, cool grey, soft sage (no cream) */
-  --color-bg: #fafafa;
+  /*
+   * Grael — silver / stone / white chrome.
+   * Fonts restored to original stack (Inter + Cormorant + IBM Plex Mono).
+   * Green only as Traceabl accent, not site chrome.
+   */
+  --color-bg: #f4f4f2;
   --color-bg-elevated: #ffffff;
-  --color-bg-subtle: #f4f4f4;
-  --color-surface: #ececec;
-  --color-fg: #141414;
-  --color-fg-muted: #5a5a5a;
-  --color-fg-subtle: #8a8a8a;
-  --color-border: #e5e5e5;
-  --color-border-strong: #cfcfcf;
-  --color-primary: #4d6b5c;
-  --color-primary-fg: #fafafa;
-  --color-primary-dim: #3d5649;
-  --color-accent: #a8b5ad;
-  --color-danger: #a65d57;
-  --color-warning: #9a7b3c;
-  --color-success: #4d6b5c;
+  --color-bg-subtle: #ebebe8;
+  --color-surface: #e2e2de;
+  --color-fg: #1c1c1a;
+  --color-fg-muted: #5c5c58;
+  --color-fg-subtle: #8a8a84;
+  --color-border: #d8d8d2;
+  --color-border-strong: #bdbdb6;
+  --color-primary: #2a2a28;
+  --color-primary-fg: #f7f7f5;
+  --color-primary-dim: #141412;
+  --color-accent: #9a9a94;
+  --color-danger: #8c4a42;
+  --color-warning: #8a7a4a;
+  --color-success: #4a5c52;
   --color-card: #ffffff;
-  --color-ring: #4d6b5c;
-  --color-parchment: #f4f4f4;
-  --color-stone: #f0f0f0;
+  --color-ring: #6e6e68;
+  --color-parchment: #efefeb;
+  --color-stone: #e6e6e1;
+  --color-seal: #3a3a36;
+  --color-coa: #f7f7f4;
+  --color-brass: #a8a8a2;
+  --color-silver: #c5c5bf;
+  --color-ink: #1c1c1a;
+  --color-bottle: #2a2a28;
+  --color-traceabl: #2f5c45;
 
   --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
   --font-display: "Cormorant Garamond", "Times New Roman", Georgia, serif;
@@ -34,8 +45,9 @@
   --radius-lg: 8px;
   --radius-xl: 12px;
 
-  --shadow-soft: 0 1px 2px rgb(20 20 20 / 0.04), 0 8px 24px -12px rgb(20 20 20 / 0.08);
-  --shadow-inset-stone: none;
+  --shadow-soft: 0 1px 2px rgb(28 28 26 / 0.04), 0 12px 32px -16px rgb(28 28 26 / 0.1);
+  --shadow-coa: 0 2px 6px rgb(28 28 26 / 0.05), 0 18px 40px -18px rgb(28 28 26 / 0.12);
+  --shadow-inset-stone: inset 0 1px 0 rgb(255 255 255 / 0.7);
 }
 
 @layer base {
@@ -51,7 +63,9 @@
   body {
     margin: 0;
     min-height: 100dvh;
-    background: var(--color-bg);
+    background:
+      radial-gradient(900px 480px at 12% -10%, rgb(197 197 191 / 0.35), transparent 55%),
+      linear-gradient(180deg, #fafaf8 0%, var(--color-bg) 45%, #efefe9 100%);
     color: var(--color-fg);
     font-family: var(--font-sans);
     font-size: 0.975rem;
@@ -67,7 +81,7 @@
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-primary) 22%, transparent);
+    background: color-mix(in oklab, var(--color-fg) 14%, transparent);
     color: var(--color-fg);
   }
 
@@ -93,14 +107,33 @@
   }
 
   .parchment-chip {
-    background: #ffffff;
+    background: var(--color-parchment);
     color: var(--color-fg-muted);
     border: 1px solid var(--color-border);
   }
+
+  .coa-card {
+    background: linear-gradient(165deg, #ffffff 0%, #f7f7f4 55%, #efefe9 100%);
+    border: 1px solid color-mix(in oklab, var(--color-silver) 55%, var(--color-border));
+    box-shadow: var(--shadow-coa), var(--shadow-inset-stone);
+  }
+
+  .seal-ring {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-silver) 70%, transparent),
+      0 10px 28px -12px rgb(28 28 26 / 0.28);
+  }
+
+  .hairline-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-silver), transparent);
+  }
+
+  .traceabl-accent {
+    color: var(--color-traceabl);
+  }
 }
 
-
-/* Partner pamphlet — clean letter print */
 @media print {
   body {
     background: white !important;

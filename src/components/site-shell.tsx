@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 
-/** Single thin status strip — avoids stacked banners */
+/** Single thin status strip — parchment + green, not slate */
 function StatusStrip() {
   return (
     <div className="border-b border-[var(--color-border)] bg-[var(--color-bg-subtle)]">
@@ -16,7 +16,7 @@ function StatusStrip() {
         </p>
         {LAUNCH.active ? (
           <p>
-            <span className="font-medium text-[var(--color-fg)]">{LAUNCH.label}</span>
+            <span className="font-medium text-[var(--color-primary)]">{LAUNCH.label}</span>
             {" · "}
             {LAUNCH.discountLabel}
             {" · "}

@@ -13,7 +13,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Grael Peptides — research-use materials with Traceabl batch COAs. Launch pre-sale. RUO.",
+          "Grael Peptides — research-use materials with Traceabl batch COAs. RUO.",
       },
       { name: "theme-color", content: "#fafafa" },
       { property: "og:title", content: APP_NAME },
