@@ -152,7 +152,7 @@ export const DEFAULT_PAMPHLET_OPTIONS: PamphletOptions = {
   nextShipNote: MAIL_ORDER.nextShip,
   showRuo: true,
   showTestingNote: true,
-  showMargin: true,
+  showMargin: false,
   title: MAIL_ORDER.title,
   tagline: MAIL_ORDER.tagline,
   clientName: "",

@@ -295,70 +295,28 @@ export async function downloadWholesalePdf(
     y += 4;
   }
 
-  // —— 10-vial pack table ——
+  // —— 10-vial pack only: You pay + List (no margin, no singles) ——
   const kitHeaders: Col[] = [
-    { key: "name", label: "Compound", w: 100, align: "left" },
-    { key: "focus", label: "Research focus", w: 175, align: "left" },
-    { key: "pay", label: "You pay", w: 70, align: "right" },
-    { key: "ret", label: "Recommended retail", w: 95, align: "right" },
+    { key: "name", label: "Compound", w: 110, align: "left" },
+    { key: "focus", label: "Research focus", w: 210, align: "left" },
+    { key: "pay", label: "You pay (10-pack)", w: 90, align: "right" },
+    { key: "list", label: "List", w: 80, align: "right" },
   ];
-  if (opts.showMargin) {
-    kitHeaders.push({ key: "marg", label: "Your margin", w: 70, align: "right" });
-  }
 
-  const kitBody = rows.map((r) => {
-    const cells = [
-      `${r.name}\n${r.strength}`,
-      `${r.researchBlurb} · ${r.researchFocus}`,
-      formatMoney(r.wholesale, opts.roundMode),
-      formatMoney(r.suggestedRetail, opts.roundMode),
-    ];
-    if (opts.showMargin) cells.push(formatMoney(r.margin, opts.roundMode));
-    return cells;
-  });
+  const kitBody = rows.map((r) => [
+    `${r.name}\n${r.strength}`,
+    `${r.researchBlurb} · ${r.researchFocus}`,
+    formatMoney(r.wholesale, opts.roundMode),
+    formatMoney(r.listPrice, opts.roundMode),
+  ]);
 
   y = drawPriceTable(
     doc,
     y,
-    "10-vial pack — what to buy",
-    "Order “Buy 10-pack” on the site. You pay = your cost from Grael. Recommended retail = what to charge customers.",
+    "10-vial pack pricing",
+    "Order “Buy 10-pack” on the site. You pay = wholesale from Grael. List = public list price.",
     kitHeaders,
     kitBody,
-    margin,
-    pageW,
-    pageH,
-    dateLabel,
-  );
-
-  // —— Single vial table ——
-  const vialHeaders: Col[] = [
-    { key: "name", label: "Compound", w: 100, align: "left" },
-    { key: "focus", label: "Research focus", w: 175, align: "left" },
-    { key: "pay", label: "You pay", w: 70, align: "right" },
-    { key: "ret", label: "Recommended retail", w: 95, align: "right" },
-  ];
-  if (opts.showMargin) {
-    vialHeaders.push({ key: "marg", label: "Your margin", w: 70, align: "right" });
-  }
-
-  const vialBody = rows.map((r) => {
-    const cells = [
-      `${r.name}\n${r.singleStrength}`,
-      `${r.researchBlurb} · ${r.researchFocus}`,
-      formatMoney(r.singleWholesale, opts.roundMode),
-      formatMoney(r.singleRetail, opts.roundMode),
-    ];
-    if (opts.showMargin) cells.push(formatMoney(r.singleMargin, opts.roundMode));
-    return cells;
-  });
-
-  y = drawPriceTable(
-    doc,
-    y,
-    "Single vial — what to buy",
-    "Order “Buy 1 vial” on the site when you only need one unit. Same compounds as the 10-pack list.",
-    vialHeaders,
-    vialBody,
     margin,
     pageW,
     pageH,
