@@ -37,8 +37,8 @@ function HomePage() {
             </h1>
             <p className="max-w-md text-[var(--color-fg-muted)] leading-relaxed">
               Priced by <span className="text-[var(--color-fg)]">single vial</span>, with a{" "}
-              <span className="text-[var(--color-fg)]">10-pack</span> on every compound. Produced
-              when you buy. {TESTING_ORDERED}
+              <span className="text-[var(--color-fg)]">10-pack</span> on every compound.{" "}
+              {TESTING_ORDERED}
               {NEXT_SHIPMENT.active ? (
                 <> Next shipment {NEXT_SHIPMENT.estimatedShipLabel}.</>
               ) : null}

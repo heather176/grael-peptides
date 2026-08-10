@@ -1,7 +1,8 @@
 /**
  * Inventory model (launch):
- * - 10-vial packs for customers — produced when they buy.
+ * - 10-vial packs for customers when available.
  * - Singles only when stock is on hand (BROKEN_VIALS). Otherwise: sold out.
+ * Do not discuss production vs warehouse sourcing on the public site.
  */
 
 import type { Product } from "@/lib/products";
@@ -42,7 +43,7 @@ export const BROKEN_VIALS: Record<string, number> = {
 export const ORDER_TRIGGERED_KITS = true;
 
 export const INVENTORY_NOTE =
-  "10-vial packs for customers · singles when in stock · packs produced when you buy.";
+  "10-vial packs for customers · singles when in stock · while supplies last.";
 
 export function vialsOnHand(baseSku: string): number {
   return Math.max(0, VIALS_ON_HAND[baseSku] ?? 0);
@@ -78,8 +79,8 @@ export function stockForProduct(product: Product): {
         // Short — avoid stacking “10-pack” phrases in the UI
         label:
           onHandKits > 0
-            ? `${onHandKits} on hand · more produced when you buy`
-            : "Produced when you buy",
+            ? `${onHandKits} on hand · more available`
+            : "Available to order",
         shortLabel: onHandKits > 0 ? `${onHandKits}+ on hand` : "On order",
       };
     }

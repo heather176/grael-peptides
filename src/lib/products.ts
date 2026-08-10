@@ -44,7 +44,7 @@ export const LAUNCH = {
   label: "Launch open",
   discountLabel: "",
   suppliesLabel: "While supplies last",
-  note: "Single vial default · 10-pack available · produced when you buy.",
+  note: "Single vial default · 10-pack available · while supplies last.",
   coaNote: TESTING_ORDERED,
 } as const;
 
@@ -63,13 +63,13 @@ export const NEXT_SHIPMENT = {
   shortLabel: "Next ship Aug 12",
   daysEstimate: 2,
   note:
-    "Reserve the next shipment wave. Your prices are locked at reserve — you are not charged today. When the next production run goes out (August 12, 2026), we charge the reserved total and produce your packs.",
+    "Reserve the next shipment wave. Your prices are locked at reserve — you are not charged today. When the next shipment goes out (August 12, 2026), we charge the reserved total and fulfill your packs.",
   cartNote:
-    "Next shipment: prices reserved now · charged when the next production run goes out (Aug 12) · not charged today.",
-  reserveHeadline: "Prices reserved · charged when next production run goes out",
+    "Next shipment: prices reserved now · charged when the next shipment goes out (Aug 12) · not charged today.",
+  reserveHeadline: "Prices reserved · charged when next shipment goes out",
   chargeWhen:
-    "Charged when the next production run goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
-  shortCharge: "Reserved price · charge on next production run",
+    "Charged when the next shipment goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
+  shortCharge: "Reserved price · charge on next shipment",
 } as const;
 
 export const STRIPE_MULTI_CHECKOUT =

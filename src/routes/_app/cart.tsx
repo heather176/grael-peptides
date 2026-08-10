@@ -181,7 +181,7 @@ function CartPage() {
               </div>
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
-              {LAUNCH.suppliesLabel}. Pay now — 10-packs produced when you buy. {SHIPPING.note}.
+              {LAUNCH.suppliesLabel}. Pay now — packs ship after fulfillment. {SHIPPING.note}.
               Minimum product subtotal {formatUsd(ORDER.minProductSubtotal)}. Wholesale cash/wire:
               email{" "}
               <a

@@ -15,7 +15,7 @@ import { formatUsd } from "@/lib/utils";
 export function ShopProductsCard({
   limit = 8,
   title = "Research products for sale",
-  subtitle = "10-packs for customers · produced when you buy · testing ordered",
+  subtitle = "10-packs for customers · singles when in stock · testing ordered",
 }: {
   limit?: number;
   title?: string;

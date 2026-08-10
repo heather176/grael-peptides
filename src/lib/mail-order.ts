@@ -21,7 +21,7 @@ export const CONTACT = {
       "Email wholesale@graelpeptides.com with SKUs and quantities (1 vial or 10-packs)",
       "We send a Stripe invoice at your wholesale prices",
       "Pay cash, wire, or Zelle as agreed — then we mark the invoice paid out of band",
-      "Produced when you buy, then mailed (US)",
+      "Order confirmed, then mailed (US)",
     ],
     note: "Card checkout is always available online with your partner code. Cash is invoice-only — do not mail cash.",
   },
@@ -36,7 +36,7 @@ export const MAIL_ORDER = {
     "Browse catalog online or from this sheet",
     "Order on graelpeptides.com with card — or request an invoice for cash/wire wholesale",
     "Email wholesale@graelpeptides.com for invoice · settle cash as agreed · we mark paid",
-    "Produced when you buy, then mailed (US only)",
+    "Order confirmed, then mailed (US only)",
   ],
   shippingNote: `US shipping ${SHIPPING.amount} flat · product minimum $${ORDER.minProductSubtotal}`,
   shipEstimate: "Typically 3–7 business days after fulfillment",
@@ -62,20 +62,20 @@ export const PARTNER_SELL_POINTS = {
     "Use these points when talking to your customers. Research use only — never make medical or dosing claims.",
   points: [
     {
-      title: "Produced when you buy",
-      body: "Fresh production for each order — not sitting for months in a warehouse. Reliable for labs that care about handling and turnaround.",
+      title: "Research-grade catalog",
+      body: "Core peptides researchers already look for — clear names, strengths, and pack sizes so you can quote without a confusing SKU maze.",
     },
     {
       title: "Target ≥99% identity",
-      body: "Research-grade materials with a high purity target. Independent third-party testing has been ordered for all peptides and will be posted as results arrive.",
+      body: "Research materials with a high purity target. Independent third-party testing has been ordered for all peptides and will be posted as results arrive.",
     },
     {
       title: "Traceabl-ready batch trail",
       body: "Built for transparent batch documentation. When COAs and Traceabl ledger entries go live, you can point customers to verifiable batch info — not a vague PDF alone.",
     },
     {
-      title: "Clean catalog, clear packs",
-      body: "Core research compounds with simple options: 1 vial or 10-vial pack. Easy to quote, restock, and explain without a confusing SKU maze.",
+      title: "Simple packs: 1 vial or 10",
+      body: "Every compound has a single-vial option and a 10-vial pack. Easy to restock and easy for your customers to understand.",
     },
     {
       title: "Partner economics that sell",
@@ -87,7 +87,7 @@ export const PARTNER_SELL_POINTS = {
     },
   ],
   talkTrack: [
-    "Lead with purity target and fresh production — researchers buy confidence.",
+    "Lead with purity target and transparent testing — researchers buy confidence.",
     "Show the recommended retail vs your cost so they see you are not inflated.",
     "Mention testing ordered + COAs coming — transparency beats hype.",
     "Keep language research-only: laboratory use, not personal results.",

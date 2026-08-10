@@ -13,7 +13,7 @@ export function SiteFooter() {
           <p className="font-display text-2xl font-semibold tracking-tight">Grael</p>
           <p className="text-xs tracking-[0.2em] text-[var(--color-fg-subtle)] uppercase">Peptides</p>
           <p className="max-w-xs text-sm text-[var(--color-fg-muted)]">
-            Research products. Produced when you buy. {LAUNCH.suppliesLabel}. {TESTING_ORDERED}
+            Research products. {LAUNCH.suppliesLabel}. {TESTING_ORDERED}
           </p>
           {NEXT_SHIPMENT.active ? (
             <p className="max-w-xs text-xs text-[var(--color-fg-subtle)]">
