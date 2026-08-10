@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { CanaryBadge } from "@/components/canary-badge";
 import { PackBuySelect } from "@/components/pack-buy-select";
 import { PriceDisplay } from "@/components/price-display";
 import { TraceablBadge } from "@/components/traceabl-badge";
@@ -92,9 +91,8 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
 
-      <div className="relative z-10 flex flex-col gap-2 px-4 pb-3">
+      <div className="relative z-10 px-4 pb-3">
         <TraceablBadge batch={batch} size="sm" />
-        <CanaryBadge size="sm" className="w-full" />
       </div>
 
       <div className="border-t border-[var(--color-border)] px-4 py-3">

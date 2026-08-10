@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { ArrowLeft, ExternalLink, Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BatchCoaPanel } from "@/components/batch-coa";
-import { CanaryBadge } from "@/components/canary-badge";
 import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
@@ -92,8 +91,6 @@ function ProductDetailPage() {
           </div>
 
           <BatchCoaPanel batch={batch} />
-          <CanaryBadge size="md" className="w-full" />
-
           {packs.length > 1 ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
               <p className="mb-2 text-xs font-medium tracking-[0.12em] text-[var(--color-fg-subtle)] uppercase">
