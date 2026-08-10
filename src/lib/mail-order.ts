@@ -48,7 +48,7 @@ export const MAIL_ORDER = {
   partnerDiscountLabel: "40% off list · prices rounded to the nearest $10",
   publicLabel: "Recommended retail (public catalog)",
   testingNote:
-    "Independent third-party testing has been ordered for all peptides and will be posted shortly. Target ≥99% identity.",
+    "Independent medical-grade third-party testing has been ordered for all peptides and will be posted shortly.",
   invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
 } as const;
 
@@ -66,8 +66,8 @@ export const PARTNER_SELL_POINTS = {
       body: "Core peptides researchers already look for — clear names, strengths, and pack sizes so you can quote without a confusing SKU maze.",
     },
     {
-      title: "Target ≥99% identity",
-      body: "Research materials with a high purity target. Independent third-party testing has been ordered for all peptides and will be posted as results arrive.",
+      title: "Medical-grade testing",
+      body: "Independent medical-grade third-party testing has been ordered for all peptides. Results will be posted as they arrive — transparent batch documentation for research customers.",
     },
     {
       title: "Traceabl-ready batch trail",
@@ -87,9 +87,9 @@ export const PARTNER_SELL_POINTS = {
     },
   ],
   talkTrack: [
-    "Lead with purity target and transparent testing — researchers buy confidence.",
+    "Lead with medical-grade testing and transparent COAs — researchers buy confidence.",
     "Show the recommended retail vs your cost so they see you are not inflated.",
-    "Mention testing ordered + COAs coming — transparency beats hype.",
+    "Mention medical-grade testing ordered + COAs coming — transparency beats hype.",
     "Keep language research-only: laboratory use, not personal results.",
   ],
   compliance:

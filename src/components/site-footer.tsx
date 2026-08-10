@@ -1,17 +1,17 @@
 import { Link } from "@tanstack/react-router";
+import { GraelWordmark } from "@/components/grael-wordmark";
 import { CONTACT } from "@/lib/mail-order";
 import { LAUNCH, NEXT_SHIPMENT, TESTING_ORDERED } from "@/lib/products";
 import { TRACEABL_SITE } from "@/lib/traceabl-batches";
 
-const VERSION = "1.6.2";
+const VERSION = "1.6.3";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-6">
-        <div className="space-y-2">
-          <p className="font-display text-2xl font-semibold tracking-tight">Grael</p>
-          <p className="text-xs tracking-[0.2em] text-[var(--color-fg-subtle)] uppercase">Peptides</p>
+        <div className="space-y-3">
+          <GraelWordmark size="md" withMark className="text-[2rem]" />
           <p className="max-w-xs text-sm text-[var(--color-fg-muted)]">
             Research products. {LAUNCH.suppliesLabel}. {TESTING_ORDERED}
           </p>

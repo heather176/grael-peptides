@@ -125,16 +125,31 @@ export function downloadWholesalePdf(
   const email = opts.contactEmail;
   const mail = mailtoUrl(email);
 
-  // Grael wordmark
+  // Grael wordmark — PEPTIDES centered under Grael
   doc.setFont("times", "bold");
   doc.setFontSize(36);
   doc.setTextColor(28);
-  doc.text("Grael", margin, y + 8);
+  const brand = "Grael";
+  const brandW = doc.getTextWidth(brand);
+  const brandX = margin;
+  doc.text(brand, brandX, y + 8);
   y += 28;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(120);
-  doc.text("PEPTIDES", margin, y);
+  doc.setFontSize(9);
+  doc.setTextColor(140);
+  const sub = "PEPTIDES";
+  // letter-space PEPTIDES to sit centered under Grael
+  const letterSpace = 3.2;
+  let subW = 0;
+  for (let i = 0; i < sub.length; i++) {
+    subW += doc.getTextWidth(sub[i]!);
+    if (i < sub.length - 1) subW += letterSpace;
+  }
+  let sx = brandX + (brandW - subW) / 2;
+  for (let i = 0; i < sub.length; i++) {
+    doc.text(sub[i]!, sx, y);
+    sx += doc.getTextWidth(sub[i]!) + letterSpace;
+  }
   y += 16;
   doc.setFontSize(10);
   doc.setTextColor(80);
