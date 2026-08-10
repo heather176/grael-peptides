@@ -1,34 +1,29 @@
 /**
  * Grael production / supplier cost (COGS) — Lab only.
- * Used for private margin columns on the wholesale studio (never on partner PDF).
- *
- * Defaults are starting estimates for 10-pack and single vials — edit in Lab.
+ * Defaults from supplier 1-box quote (Aug 2026). 1 box = 10 vials.
  */
 
 export type ProductionCost = {
   /** Your cost for one 10-vial pack */
   kit: number;
-  /** Your cost for one single vial */
+  /** Your cost for one single vial (~ box / 10) */
   single: number;
 };
 
-/**
- * Base SKU → production cost.
- * Round dollars. Adjust anytime in Lab private columns (saved in browser).
- */
+/** Base SKU → production cost from digested wholesale quote */
 export const DEFAULT_PRODUCTION_COSTS: Record<string, ProductionCost> = {
-  TR15: { kit: 280, single: 32 },
-  SM15: { kit: 240, single: 28 },
-  RT10: { kit: 340, single: 38 },
-  BC10: { kit: 160, single: 18 },
-  BT5: { kit: 180, single: 20 },
-  BB10: { kit: 230, single: 26 },
-  MS10: { kit: 160, single: 18 },
-  NJ100: { kit: 110, single: 12 },
-  CU50: { kit: 110, single: 12 },
-  GTT600: { kit: 130, single: 14 },
-  ET10: { kit: 110, single: 12 },
-  WA3: { kit: 35, single: 4 },
+  TR15: { kit: 83, single: 8 },
+  SM15: { kit: 81, single: 8 },
+  RT10: { kit: 130, single: 13 },
+  BC10: { kit: 70, single: 7 },
+  BT5: { kit: 89, single: 9 },
+  BB10: { kit: 117, single: 12 },
+  MS10: { kit: 68, single: 7 },
+  NJ100: { kit: 45, single: 5 },
+  CU50: { kit: 33, single: 3 },
+  GTT600: { kit: 59, single: 6 },
+  ET10: { kit: 35, single: 4 },
+  WA3: { kit: 10, single: 1 },
 };
 
 export function productionCostFor(

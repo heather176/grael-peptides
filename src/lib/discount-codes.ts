@@ -14,6 +14,8 @@ import {
   findPartnerCode,
   partnerRecordToDef,
 } from "@/lib/partner-code-registry";
+import { effectiveListPrice, effectivePrice } from "@/lib/site-prices";
+import type { Product } from "@/lib/products";
 
 export type DiscountTier = "wholesale" | "partner" | "vip";
 
@@ -129,13 +131,20 @@ export function unitPriceWithDiscount(basePrice: number, percentOff: number) {
  * Public (no code): launch price.
  */
 export function unitPriceForProduct(
-  product: { price: number; listPrice: number },
+  product: { price: number; listPrice: number; sku?: string },
   percentOffList: number | null | undefined,
 ) {
+  // Prefer Lab-pushed site prices when available
+  const p =
+    product.sku && "sku" in product
+      ? ({ ...product, price: product.price, listPrice: product.listPrice, sku: product.sku } as Product)
+      : null;
+  const launch = p ? effectivePrice(p) : product.price;
+  const list = p ? effectiveListPrice(p) : product.listPrice;
   if (percentOffList && percentOffList > 0) {
-    return unitPriceWithDiscount(product.listPrice, percentOffList);
+    return unitPriceWithDiscount(list, percentOffList);
   }
-  return product.price;
+  return launch;
 }
 
 /** Stripe promotion code string (may differ from site code if renamed). */

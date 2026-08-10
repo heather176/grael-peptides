@@ -1,6 +1,7 @@
 import { discountPercent, PRESALE, type Product } from "@/lib/products";
 import { unitPriceForProduct } from "@/lib/discount-codes";
 import { useDiscount } from "@/lib/discount-store";
+import { effectiveListPrice, withEffectivePrices } from "@/lib/site-prices";
 import { cn, formatUsd } from "@/lib/utils";
 
 /**
@@ -17,9 +18,11 @@ export function PriceDisplay({
   className?: string;
 }) {
   const def = useDiscount((s) => s.activeDef());
-  const off = discountPercent(product);
+  const live = withEffectivePrices(product);
+  const off = discountPercent(live);
   const wholesalePct = def?.percentOff ?? 0;
-  const displayPrice = unitPriceForProduct(product, wholesalePct || null);
+  const displayPrice = unitPriceForProduct(live, wholesalePct || null);
+  const listShown = effectiveListPrice(live);
 
   const priceCls =
     size === "lg"
@@ -47,13 +50,13 @@ export function PriceDisplay({
               listCls,
             )}
           >
-            {formatUsd(product.listPrice)}
+            {formatUsd(listShown)}
           </span>
           <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
             −{wholesalePct}% off list
           </span>
         </>
-      ) : PRESALE.active && off > 0 && product.listPrice > product.price ? (
+      ) : PRESALE.active && off > 0 && listShown > live.price ? (
         <>
           <span
             className={cn(
@@ -61,10 +64,7 @@ export function PriceDisplay({
               listCls,
             )}
           >
-            {formatUsd(product.listPrice)}
-          </span>
-          <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
-            −{off}%
+            {formatUsd(listShown)}
           </span>
         </>
       ) : null}
