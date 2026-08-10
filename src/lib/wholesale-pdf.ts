@@ -163,7 +163,34 @@ export function downloadWholesalePdf(
   }
   y += 6;
 
-  // —— 10-pack chart ——
+  // How to order
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(20);
+  doc.text("How to order", margin, y);
+  y += 14;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(50);
+  const steps = [
+    `1. Go to ${SITE_HOST} → Shop. Product names match this sheet.`,
+    "2. Choose Buy 1 vial or Buy 10-pack on each product; add to cart.",
+    "3. At checkout enter your partner code (texted separately). Prices become the You pay column.",
+    `4. Pay by card, or email ${opts.contactEmail} for an invoice (cash / wire / Zelle).`,
+  ];
+  for (const s of steps) {
+    doc.text(s, margin, y, { maxWidth: pageW - margin * 2 });
+    y += 12;
+  }
+  y += 6;
+  doc.setTextColor(80);
+  doc.text(
+    "You pay = wholesale from Grael. Recommended retail = what to charge customers. Your margin = retail − you pay.",
+    margin,
+    y,
+    { maxWidth: pageW - margin * 2 },
+  );
+  y += 18;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(20);
@@ -206,18 +233,18 @@ export function downloadWholesalePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(20);
-  doc.text("Single vial pricing", margin, y);
+  doc.text("Single vial — what to buy", margin, y);
   y += 6;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(100);
   y += 10;
-  doc.text("Easy reference for partners who sell singles when stock allows.", margin, y);
+  doc.text("Use Buy 1 vial on the site when you only need one unit of a compound.", margin, y);
   y += 14;
 
   const singleHeaders = opts.showMargin
-    ? ["Compound", "Size", "Wholesale", "Rec. retail", "Margin"]
-    : ["Compound", "Size", "Wholesale", "Rec. retail"];
+    ? ["Compound", "Size", "You pay", "Rec. retail", "Your margin"]
+    : ["Compound", "Size", "You pay", "Rec. retail"];
   const singleColW = opts.showMargin ? [140, 110, 80, 90, 70] : [150, 130, 100, 100];
   const singleRows = rows.map((r) => {
     const base = [

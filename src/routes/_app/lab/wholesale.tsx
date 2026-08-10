@@ -478,10 +478,57 @@ function LabWholesalePage() {
             )}
           </div>
 
+          <div className="mt-4 rounded-[var(--radius-lg)] border-2 border-[var(--color-fg)]/15 bg-white px-5 py-4">
+            <p className="font-display text-xl font-semibold tracking-tight text-[var(--color-fg)]">
+              How to order
+            </p>
+            <ol className="mt-3 space-y-2 text-base text-[var(--color-fg-muted)]">
+              <li className="flex gap-3">
+                <span className="font-mono font-medium text-[var(--color-primary)]">1.</span>
+                <span>
+                  Go to{" "}
+                  <span className="font-medium text-[var(--color-fg)]">{SITE_HOST}</span> → Shop.
+                  Each product is a research peptide (same names as this sheet).
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-mono font-medium text-[var(--color-primary)]">2.</span>
+                <span>
+                  Choose{" "}
+                  <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> or{" "}
+                  <span className="font-medium text-[var(--color-fg)]">Buy 10-pack</span> on the
+                  product. Add what you need to the cart.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-mono font-medium text-[var(--color-primary)]">3.</span>
+                <span>
+                  At checkout, enter your{" "}
+                  <span className="font-medium text-[var(--color-fg)]">partner code</span> (texted
+                  separately — not on this sheet). Prices drop to the wholesale column below.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-mono font-medium text-[var(--color-primary)]">4.</span>
+                <span>
+                  Pay by card on the site, or email{" "}
+                  <span className="font-mono text-[var(--color-primary)]">{opts.contactEmail}</span>{" "}
+                  for an invoice (cash / wire / Zelle).
+                </span>
+              </li>
+            </ol>
+            <p className="mt-3 text-sm text-[var(--color-fg-subtle)]">
+              <span className="font-medium text-[var(--color-fg-muted)]">You pay</span> = wholesale
+              price on this sheet.{" "}
+              <span className="font-medium text-[var(--color-fg-muted)]">Recommended retail</span> =
+              what we suggest you charge your customers (public catalog).{" "}
+              <span className="font-medium text-[var(--color-fg-muted)]">Your margin</span> = retail −
+              what you pay (before your shipping to them).
+            </p>
+          </div>
+
           <p className="mt-4 text-base text-[var(--color-fg-muted)]">
-            Default partner: {offPct}% off list ·{" "}
-            <span className="font-medium text-[var(--color-fg)]">Recommended retail</span> = public
-            catalog price. {opts.nextShipNote}
+            Default partner: {offPct}% off list · {opts.nextShipNote}
           </p>
           {opts.showTestingNote ? (
             <p className="mt-2 text-sm text-[var(--color-fg-subtle)]">{MAIL_ORDER.testingNote}</p>
@@ -492,10 +539,12 @@ function LabWholesalePage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="font-display text-3xl font-semibold tracking-tight">
-                10-vial pack pricing
+                10-vial pack — what to buy
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                Your wholesale = what partners pay. Recommended retail = public catalog.
+                Order a <span className="font-medium text-[var(--color-fg)]">10-pack</span> on the
+                site for each line. <span className="font-medium text-[var(--color-fg)]">You pay</span>{" "}
+                is your cost from Grael; recommended retail is for your customers.
               </p>
             </div>
             <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
@@ -516,10 +565,11 @@ function LabWholesalePage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="font-display text-3xl font-semibold tracking-tight">
-                Single vial pricing
+                Single vial — what to buy
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                Easy reference for one-vial orders when singles are available.
+                Order <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> when you
+                only need one. Same products as the 10-pack list.
               </p>
             </div>
             <p className="rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-1 text-[11px] font-medium tracking-wide text-[var(--color-warning)] uppercase print:hidden">
@@ -590,11 +640,11 @@ function PriceTable({
             <th className="py-2.5 pr-2 font-medium">Compound</th>
             <th className="py-2.5 pr-2 font-medium">Size</th>
             <th className="py-2.5 pr-2 text-right font-medium text-[var(--color-primary)]">
-              Partner wholesale
+              You pay
             </th>
             <th className="py-2.5 pr-2 text-right font-medium">Recommended retail</th>
             {showMargin ? (
-              <th className="py-2.5 pr-2 text-right font-medium">Partner margin</th>
+              <th className="py-2.5 pr-2 text-right font-medium">Your margin</th>
             ) : null}
             {/* Private — screen only */}
             <th className="hidden py-2.5 pr-2 text-right font-medium text-[var(--color-warning)] print:hidden sm:table-cell">
