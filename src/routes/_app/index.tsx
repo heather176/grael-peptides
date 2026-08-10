@@ -64,13 +64,13 @@ function HomePage() {
           <div className="mx-auto w-full max-w-md">
             <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white/70 shadow-[var(--shadow-soft)] backdrop-blur-[2px]">
               <img
-                src="/products/hero-primary.jpg"
-                alt="Grael research vial — clear glass, black stopper, silver seal"
-                className="aspect-[4/5] w-full object-cover object-center"
+                src="/products/hero-canva.png"
+                alt="Grael Peptides — Quiet. Clear. Research-ready."
+                className="aspect-[4/5] w-full object-cover object-top"
               />
             </div>
             <p className="mt-3 text-center text-[11px] tracking-[0.14em] text-[var(--color-fg-subtle)] uppercase">
-              Studio · independent testing · Traceabl
+              Canva poster · studio vial · Traceabl
             </p>
           </div>
         </div>
