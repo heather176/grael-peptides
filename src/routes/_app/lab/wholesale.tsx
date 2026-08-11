@@ -421,7 +421,7 @@ function LabWholesalePage() {
             <Toggle
               checked={opts.showTestingNote}
               onChange={(v) => patch({ showTestingNote: v })}
-              label="Testing ordered note"
+              label="Testing pending note"
             />
             <Toggle
               checked={opts.showRuo}
