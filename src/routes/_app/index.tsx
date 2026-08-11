@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
-import { featuredProducts, LAUNCH, NEXT_SHIPMENT, TESTING_ORDERED } from "@/lib/products";
+import { featuredProducts, LAUNCH, NEXT_SHIPMENT } from "@/lib/products";
 
 export const Route = createFileRoute("/_app/")({
   component: HomePage,
@@ -31,14 +31,13 @@ function HomePage() {
               Grael Peptides · Research use only
             </p>
             <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-fg)] sm:text-5xl lg:text-[3.5rem]">
-              Research peptides,
+              Research peptides
               <br />
-              clearly presented.
+              for serious labs.
             </h1>
             <p className="max-w-md text-[var(--color-fg-muted)] leading-relaxed">
-              Priced by <span className="text-[var(--color-fg)]">single vial</span>, with a{" "}
-              <span className="text-[var(--color-fg)]">10-pack</span> on every compound.{" "}
-              {TESTING_ORDERED}
+              Single vials and 10-packs across every compound. Medical-grade third-party testing
+              ordered — results posted as they arrive.
               {NEXT_SHIPMENT.active ? (
                 <> Next shipment {NEXT_SHIPMENT.estimatedShipLabel}.</>
               ) : null}
