@@ -21,7 +21,6 @@ const filters: Array<"all" | ProductCategory> = [
   "healing",
   "cellular",
   "longevity",
-  "support",
 ];
 
 function CatalogPage() {

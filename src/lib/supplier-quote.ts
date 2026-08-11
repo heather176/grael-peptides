@@ -80,8 +80,8 @@ export const SUPPLIER_QUOTE: SupplierQuoteRow[] = [
   { sku: "ML10", name: "Melanotan II", packLabel: "10mg × 10 vials", boxCost: 62 },
   { sku: "KP5", name: "KPV", packLabel: "5mg × 10 vials", boxCost: 54 },
   { sku: "KP10", name: "KPV", packLabel: "10mg × 10 vials", boxCost: 69 },
-  // Water / acetic
-  { sku: "WA3", name: "Bacteriostatic water", packLabel: "3ml × 10 vials", boxCost: 10, catalogBaseSku: "WA3" },
+  // Water / acetic (not sold on Grael storefront — supplier reference only)
+  { sku: "WA3", name: "Bacteriostatic water", packLabel: "3ml × 10 vials", boxCost: 10 },
   { sku: "WA10", name: "Bacteriostatic water", packLabel: "10ml × 10 vials", boxCost: 11 },
   { sku: "AA3", name: "Acetic acid solution", packLabel: "3ml × 10 vials", boxCost: 10 },
   { sku: "AA10", name: "Acetic acid solution", packLabel: "10ml × 10 vials", boxCost: 11 },
