@@ -597,8 +597,9 @@ function LabWholesalePage() {
               <li className="flex gap-3">
                 <span className="font-mono font-medium text-[var(--color-primary)]">2.</span>
                 <span>
-                  Choose <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> or{" "}
-                  <span className="font-medium text-[var(--color-fg)]">Buy 10-pack</span>.
+                  Choose{" "}
+                  <span className="font-medium text-[var(--color-fg)]">Buy 10-pack</span> only.
+                  Wholesale partners are not sold single vials from Grael.
                 </span>
               </li>
               <li className="flex gap-3">
@@ -631,12 +632,13 @@ function LabWholesalePage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="font-display text-3xl font-semibold tracking-tight">
-                Buy 10-packs · sell vials
+                10-pack wholesale (what partners buy)
               </h2>
               <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                Partners buy 10-packs at <span className="font-medium text-[var(--color-fg)]">You pay</span>.
-                Cost per vial ≈ You pay ÷ 10 when selling singles or small lots. Recommended retail
-                guides what to charge customers.
+                Partners buy <span className="font-medium text-[var(--color-fg)]">10-packs only</span>{" "}
+                from Grael — not singles.{" "}
+                <span className="font-medium text-[var(--color-fg)]">You pay</span> is pack cost;
+                cost per vial ≈ You pay ÷ 10 is for their resale math only.
               </p>
             </div>
           </div>
@@ -684,25 +686,7 @@ function LabWholesalePage() {
         </section>
 
         <section className="p-6 sm:p-8 print:break-inside-avoid print:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 className="font-display text-3xl font-semibold tracking-tight">
-                Single vial — what to buy
-              </h2>
-              <p className="mt-1 text-base text-[var(--color-fg-muted)]">
-                Order <span className="font-medium text-[var(--color-fg)]">Buy 1 vial</span> when you
-                only need one.
-              </p>
-            </div>
-          </div>
-          <PriceTable
-            mode="single"
-            rows={rows}
-            showMargin={opts.showMargin}
-            roundMode={opts.roundMode}
-          />
-
-          <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-5 text-sm text-[var(--color-fg-subtle)] sm:grid-cols-3">
+          <div className="mt-0 grid gap-4 border-t-0 pt-0 text-sm text-[var(--color-fg-subtle)] sm:grid-cols-3">
             <p>
               <span className="font-medium text-[var(--color-fg-muted)]">Order online</span>
               <br />

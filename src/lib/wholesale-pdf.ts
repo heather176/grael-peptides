@@ -1,7 +1,7 @@
 /**
- * Wholesale partner PDF — for partners who buy 10-packs and resell singles / small lots.
- * Columns: You pay (10-pack), cost per vial, suggested single retail, list 10-pack.
- * No Our cost / Our margin.
+ * Wholesale partner PDF — partners buy 10-packs only from Grael.
+ * They may resell singles / small lots to their own customers.
+ * Suggested sell (1 vial) = guide for their customer pricing, not a Grael SKU for them.
  */
 import { jsPDF } from "jspdf";
 import {
@@ -198,7 +198,7 @@ export async function downloadWholesalePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(25);
-  doc.text("Wholesale pricing sheet · buy 10-packs · sell singles", pageW / 2, y, {
+  doc.text("Wholesale pricing · 10-packs only (from Grael)", pageW / 2, y, {
     align: "center",
   });
   y += 14;
@@ -229,15 +229,15 @@ export async function downloadWholesalePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
   doc.setTextColor(20);
-  doc.text("How to use this sheet (reseller model)", margin + 10, y + 12);
+  doc.text("How to use this sheet", margin + 10, y + 12);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(50);
   const how = [
-    "1. Buy 10-vial packs at You pay — that is your wholesale cost for a full pack.",
-    "2. Cost / vial = You pay ÷ 10 — your floor when selling one vial or a few vials.",
-    "3. Suggested sell (1 vial) = public single-vial retail — a clear price for your customers.",
-    "4. List (10-pack) = public list for the pack — use when quoting a full pack to a lab.",
+    "1. You buy only 10-vial packs from Grael — we do not sell you single vials wholesale.",
+    "2. You pay = your cost for one full 10-pack. Cost / vial = You pay ÷ 10 (your floor if you resell vials).",
+    "3. Suggested sell (1 vial) = guide for pricing to your customers (not a wholesale SKU from us).",
+    "4. List (10-pack) = public list if you quote a full pack to a lab.",
   ];
   let hy = y + 26;
   for (const line of how) {
@@ -307,7 +307,7 @@ export async function downloadWholesalePdf(
     y += 6;
   }
 
-  // Main pricing table — buy pack, sell singles
+  // Main pricing table — buy packs only from Grael
   const headers: Col[] = [
     { key: "name", label: "Compound", w: 118, align: "left" },
     { key: "pay", label: "You pay (10-pack)", w: 88, align: "right" },
@@ -330,8 +330,8 @@ export async function downloadWholesalePdf(
   y = drawPriceTable(
     doc,
     y,
-    "Buy 10-packs · price when you sell vials",
-    "You pay = wholesale for one 10-vial pack. Cost / vial = You pay ÷ 10. Suggested sell (1 vial) = public single retail. List = public 10-pack list.",
+    "10-pack wholesale (what you buy from Grael)",
+    "Wholesale is 10-packs only. You pay = pack cost. Cost / vial = You pay ÷ 10 for your own resale math. Suggested sell (1 vial) is for your customers — not sold as wholesale singles by Grael.",
     headers,
     body,
     margin,
@@ -416,7 +416,7 @@ export async function downloadWholesalePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(20);
-  doc.text("How to order 10-packs", margin, y);
+  doc.text("How to order 10-packs (wholesale only)", margin, y);
   y += 13;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
@@ -425,7 +425,7 @@ export async function downloadWholesalePdf(
   drawLink(doc, CATALOG_URL, CATALOG_URL, margin + doc.getTextWidth("1. Open the shop: "), y, 9);
   y += 13;
   doc.setTextColor(40);
-  doc.text("2. Choose Buy 10-pack on each compound; add packs to cart.", margin, y);
+  doc.text("2. Choose Buy 10-pack only — do not order single vials on a wholesale account.", margin, y);
   y += 13;
   doc.text(
     "3. At checkout enter your partner code (texted separately). Prices become You pay.",
