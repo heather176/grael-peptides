@@ -13,20 +13,26 @@ function HomePage() {
 
   return (
     <main>
-      {/* Clean hero: copy over soft vial photo — no framed poster card */}
-      <section className="relative overflow-hidden border-b border-[var(--color-border)]">
-        <div className="absolute inset-0">
+      {/*
+        Mobile-safe hero: text + full vial (never crop the bottle).
+        Desktop: two columns — copy left, master vial right on soft studio ground.
+      */}
+      <section className="relative overflow-hidden border-b border-[var(--color-border)] bg-white">
+        {/* Soft studio wash (desktop only accent) */}
+        <div
+          className="pointer-events-none absolute inset-0 hidden md:block"
+          aria-hidden
+        >
           <img
             src="/products/hero-bg.jpg"
             alt=""
-            className="h-full w-full object-cover object-[70%_center] sm:object-[80%_center]"
-            aria-hidden
+            className="h-full w-full object-cover object-right"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/20 sm:from-white sm:via-white/90 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/92 to-white/35" />
         </div>
 
-        <div className="relative mx-auto flex min-h-[28rem] max-w-6xl flex-col justify-center px-4 py-24 sm:min-h-[32rem] sm:px-6 sm:py-28 lg:py-32">
-          <div className="max-w-xl space-y-6">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:gap-12 md:py-24 lg:py-28">
+          <div className="order-1 max-w-xl space-y-6">
             <p className="text-[11px] font-medium tracking-[0.22em] text-[var(--color-fg-subtle)] uppercase">
               Grael Peptides · Research use only
             </p>
@@ -36,8 +42,8 @@ function HomePage() {
               for serious labs.
             </h1>
             <p className="max-w-md text-[var(--color-fg-muted)] leading-relaxed">
-              Single vials and 10-packs across every compound. Medical-grade third-party testing
-              ordered — results posted as they arrive.
+              Single vials and 10-packs across every compound. Medical-grade third-party
+              testing ordered — results posted as they arrive.
               {NEXT_SHIPMENT.active ? (
                 <> Next shipment {NEXT_SHIPMENT.estimatedShipLabel}.</>
               ) : null}
@@ -50,12 +56,27 @@ function HomePage() {
                 </Link>
               </Button>
               <Button size="lg" variant="ghost" asChild>
-                <Link to="/preorder">Next shipment · {NEXT_SHIPMENT.estimatedShipLabel}</Link>
+                <Link to="/preorder">
+                  Next shipment · {NEXT_SHIPMENT.estimatedShipLabel}
+                </Link>
               </Button>
             </div>
             <p className="text-[11px] tracking-[0.14em] text-[var(--color-fg-subtle)] uppercase">
               {LAUNCH.suppliesLabel}
             </p>
+          </div>
+
+          {/* Full vial — always complete on mobile (no edge crop) */}
+          <div className="order-2 flex justify-center md:justify-end">
+            <img
+              src="/products/hero-primary.jpg"
+              alt="Grael research peptide vial — lyophilized, unlabeled"
+              className="h-auto w-[min(72vw,280px)] object-contain object-center drop-shadow-sm sm:w-[min(60vw,320px)] md:w-[min(100%,360px)]"
+              width={720}
+              height={1080}
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
         </div>
       </section>
