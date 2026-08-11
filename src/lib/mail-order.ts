@@ -9,33 +9,30 @@ import { productionCostFor, type ProductionCost } from "@/lib/production-costs";
 export const SITE_URL = "https://graelpeptides.com";
 export const SITE_HOST = "graelpeptides.com";
 
-/** Invoice / cash wholesale — printed on pamphlet & site */
+/** Public storefront contact (no wholesale offers on site). */
 export const CONTACT = {
-  email: "wholesale@graelpeptides.com",
-  emailMailto:
-    "mailto:wholesale@graelpeptides.com?subject=Wholesale%20invoice%20request%20%E2%80%94%20Grael",
-  label: "Wholesale & invoices",
+  email: "hello@graelpeptides.com",
+  emailMailto: "mailto:hello@graelpeptides.com?subject=Grael%20inquiry",
+  label: "Contact",
   cashInvoice: {
-    title: "Wholesale cash / invoice",
+    title: "Contact",
     steps: [
-      "Email wholesale@graelpeptides.com with SKUs and quantities (1 vial or 10-packs)",
-      "We send a Stripe invoice at your wholesale prices",
-      "Pay cash, wire, or Zelle as agreed — then we mark the invoice paid out of band",
-      "Order confirmed, then mailed (US)",
+      "Email hello@graelpeptides.com with your question or order details",
+      "We respond as soon as we can",
     ],
-    note: "Card checkout is always available online with your partner code. Cash is invoice-only — do not mail cash.",
+    note: "Card checkout is available on the catalog. Research use only.",
   },
 } as const;
 
 export const MAIL_ORDER = {
   mode: "mail-order" as const,
   title: "Grael Peptides",
-  tagline: "Wholesale partner sheet · research peptides",
-  pamphletTitle: "Wholesale catalog · partner pricing sheet",
+  tagline: "Research peptides catalog",
+  pamphletTitle: "Research peptides catalog",
   howItWorks: [
     "Browse catalog online or from this sheet",
-    "Order on graelpeptides.com with card — or request an invoice for cash/wire wholesale",
-    "Email wholesale@graelpeptides.com for invoice · settle cash as agreed · we mark paid",
+    "Order on graelpeptides.com with card — with card checkout",
+    "Email hello@graelpeptides.com with questions",
     "Order confirmed, then mailed (US only)",
   ],
   shippingNote: `US shipping ${SHIPPING.amount} flat · product minimum $${ORDER.minProductSubtotal}`,
@@ -43,13 +40,13 @@ export const MAIL_ORDER = {
   nextShip: "Next consolidated order · August 12, 2026",
   ruo: "Research use only. Not for human or veterinary use. Not a drug, food, or cosmetic.",
   partnerCodeNote:
-    "Your wholesale access code is provided separately by text. Do not share. Enter it at card checkout — or skip the code and request an invoice by email.",
-  partnerLabel: "Wholesale pricing for partners",
+    "Pricing is as shown on the public catalog.",
+  partnerLabel: "Catalog pricing",
   partnerDiscountLabel: "40% off list · prices rounded to the nearest $10",
   publicLabel: "Recommended retail (public catalog)",
   testingNote:
     "Independent medical-grade third-party testing is pending for all peptides and will be posted shortly.",
-  invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
+  invoiceContactLine: `Contact: ${CONTACT.email}`,
 } as const;
 
 /**
