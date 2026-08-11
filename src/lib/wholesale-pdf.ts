@@ -450,7 +450,7 @@ export async function downloadWholesalePdf(
     doc.setFontSize(8);
     doc.setTextColor(90);
     doc.text(
-      "Independent medical-grade third-party testing has been ordered for all peptides and will be posted shortly.",
+      "Independent medical-grade third-party testing is pending for all peptides and will be posted shortly.",
       margin,
       y,
       { maxWidth: pageW - margin * 2 },

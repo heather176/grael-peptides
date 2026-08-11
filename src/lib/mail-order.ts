@@ -48,7 +48,7 @@ export const MAIL_ORDER = {
   partnerDiscountLabel: "40% off list · prices rounded to the nearest $10",
   publicLabel: "Recommended retail (public catalog)",
   testingNote:
-    "Independent medical-grade third-party testing has been ordered for all peptides and will be posted shortly.",
+    "Independent medical-grade third-party testing is pending for all peptides and will be posted shortly.",
   invoiceContactLine: `Invoice & cash wholesale: ${CONTACT.email}`,
 } as const;
 
@@ -67,7 +67,7 @@ export const PARTNER_SELL_POINTS = {
     },
     {
       title: "Medical-grade testing",
-      body: "Independent medical-grade third-party testing has been ordered for all peptides. Results will be posted as they arrive — transparent batch documentation for research customers.",
+      body: "Independent medical-grade third-party testing is pending for all peptides. Results will be posted as they arrive — transparent batch documentation for research customers.",
     },
     {
       title: "Traceabl-ready batch trail",

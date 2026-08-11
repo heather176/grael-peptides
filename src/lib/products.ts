@@ -37,7 +37,7 @@ export type Product = {
 };
 
 export const TESTING_ORDERED =
-  "Independent medical-grade third-party testing has been ordered for all peptides and will be posted shortly.";
+  "Independent medical-grade third-party testing is pending for all peptides and will be posted shortly.";
 
 export const LAUNCH = {
   active: true,

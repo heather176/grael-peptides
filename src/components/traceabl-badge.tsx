@@ -221,7 +221,7 @@ function BadgeBody({
                 pending ? "bg-[#e8eee6] text-[#2f5c45]" : "bg-[#dce8df] text-[#1f3d30]",
               )}
             >
-              {pending ? "Testing ordered" : "Verified"}
+              {pending ? "Testing pending" : "Verified"}
             </span>
           </div>
           {!pending ? (
@@ -265,7 +265,7 @@ function BadgeBody({
             s.bar,
           )}
         >
-          Testing ordered
+          Testing pending
         </span>
       ) : (
         <span
@@ -305,7 +305,7 @@ export function TraceablBadge({
         data-traceabl-badge={size}
         data-traceabl-status="pending"
         data-sample-id={batch.sampleId ?? ""}
-        title="Testing ordered · certificate link when results are ready"
+        title="Testing pending · certificate link when results are ready"
       >
         <BadgeBody batch={batch} size={size} />
       </div>
@@ -350,7 +350,7 @@ export function TraceablBadgeChip({
           className,
         )}
       >
-        Testing ordered
+        Testing pending
       </span>
     );
   }

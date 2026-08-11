@@ -1,21 +1,21 @@
 /**
  * Launch batch registry for Grael catalog.
  *
+ * All peptide lots are testing-pending until results are posted on Traceabl.
+ *
  * HOW TO ATTACH A REAL TRACEABL SAMPLE (when results land):
  * Paste in chat, or edit the matching entry below:
  *
  *   product: BPC-157 (or SKU BC10)
- *   sampleId: PP-20260809-7288
+ *   sampleId: PP-YYYYMMDD-XXX
  *   status: Verified
- *   purityPercent: 99.9
+ *   purityPercent: …
  *   method: TM-HPLC-001
- *   analyzedAt: 2026-08-10
- *   integrityHash: 0x…               ← Integrity Seal
- *   integrityTxId: 0xabc…            ← optional Base tx
- *   integrityChain: base
+ *   analyzedAt: YYYY-MM-DD
+ *   integrityHash: 0x…
  *
  * Or paste the verify URL:
- *   https://www.traceabl.us/verify?id=PP-20260809-7288
+ *   https://www.traceabl.us/verify?id=PP-…
  */
 
 import { products } from "@/lib/products";
@@ -26,7 +26,7 @@ export const TRACEABL_VERIFY = "https://www.traceabl.us/verify";
 export const TRACEABL_TURNAROUND = {
   label: "Testing status",
   detail:
-    "Independent third-party testing has been ordered for all peptides and will be posted shortly",
+    "Independent third-party testing is pending for all peptides and will be posted shortly",
 } as const;
 
 export type BatchRecord = {
@@ -81,41 +81,16 @@ function pendingBatch(
     analyzedAt,
     status: "Pending",
     coaUrl: verifyUrl(batchId),
-    integrity: "Testing ordered · results post on Traceabl when ready",
+    integrity: "Testing pending · results post on Traceabl when ready",
   };
 }
 
-/**
- * Live Traceabl sample for BPC-157 (issued 2026-08-10).
- * Browser COA: https://www.traceabl.us/verify?id=PP-20260809-7288
- * Seal monogram: 7A3F·9C2D
- */
-const BPC157_LIVE: BatchRecord = {
-  sku: "BC10",
-  compound: "BPC-157",
-  strength: "10 mg",
-  batchId: "GRAEL-BPC-2026-081",
-  sampleId: "PP-20260809-7288",
-  purityPercent: 99.9,
-  method: "TM-HPLC-001",
-  sst: "Met",
-  analyzedAt: "2026-08-10",
-  status: "Verified",
-  coaUrl: verifyUrl("GRAEL-BPC-2026-081", "PP-20260809-7288"),
-  integrity: "Integrity seal live · verify on Traceabl · Research use only",
-  // Perimeter digest from Traceabl on-chain seal (SHA-256 hex)
-  integrityHash:
-    "0x2b307a3f9c2d8e1b6d4a2f0c5e9b1d3a7c4e6f8a0b2c4d6e8f0a1b3c5d7e9f1a",
-  sealMonogram: "7A3F·9C2D",
-  integrityChain: "base",
-};
-
-/** One active sell batch per SKU */
+/** One active sell batch per SKU — all peptides pending until COAs post */
 export const PRODUCT_BATCHES: BatchRecord[] = [
   pendingBatch("TR15", "Tirzepatide", "15 mg", "GRAEL-TR15-2026-072", 99.4, "HPLC-UV", "2026-08-03"),
   pendingBatch("SM15", "Semaglutide", "15 mg", "GRAEL-SM15-2026-068", 99.5, "HPLC-UV", "2026-08-03"),
   pendingBatch("RT10", "Retatrutide", "10 mg", "GRAEL-RT10-2026-055", 99.3, "HPLC-UV", "2026-08-02"),
-  BPC157_LIVE,
+  pendingBatch("BC10", "BPC-157", "10 mg", "GRAEL-BPC-2026-081", 99.9, "HPLC-UV", "2026-08-10"),
   pendingBatch("BT5", "TB-500", "5 mg", "GRAEL-TB5-2026-061", 99.2, "HPLC-UV", "2026-08-01"),
   pendingBatch(
     "BB10",
@@ -141,14 +116,14 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
     analyzedAt: "2026-07-25",
     status: "Pending",
     coaUrl: verifyUrl("GRAEL-WA3-2026-012"),
-    integrity: "Support solvent · peptide lots tested via Traceabl",
+    integrity: "Support solvent · testing pending with peptide lots",
   },
 ];
 
 export const TRACEABL_SECURITY = [
   {
     title: "Independent lab — not self-certified",
-    body: "Independent third-party testing has been ordered for all peptides. Live certificates appear product-by-product as results post on Traceabl.",
+    body: "Independent third-party testing is pending for all peptides. Live certificates appear product-by-product as results post on Traceabl.",
   },
   {
     title: "Batch-bound COA",
@@ -160,7 +135,7 @@ export const TRACEABL_SECURITY = [
   },
   {
     title: "Public verify path",
-    body: "Anyone can open the Traceabl badge link to re-check the public record.",
+    body: "Anyone can open the Traceabl badge link to re-check the public record when results are posted.",
   },
   {
     title: "Labels print after the result",
@@ -194,7 +169,7 @@ export function requireBatch(sku: string): BatchRecord {
       analyzedAt: "—",
       status: "Pending",
       coaUrl: TRACEABL_VERIFY,
-      integrity: "Testing ordered · results post on Traceabl when ready",
+      integrity: "Testing pending · results post on Traceabl when ready",
     };
   }
   return b;

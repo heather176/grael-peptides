@@ -20,7 +20,7 @@ export function BatchCoaLine({
       </span>
       <span className="text-[var(--color-fg-subtle)]">·</span>
       <span className="text-[var(--color-fg-subtle)]">
-        {live ? `${batch.purityPercent.toFixed(1)}% verified` : "Testing ordered"}
+        {live ? `${batch.purityPercent.toFixed(1)}% verified` : "Testing pending"}
       </span>
     </div>
   );
@@ -98,7 +98,7 @@ export function BatchCoaPanel({ batch }: { batch: BatchRecord }) {
           </>
         ) : (
           <p className="mt-1 text-sm leading-relaxed text-[var(--color-fg-muted)]">
-            Testing ordered. The certificate link will appear here when results are posted — same
+            Testing pending. The certificate link will appear here when results are posted — same
             page a customer reaches from the vial QR.
           </p>
         )}
