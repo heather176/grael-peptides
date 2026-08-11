@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { DiscountCodeForm } from "@/components/discount-code-form";
 import { RuoBanner } from "@/components/ruo-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +34,7 @@ function PreorderPage() {
   const subtotal = useCart((s) => s.subtotal);
   const clear = useCart((s) => s.clear);
   const def = useDiscount((s) => s.activeDef());
-  const wholesalePct = def?.percentOff ?? 0;
+  const promoPct = def?.percentOff ?? 0;
 
   useEffect(() => {
     if (useCart.persist.hasHydrated()) setHydrated(true);
@@ -47,9 +46,9 @@ function PreorderPage() {
   const items = ready ? enriched() : [];
   const launchTotal = ready ? subtotal() : 0;
   const total =
-    wholesalePct > 0
+    promoPct > 0
       ? items.reduce(
-          (n, i) => n + unitPriceForProduct(i.product, wholesalePct) * i.qty,
+          (n, i) => n + unitPriceForProduct(i.product, promoPct) * i.qty,
           0,
         )
       : launchTotal;
@@ -258,7 +257,6 @@ function PreorderPage() {
         </form>
 
         <aside className="space-y-4">
-          <DiscountCodeForm />
 
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -286,8 +284,8 @@ function PreorderPage() {
               <ul className="space-y-3">
                 {items.map(({ sku, qty, product }) => {
                   const unit =
-                    wholesalePct > 0
-                      ? unitPriceForProduct(product, wholesalePct)
+                    promoPct > 0
+                      ? unitPriceForProduct(product, promoPct)
                       : product.price;
                   return (
                     <li key={sku} className="flex items-start justify-between gap-3 text-sm">
@@ -295,14 +293,14 @@ function PreorderPage() {
                         <p className="font-medium text-[var(--color-fg)]">{product.name}</p>
                         <p className="font-mono text-xs text-[var(--color-fg-subtle)]">
                           {sku} × {qty}
-                          {wholesalePct > 0 ? ` · −${wholesalePct}%` : ""}
+                          {promoPct > 0 ? ` · −${promoPct}%` : ""}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="tabular text-[var(--color-fg-muted)]">
                           {formatUsd(unit * qty)}
                         </p>
-                        {wholesalePct > 0 ? (
+                        {promoPct > 0 ? (
                           <p className="text-xs tabular text-[var(--color-fg-subtle)] line-through">
                             {formatUsd(product.price * qty)}
                           </p>
@@ -316,13 +314,13 @@ function PreorderPage() {
 
             <div className="mt-5 flex items-center justify-between border-t border-[var(--color-border)] pt-4">
               <span className="text-sm text-[var(--color-fg-muted)]">
-                {wholesalePct > 0 ? `${def?.label} reserved total` : "Reserved product total"}
+                {promoPct > 0 ? `${def?.label} reserved total` : "Reserved product total"}
               </span>
               <div className="text-right">
                 <span className="font-display text-2xl font-semibold tabular">
                   {formatUsd(total)}
                 </span>
-                {wholesalePct > 0 && total < launchTotal ? (
+                {promoPct > 0 && total < launchTotal ? (
                   <p className="text-xs tabular text-[var(--color-fg-subtle)] line-through">
                     {formatUsd(launchTotal)} launch
                   </p>
@@ -349,7 +347,7 @@ function PreorderPage() {
             <ol className="mt-3 list-decimal space-y-2 pl-4">
               <li>
                 We log your request and <strong>reserve today's prices</strong>
-                {def ? " (wholesale code included)" : ""}.
+                {def ? " (promo code included)" : ""}.
               </li>
               <li>
                 You are <strong>not charged today</strong>.

@@ -47,33 +47,20 @@ function AboutPage() {
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Mail order</h2>
           <p>
-            Grael is a mail-order research catalog. Order on graelpeptides.com, pay by card (or
-            partner invoice for cash/wire wholesale), and we ship US only. Next-shipment reserves
-            lock prices until the consolidated order goes out.
+            Grael is a mail-order research catalog. Order on graelpeptides.com, pay by card, and we
+            ship US only. Next-shipment reserves lock prices until the consolidated order goes out.
           </p>
         </section>
 
         <section className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">
-            {CONTACT.cashInvoice.title}
-          </h2>
+          <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Contact</h2>
           <p className="text-[var(--color-fg-muted)]">
-            Wholesale partners who want to pay cash, wire, or Zelle: request a Stripe invoice. Do not
-            mail cash. After settlement we mark the invoice paid and place your order.
+            Questions about an order or the catalog? Email us and we will respond as soon as we can.
           </p>
           <p className="font-mono text-sm text-[var(--color-primary)]">{CONTACT.email}</p>
-          <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--color-fg-muted)]">
-            {CONTACT.cashInvoice.steps.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ol>
-          <p className="text-xs text-[var(--color-fg-subtle)]">{CONTACT.cashInvoice.note}</p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Button asChild>
-              <a href={CONTACT.emailMailto}>Request an invoice</a>
-            </Button>
-            <Button variant="secondary" asChild>
-              <Link to="/lab/wholesale">Lab wholesale sheet</Link>
+              <a href={CONTACT.emailMailto}>Email Grael</a>
             </Button>
           </div>
         </section>
@@ -82,8 +69,7 @@ function AboutPage() {
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Launch</h2>
           <p className="mt-2">
             While supplies last. 10-vial packs and single vials available. Singles when in stock;
-            otherwise they show as sold out. {TESTING_ORDERED} Partner wholesale sheets are printed
-            without codes — codes go by text only.
+            otherwise they show as sold out. {TESTING_ORDERED}
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <Button asChild>
@@ -91,9 +77,6 @@ function AboutPage() {
             </Button>
             <Button variant="secondary" asChild>
               <Link to="/preorder">Next shipment</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/lab/wholesale">Open Lab wholesale sheet</Link>
             </Button>
           </div>
         </section>

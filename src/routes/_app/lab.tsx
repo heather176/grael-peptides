@@ -8,7 +8,6 @@ export const Route = createFileRoute("/_app/lab")({
 const labNav = [
   { to: "/lab" as const, label: "Lab home", exact: true },
   { to: "/lab/pricing" as const, label: "Pricing worksheet", exact: false },
-  { to: "/lab/wholesale" as const, label: "Wholesale sheet", exact: false },
   { to: "/labels" as const, label: "Vial labels", exact: false },
 ];
 

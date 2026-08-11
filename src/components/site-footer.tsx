@@ -33,15 +33,9 @@ export function SiteFooter() {
           </Link>
           <a
             href={CONTACT.emailMailto}
-            className="font-medium text-[var(--color-fg)] no-underline hover:opacity-80"
-          >
-            Wholesale
-          </a>
-          <a
-            href={CONTACT.emailMailto}
             className="text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
           >
-            Invoices
+            Contact
           </a>
           <a
             href={TRACEABL_SITE}
@@ -58,15 +52,7 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} Grael Peptides · v{VERSION}
           </p>
-          <p>
-            Research use only · Wholesale:{" "}
-            <a
-              href={CONTACT.emailMailto}
-              className="font-medium text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)]"
-            >
-              {CONTACT.email}
-            </a>
-          </p>
+          <p>Research use only. Not for human or animal use.</p>
         </div>
       </div>
     </footer>

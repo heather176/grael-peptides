@@ -1,5 +1,5 @@
 /**
- * Wholesale / partner discount codes for Grael Peptides.
+ * Optional promo codes (all inactive on public site — no wholesale offers).
  *
  * percentOff = % off LIST price (not launch). Pre-sale 15% does NOT stack.
  * Final unit = listPrice × (1 − percentOff/100), rounded to nearest $10.
@@ -43,11 +43,11 @@ export type DiscountCodeDef = {
 export const DISCOUNT_CODES: DiscountCodeDef[] = [
   {
     code: "WHOLESALEJASON",
-    label: "Wholesale Jason (40%)",
-    tier: "wholesale",
+    label: "Promo (inactive)",
+    tier: "vip",
     percentOff: 40,
-    stripePercentOff: 29, // ~40% off list when charged at launch prices
-    active: true,
+    stripePercentOff: 29,
+    active: false,
     expiresAt: "2026-12-31T23:59:59.000Z",
     note: "40% off list, rounded to nearest $10 (not stacked with pre-sale). $100 ship · $400 min product.",
     stripePromoId: "promo_1U2GoYDi3y8Lwmj8ZBFhDxL1",
@@ -55,11 +55,11 @@ export const DISCOUNT_CODES: DiscountCodeDef[] = [
   },
   {
     code: "GRAELWS",
-    label: "Wholesale",
-    tier: "wholesale",
+    label: "Promo (inactive)",
+    tier: "vip",
     percentOff: 20,
-    stripePercentOff: 6, // ~20% off list vs ~15% launch
-    active: true,
+    stripePercentOff: 6,
+    active: false,
     expiresAt: "2026-12-31T23:59:59.000Z",
     note: "20% off list, rounded to nearest $10 (replaces pre-sale 15%, does not stack).",
     stripePromoId: "promo_1U2F6uDi3y8Lwmj8jdiVTQbY",
@@ -98,7 +98,13 @@ function isExpired(expiresAt: string | null | undefined, now: Date): boolean {
  * Resolve a code for the store.
  * Lab partner-code-registry overrides built-in entries (expiry, %, active).
  */
+/** Public store: no discount / wholesale codes. */
+export const PUBLIC_DISCOUNTS_DISABLED = true;
+
 export function lookupDiscountCode(raw: string, now = new Date()): DiscountLookupResult {
+  if (PUBLIC_DISCOUNTS_DISABLED) {
+    return { ok: false, reason: "inactive" };
+  }
   let code = normalizeCode(raw);
   if (!code) return { ok: false, reason: "not_found" };
   // Accept WHOLESALEJASON25 as alias of WHOLESALEJASON (40%)

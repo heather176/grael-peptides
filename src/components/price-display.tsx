@@ -6,7 +6,7 @@ import { cn, formatUsd } from "@/lib/utils";
 
 /**
  * Public: flat launch price (no pre-sale callout).
- * Wholesale code: % off LIST only.
+ * Promo code: % off LIST only.
  */
 export function PriceDisplay({
   product,
@@ -20,8 +20,8 @@ export function PriceDisplay({
   const def = useDiscount((s) => s.activeDef());
   const live = withEffectivePrices(product);
   const off = discountPercent(live);
-  const wholesalePct = def?.percentOff ?? 0;
-  const displayPrice = unitPriceForProduct(live, wholesalePct || null);
+  const promoPct = def?.percentOff ?? 0;
+  const displayPrice = unitPriceForProduct(live, promoPct || null);
   const listShown = effectiveListPrice(live);
 
   const priceCls =
@@ -42,7 +42,7 @@ export function PriceDisplay({
       >
         {formatUsd(displayPrice)}
       </span>
-      {wholesalePct > 0 ? (
+      {promoPct > 0 ? (
         <>
           <span
             className={cn(
@@ -53,7 +53,7 @@ export function PriceDisplay({
             {formatUsd(listShown)}
           </span>
           <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--color-primary)] uppercase">
-            −{wholesalePct}% off list
+            −{promoPct}% off list
           </span>
         </>
       ) : PRESALE.active && off > 0 && listShown > live.price ? (

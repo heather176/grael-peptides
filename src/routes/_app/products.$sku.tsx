@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { ArrowLeft, ExternalLink, Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BatchCoaPanel } from "@/components/batch-coa";
-import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -180,7 +179,6 @@ function ProductDetailPage() {
             ) : null}
           </div>
 
-          <DiscountCodeForm />
 
           {NEXT_SHIPMENT.active ? (
             <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] p-5">

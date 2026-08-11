@@ -53,8 +53,8 @@ export function PackBuySelect({
   const selected = options.find((p) => p.sku === sku) ?? preferred;
   const add = useCart((s) => s.add);
   const code = useDiscount((s) => s.activeDef()?.code ?? null);
-  const wholesalePct = useDiscount((s) => s.activeDef()?.percentOff ?? 0);
-  const unit = unitPriceForProduct(selected, wholesalePct || null);
+  const promoPct = useDiscount((s) => s.activeDef()?.percentOff ?? 0);
+  const unit = unitPriceForProduct(selected, promoPct || null);
   const buyable = canBuyNow(selected);
   const stock = stockForProduct(selected);
   const buyHref = withPromoCode(selected.paymentLink, code);
@@ -83,7 +83,7 @@ export function PackBuySelect({
             )}
           >
             {options.map((opt) => {
-              const price = unitPriceForProduct(opt, wholesalePct || null);
+              const price = unitPriceForProduct(opt, promoPct || null);
               const optStock = stockForProduct(opt);
               const label =
                 opt.pack === "vial"
@@ -110,7 +110,7 @@ export function PackBuySelect({
       {!isDetail ? (
         <div className="flex flex-wrap gap-x-2 gap-y-1 text-[11px] text-[var(--color-fg-muted)]">
           {options.map((opt) => {
-            const price = unitPriceForProduct(opt, wholesalePct || null);
+            const price = unitPriceForProduct(opt, promoPct || null);
             const active = opt.sku === selected.sku;
             const optBuyable = canBuyNow(opt);
             return (

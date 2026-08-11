@@ -19,7 +19,7 @@ export type Product = {
   vials: number;
   /** Launch / checkout unit price */
   price: number;
-  /** Full list price (struck through; wholesale % off this) */
+  /** Full list price (struck through when discounted) */
   listPrice: number;
   short: string;
   description: string;
@@ -68,7 +68,7 @@ export const NEXT_SHIPMENT = {
     "Next shipment: prices reserved now · charged when the next shipment goes out (Aug 12) · not charged today.",
   reserveHeadline: "Prices reserved · charged when next shipment goes out",
   chargeWhen:
-    "Charged when the next shipment goes out — not today. Reserved prices (and any wholesale code) are locked at submit.",
+    "Charged when the next shipment goes out — not today. Reserved prices are locked at submit.",
   shortCharge: "Reserved price · charge on next shipment",
 } as const;
 

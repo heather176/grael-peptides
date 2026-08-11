@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bitcoin, ExternalLink, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { DiscountCodeForm } from "@/components/discount-code-form";
 import { PriceDisplay } from "@/components/price-display";
 import { TraceablBadgeChip } from "@/components/traceabl-badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ function CartPage() {
   const subtotal = useCart((s) => s.subtotal);
   const def = useDiscount((s) => s.activeDef());
   const promoCode = def?.code ?? null;
-  const wholesalePct = def?.percentOff ?? 0;
+  const promoPct = def?.percentOff ?? 0;
 
   useEffect(() => {
     if (useCart.persist.hasHydrated()) setHydrated(true);
@@ -43,29 +42,29 @@ function CartPage() {
   const items = ready ? enriched() : [];
   const launchTotal = ready ? subtotal() : 0;
   const listTotal = items.reduce((n, i) => n + i.product.listPrice * i.qty, 0);
-  const wholesaleTotal =
-    wholesalePct > 0
+  const promoTotal =
+    promoPct > 0
       ? items.reduce(
-          (n, i) => n + unitPriceForProduct(i.product, wholesalePct) * i.qty,
+          (n, i) => n + unitPriceForProduct(i.product, promoPct) * i.qty,
           0,
         )
       : launchTotal;
   const single = items.length === 1 ? items[0] : null;
-  const meetsMin = wholesaleTotal >= ORDER.minProductSubtotal;
-  const remainingToMin = Math.max(0, ORDER.minProductSubtotal - wholesaleTotal);
+  const meetsMin = promoTotal >= ORDER.minProductSubtotal;
+  const remainingToMin = Math.max(0, ORDER.minProductSubtotal - promoTotal);
   const checkoutHref = single
     ? withPromoCode(single.product.paymentLink, promoCode)
     : withPromoCode(STRIPE_MULTI_CHECKOUT, promoCode);
 
   const shipAmt = SHIPPING.amount;
-  const orderTotal = wholesaleTotal + shipAmt;
+  const orderTotal = promoTotal + shipAmt;
   const bitpayReady = bitpayIsReady();
 
   const cryptoMailto = useMemo(() => {
     if (!items.length) return CONTACT.emailMailto;
     return cryptoInvoiceMailto({
       lines: items.map((i) => {
-        const unit = unitPriceForProduct(i.product, wholesalePct || null);
+        const unit = unitPriceForProduct(i.product, promoPct || null);
         return {
           name: i.product.name,
           sku: i.product.sku,
@@ -74,13 +73,13 @@ function CartPage() {
           lineTotal: unit * i.qty,
         };
       }),
-      productSubtotal: wholesaleTotal,
+      productSubtotal: promoTotal,
       shipping: shipAmt,
       total: orderTotal,
       promoCode,
       preferredAsset: CRYPTO_PAY.preferred,
     });
-  }, [items, wholesaleTotal, shipAmt, orderTotal, promoCode, wholesalePct]);
+  }, [items, promoTotal, shipAmt, orderTotal, promoCode, promoPct]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
@@ -100,7 +99,6 @@ function CartPage() {
         </div>
       ) : lines.length === 0 ? (
         <div className="space-y-4">
-          <DiscountCodeForm />
           <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-card)] px-6 py-16 text-center">
             <p className="font-display text-lg font-semibold">Your cart is empty</p>
             <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
@@ -113,12 +111,11 @@ function CartPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <DiscountCodeForm />
           <ul className="space-y-3">
             {items.map(({ sku, qty, product }) => {
               const unit =
-                wholesalePct > 0
-                  ? unitPriceForProduct(product, wholesalePct)
+                promoPct > 0
+                  ? unitPriceForProduct(product, promoPct)
                   : product.price;
               return (
                 <li
@@ -193,13 +190,13 @@ function CartPage() {
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-6">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-[var(--color-fg-muted)]">
-                {wholesalePct > 0 ? `${def?.label} subtotal` : "Launch subtotal"}
+                {promoPct > 0 ? `${def?.label} subtotal` : "Launch subtotal"}
               </span>
               <div className="text-right">
                 <span className="font-display text-2xl font-semibold tabular">
-                  {formatUsd(wholesaleTotal)}
+                  {formatUsd(promoTotal)}
                 </span>
-                {wholesalePct > 0 && wholesaleTotal < launchTotal ? (
+                {promoPct > 0 && promoTotal < launchTotal ? (
                   <p className="text-xs text-[var(--color-fg-subtle)] line-through tabular">
                     {formatUsd(launchTotal)} launch
                   </p>
@@ -212,18 +209,10 @@ function CartPage() {
             </div>
             <p className="mt-2 text-xs text-[var(--color-fg-subtle)]">
               {LAUNCH.suppliesLabel}. Pay now — packs ship after fulfillment. {SHIPPING.note}.
-              Minimum product subtotal {formatUsd(ORDER.minProductSubtotal)}. Wholesale cash/wire:
-              email{" "}
-              <a
-                href={CONTACT.emailMailto}
-                className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
-              >
-                {CONTACT.email}
-              </a>{" "}
-              for an invoice
+              Minimum product subtotal {formatUsd(ORDER.minProductSubtotal)}.
               {promoCode
-                ? ` · Code ${promoCode} prefilled at Stripe (−${wholesalePct}%).`
-                : "."}
+                ? ` Promo code ${promoCode} prefilled at Stripe (−${promoPct}%).`
+                : ""}
             </p>
             <p className="mt-2 text-xs font-medium text-[var(--color-primary)]">
               {NEXT_SHIPMENT.reserveHeadline}. {NEXT_SHIPMENT.chargeWhen}

@@ -1,5 +1,5 @@
 /**
- * Mail-order launch: Lab wholesale sheet + partner list.
+ * Mail-order launch: Mail-order contact helpers.
  * Partner codes are NEVER printed on the pamphlet — issued by text only.
  */
 

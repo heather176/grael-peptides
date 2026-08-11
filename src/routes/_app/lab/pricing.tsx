@@ -23,10 +23,10 @@ const FIELDS: { key: keyof PricingFields; label: string; short: string }[] = [
   { key: "boxCost", label: "Our cost (1 box)", short: "Cost" },
   { key: "kitRetail", label: "Retail 10-pack", short: "Retail 10" },
   { key: "kitList", label: "List 10-pack", short: "List 10" },
-  { key: "kitWholesale", label: "Wholesale 10-pack", short: "WS 10" },
+  { key: "kitWholesale", label: "Partner 10-pack", short: "WS 10" },
   { key: "singleRetail", label: "Retail 1 vial", short: "Retail 1" },
   { key: "singleList", label: "List 1 vial", short: "List 1" },
-  { key: "singleWholesale", label: "Wholesale 1 vial", short: "WS 1" },
+  { key: "singleWholesale", label: "Partner 1 vial", short: "WS 1" },
 ];
 
 function LabPricingPage() {
@@ -80,7 +80,7 @@ function LabPricingPage() {
 
   function onPushWholesale() {
     const n = pushToWholesaleSheet(rows);
-    toast.success(`Pushed ${n} catalog costs & wholesale prices to wholesale sheet`);
+    toast.success(`Pushed ${n} catalog cost rows`);
   }
 
   return (
@@ -96,7 +96,7 @@ function LabPricingPage() {
           <p className="text-base text-[var(--color-fg-muted)]">
             Digested supplier quote (1 box = 10 vials). Edit any cell —{" "}
             <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900">highlighted</span>{" "}
-            means changed from default. Push catalog rows to the website or the wholesale sheet.
+            means changed from default. Push catalog rows to the website prices.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -106,10 +106,10 @@ function LabPricingPage() {
           </Button>
           <Button size="sm" variant="secondary" onClick={onPushWholesale} className="gap-2">
             <Upload className="h-4 w-4" strokeWidth={1.5} />
-            Push to wholesale sheet
+            Save sheet data
           </Button>
           <Button size="sm" variant="ghost" asChild>
-            <Link to="/lab/wholesale">Open wholesale</Link>
+            <Link to="/lab">Lab home</Link>
           </Button>
           <Button size="sm" variant="ghost" onClick={resetAll} className="gap-2">
             <RotateCcw className="h-4 w-4" strokeWidth={1.5} />
