@@ -577,19 +577,9 @@ function LabWholesalePage() {
                 </li>
               ))}
             </ul>
-            <div className="mt-4 border-t border-[var(--color-border)] pt-3">
-              <p className="text-xs font-medium tracking-wide text-[var(--color-fg-subtle)] uppercase">
-                Quick talk track
-              </p>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-fg-muted)]">
-                {PARTNER_SELL_POINTS.talkTrack.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-              <p className="mt-3 text-xs text-[var(--color-fg-subtle)]">
-                {PARTNER_SELL_POINTS.compliance}
-              </p>
-            </div>
+            <p className="mt-4 text-xs text-[var(--color-fg-subtle)]">
+              {PARTNER_SELL_POINTS.compliance}
+            </p>
           </div>
 
           <div className="mt-4 rounded-[var(--radius-lg)] border-2 border-[var(--color-fg)]/15 bg-white px-5 py-4">

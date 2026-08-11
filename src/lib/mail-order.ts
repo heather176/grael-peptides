@@ -86,12 +86,7 @@ export const PARTNER_SELL_POINTS = {
       body: "Peptides ship with cold-chain packaging when required so material integrity is protected in transit (US mail-order).",
     },
   ],
-  talkTrack: [
-    "Lead with medical-grade testing and transparent COAs — researchers buy confidence.",
-    "Show the recommended retail vs your cost so they see you are not inflated.",
-    "Mention medical-grade testing ordered + COAs coming — transparency beats hype.",
-    "Keep language research-only: laboratory use, not personal results.",
-  ],
+  talkTrack: [] as string[],
   compliance:
     "Research use only. Not for human or veterinary use. Not a drug, food, or cosmetic. Do not advertise therapeutic benefits or dosing.",
 } as const;
