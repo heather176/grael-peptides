@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 
@@ -47,6 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-fg)] antialiased">
         {children}
+        <Analytics />
         <Scripts />
       </body>
     </html>
