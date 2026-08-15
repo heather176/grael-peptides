@@ -1,5 +1,4 @@
 export type ProductCategory =
-  | "metabolic"
   | "healing"
   | "cellular"
   | "longevity";
@@ -8,7 +7,7 @@ export type ProductPack = "kit10" | "vial";
 
 export type Product = {
   sku: string;
-  /** Family key shared by kit + single (e.g. TR15) */
+  /** Family key shared by kit + single (e.g. BC10) */
   baseSku: string;
   pack: ProductPack;
   packLabel: string;
@@ -93,7 +92,6 @@ export const SHIPPING = {
 };
 
 export const CATEGORY_LABELS: Record<ProductCategory, string> = {
-  metabolic: "Metabolic",
   healing: "Tissue Repair",
   cellular: "Cellular Energy",
   longevity: "Longevity",
@@ -111,159 +109,6 @@ export const FORM_LABELS: Record<Product["form"], string> = {
 export const SELL_SINGLES = true;
 
 export const products: Product[] = [
-  {
-    sku: "TR15",
-    baseSku: "TR15",
-    pack: "kit10",
-    packLabel: "10-vial pack",
-    name: "Tirzepatide",
-    category: "metabolic",
-    strength: "10-vial × 15 mg",
-    vials: 10,
-    price: 700,
-    listPrice: 820,
-    short: "Dual GLP-1 / GIP receptor research compound",
-    description:
-      "Research-grade Tirzepatide for metabolic pathway studies. Dual agonist profile used in controlled laboratory models of energy balance and glycemic signaling.",
-    researchFocus: "GLP-1 / GIP dual agonism, metabolic signaling",
-    researchNote: "63% of 2026 research peptide interest is GLP-1 class",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_tr15",
-    stripePriceId: "price_1U2GXcDi3y8Lwmj8wvvLRykz",
-    paymentLink: "https://buy.stripe.com/3cIdR98yr7uKcT537ofAc0Q",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "15 mg",
-    featured: true,
-    badge: "Core",
-  },
-  {
-    sku: "TR15V",
-    baseSku: "TR15",
-    pack: "vial",
-    packLabel: "Single vial",
-    name: "Tirzepatide",
-    category: "metabolic",
-    strength: "1-vial × 15 mg",
-    vials: 1,
-    price: 80,
-    listPrice: 90,
-    short: "Dual GLP-1 / GIP receptor research compound",
-    description:
-      "Research-grade Tirzepatide for metabolic pathway studies. Dual agonist profile used in controlled laboratory models of energy balance and glycemic signaling.",
-    researchFocus: "GLP-1 / GIP dual agonism, metabolic signaling",
-    researchNote: "63% of 2026 research peptide interest is GLP-1 class",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_tr15",
-    stripePriceId: "price_1U2GXbDi3y8Lwmj8PD2dqOOs",
-    paymentLink: "https://buy.stripe.com/dRm14ncOH02i3ivdM2fAc0R",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "15 mg",
-    badge: "Single",
-  },
-  {
-    sku: "SM15",
-    baseSku: "SM15",
-    pack: "kit10",
-    packLabel: "10-vial pack",
-    name: "Semaglutide",
-    category: "metabolic",
-    strength: "10-vial × 15 mg",
-    vials: 10,
-    price: 600,
-    listPrice: 700,
-    short: "GLP-1 receptor agonist for metabolic research",
-    description:
-      "Lyophilized Semaglutide for in-vitro and preclinical metabolic research. Long-acting GLP-1 pathway reference standard.",
-    researchFocus: "GLP-1 receptor signaling, appetite pathway models",
-    researchNote: "Most-searched research peptide class in 2026",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_sm15",
-    stripePriceId: "price_1U2GXfDi3y8Lwmj8OAozWm3c",
-    paymentLink: "https://buy.stripe.com/14AfZh8yr9CS9GT6jAfAc0S",
-    form: "lyophilized-white",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "15 mg",
-    featured: true,
-    badge: "Core",
-  },
-  {
-    sku: "SM15V",
-    baseSku: "SM15",
-    pack: "vial",
-    packLabel: "Single vial",
-    name: "Semaglutide",
-    category: "metabolic",
-    strength: "1-vial × 15 mg",
-    vials: 1,
-    price: 70,
-    listPrice: 80,
-    short: "GLP-1 receptor agonist for metabolic research",
-    description:
-      "Lyophilized Semaglutide for in-vitro and preclinical metabolic research. Long-acting GLP-1 pathway reference standard.",
-    researchFocus: "GLP-1 receptor signaling, appetite pathway models",
-    researchNote: "Most-searched research peptide class in 2026",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_sm15",
-    stripePriceId: "price_1U2GXeDi3y8Lwmj80bksXApu",
-    paymentLink: "https://buy.stripe.com/14A7sL7un16m1an37ofAc0T",
-    form: "lyophilized-white",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "15 mg",
-    badge: "Single",
-  },
-  {
-    sku: "RT10",
-    baseSku: "RT10",
-    pack: "kit10",
-    packLabel: "10-vial pack",
-    name: "Retatrutide",
-    category: "metabolic",
-    strength: "10-vial × 10 mg",
-    vials: 10,
-    price: 850,
-    listPrice: 1000,
-    short: "Triple agonist metabolic research compound",
-    description:
-      "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
-    researchFocus: "Triple receptor metabolic cascade models",
-    researchNote: "Fastest-growing triple-agonist research requests",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_rt10",
-    stripePriceId: "price_1U2GXiDi3y8Lwmj8nCuiMTm8",
-    paymentLink: "https://buy.stripe.com/aFadR915Z6qG5qD0ZgfAc0U",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "10 mg",
-    featured: true,
-    badge: "Rising",
-  },
-  {
-    sku: "RT10V",
-    baseSku: "RT10",
-    pack: "vial",
-    packLabel: "Single vial",
-    name: "Retatrutide",
-    category: "metabolic",
-    strength: "1-vial × 10 mg",
-    vials: 1,
-    price: 100,
-    listPrice: 120,
-    short: "Triple agonist metabolic research compound",
-    description:
-      "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
-    researchFocus: "Triple receptor metabolic cascade models",
-    researchNote: "Fastest-growing triple-agonist research requests",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_rt10",
-    stripePriceId: "price_1U2GXgDi3y8Lwmj80GcCWhu7",
-    paymentLink: "https://buy.stripe.com/eVqcN52a3g1gbP1bDUfAc0V",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "10 mg",
-    badge: "Single",
-  },
   {
     sku: "BC10",
     baseSku: "BC10",

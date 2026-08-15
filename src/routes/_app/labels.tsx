@@ -42,7 +42,7 @@ function fieldsFromProduct(p: Product): LabelFields {
 }
 
 function LabelStudioPage() {
-  const [sku, setSku] = useState(products[0]?.sku ?? "TR15");
+  const [sku, setSku] = useState(products[0]?.sku ?? "BC10");
   const product = products.find((p) => p.sku === sku) ?? products[0]!;
   const [fields, setFields] = useState<LabelFields>(() => fieldsFromProduct(product));
   const [appearanceId, setAppearanceId] = useState(

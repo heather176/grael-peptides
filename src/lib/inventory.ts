@@ -10,9 +10,6 @@ import type { Product } from "@/lib/products";
 export type StockStatus = "in_stock" | "made_to_order" | "low" | "out" | "kit_unavailable";
 
 export const VIALS_ON_HAND: Record<string, number> = {
-  TR15: 100,
-  SM15: 100,
-  RT10: 100,
   BC10: 8,
   BT5: 100,
   BB10: 100,
@@ -25,9 +22,6 @@ export const VIALS_ON_HAND: Record<string, number> = {
 
 /** Single vials for sale. 0 = sold out. BPC-157 (BC10) has 8. */
 export const BROKEN_VIALS: Record<string, number> = {
-  TR15: 0,
-  SM15: 0,
-  RT10: 0,
   BC10: 8,
   BT5: 0,
   BB10: 0,

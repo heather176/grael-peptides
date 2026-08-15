@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * and reuse. Shows pass/fail of a registered result hash for a real Grael batch.
  */
 export function SecurityDemo() {
-  const sample = PRODUCT_BATCHES[0]!; // Tirzepatide batch as demo subject
+  const sample = PRODUCT_BATCHES[0]!; // First remaining catalog batch as demo subject
   const [tampered, setTampered] = useState(false);
   const [checked, setChecked] = useState(false);
 

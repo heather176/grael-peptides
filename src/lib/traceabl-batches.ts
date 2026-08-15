@@ -87,9 +87,6 @@ function pendingBatch(
 
 /** One active sell batch per SKU — all peptides pending until COAs post */
 export const PRODUCT_BATCHES: BatchRecord[] = [
-  pendingBatch("TR15", "Tirzepatide", "15 mg", "GRAEL-TR15-2026-072", 99.4, "HPLC-UV", "2026-08-03"),
-  pendingBatch("SM15", "Semaglutide", "15 mg", "GRAEL-SM15-2026-068", 99.5, "HPLC-UV", "2026-08-03"),
-  pendingBatch("RT10", "Retatrutide", "10 mg", "GRAEL-RT10-2026-055", 99.3, "HPLC-UV", "2026-08-02"),
   pendingBatch("BC10", "BPC-157", "10 mg", "GRAEL-BPC-2026-081", 99.9, "HPLC-UV", "2026-08-10"),
   pendingBatch("BT5", "TB-500", "5 mg", "GRAEL-TB5-2026-061", 99.2, "HPLC-UV", "2026-08-01"),
   pendingBatch(
