@@ -77,13 +77,6 @@
       "batchId": "GRAEL-ET10-2026-029",
       "file": "export/grael-label-et10-grael-et10-2026-029.svg",
       "printSizeMm": "50 × 28"
-    },
-    {
-      "sku": "WA3",
-      "name": "Bacteriostatic Water",
-      "batchId": "GRAEL-WA3-2026-012",
-      "file": "export/grael-label-wa3-grael-wa3-2026-012.svg",
-      "printSizeMm": "50 × 28"
     }
   ]
 }

@@ -2,8 +2,7 @@ export type ProductCategory =
   | "metabolic"
   | "healing"
   | "cellular"
-  | "longevity"
-  | "support";
+  | "longevity";
 
 export type ProductPack = "kit10" | "vial";
 
@@ -98,7 +97,6 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   healing: "Tissue Repair",
   cellular: "Cellular Energy",
   longevity: "Longevity",
-  support: "Reconstitution",
 };
 
 export const FORM_LABELS: Record<Product["form"], string> = {
@@ -661,56 +659,6 @@ export const products: Product[] = [
     vialLabel: "10 mg",
     badge: "Single",
   },
-  {
-    sku: "WA3",
-    baseSku: "WA3",
-    pack: "kit10",
-    packLabel: "10-vial pack",
-    name: "Bacteriostatic Water",
-    category: "support",
-    strength: "10-vial × 3 ml",
-    vials: 10,
-    price: 100,
-    listPrice: 120,
-    short: "0.9% benzyl alcohol bacteriostatic water",
-    description:
-      "Research reconstitution solvent. Pair with lyophilized peptides per laboratory protocol.",
-    researchFocus: "Reconstitution support",
-    researchNote: "Required companion for lyophilized vial research",
-    purityClaim: "USP-grade research solvent",
-    stripeProductId: "grael_wa3",
-    stripePriceId: "price_1U2GY9Di3y8Lwmj8zE3XBVbK",
-    paymentLink: "https://buy.stripe.com/dRmeVdg0T16mg5heQ6fAc1c",
-    form: "liquid-clear",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "3 ml",
-    badge: "Support",
-  },
-  {
-    sku: "WA3V",
-    baseSku: "WA3",
-    pack: "vial",
-    packLabel: "Single vial",
-    name: "Bacteriostatic Water",
-    category: "support",
-    strength: "1-vial × 3 ml",
-    vials: 1,
-    price: 15,
-    listPrice: 20,
-    short: "0.9% benzyl alcohol bacteriostatic water",
-    description:
-      "Research reconstitution solvent. Pair with lyophilized peptides per laboratory protocol.",
-    researchFocus: "Reconstitution support",
-    researchNote: "Required companion for lyophilized vial research",
-    purityClaim: "USP-grade research solvent",
-    stripeProductId: "grael_wa3",
-    stripePriceId: "price_1U2GY7Di3y8Lwmj8ZKMp2QEw",
-    paymentLink: "https://buy.stripe.com/6oU7sLg0TdT8g5hgYefAc1d",
-    form: "liquid-clear",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "3 ml",
-    badge: "Support",
-  }
 ];
 
 export function getProduct(sku: string) {
