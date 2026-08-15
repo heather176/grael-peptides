@@ -21,7 +21,6 @@ export const VIALS_ON_HAND: Record<string, number> = {
   CU50: 100,
   GTT600: 100,
   ET10: 100,
-  WA3: 100,
 };
 
 /** Single vials for sale. 0 = sold out. BPC-157 (BC10) has 8. */
@@ -37,7 +36,6 @@ export const BROKEN_VIALS: Record<string, number> = {
   CU50: 0,
   GTT600: 0,
   ET10: 0,
-  WA3: 0,
 };
 
 export const ORDER_TRIGGERED_KITS = true;
