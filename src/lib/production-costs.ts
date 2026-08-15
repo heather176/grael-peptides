@@ -23,7 +23,6 @@ export const DEFAULT_PRODUCTION_COSTS: Record<string, ProductionCost> = {
   CU50: { kit: 33, single: 3 },
   GTT600: { kit: 59, single: 6 },
   ET10: { kit: 35, single: 4 },
-  WA3: { kit: 10, single: 1 },
 };
 
 export function productionCostFor(

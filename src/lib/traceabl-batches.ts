@@ -106,18 +106,6 @@ export const PRODUCT_BATCHES: BatchRecord[] = [
   pendingBatch("CU50", "GHK-Cu", "50 mg", "GRAEL-GHK-2026-044", 99.2, "HPLC-UV", "2026-08-01"),
   pendingBatch("GTT600", "Glutathione", "600 mg", "GRAEL-GTT-2026-033", 99.1, "HPLC-UV", "2026-07-28"),
   pendingBatch("ET10", "Epitalon", "10 mg", "GRAEL-ET10-2026-029", 99.3, "HPLC-UV", "2026-07-27"),
-  {
-    sku: "WA3",
-    compound: "Bacteriostatic Water",
-    strength: "3 ml",
-    batchId: "GRAEL-WA3-2026-012",
-    purityPercent: 100,
-    method: "Sterility / identity",
-    analyzedAt: "2026-07-25",
-    status: "Pending",
-    coaUrl: verifyUrl("GRAEL-WA3-2026-012"),
-    integrity: "Support solvent · testing pending with peptide lots",
-  },
 ];
 
 export const TRACEABL_SECURITY = [
