@@ -17,11 +17,9 @@ export const Route = createFileRoute("/_app/catalog")({
 
 const filters: Array<"all" | ProductCategory> = [
   "all",
-  "metabolic",
   "healing",
   "cellular",
   "longevity",
-  "support",
 ];
 
 function CatalogPage() {

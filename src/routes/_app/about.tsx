@@ -27,8 +27,8 @@ function AboutPage() {
           <h2 className="font-display text-xl font-semibold text-[var(--color-fg)]">Grael</h2>
           <p>
             Grael is the research peptide storefront. Launch inventory focuses on high-demand
-            laboratory compounds — metabolic agonists, tissue-repair peptides, cellular energy and
-            longevity research tools — sold strictly for research use only.
+            laboratory compounds — tissue-repair peptides, cellular energy and longevity research
+            tools — sold strictly for research use only.
           </p>
         </section>
 

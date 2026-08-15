@@ -12,9 +12,6 @@ export type ProductionCost = {
 
 /** Base SKU → production cost from digested wholesale quote */
 export const DEFAULT_PRODUCTION_COSTS: Record<string, ProductionCost> = {
-  TR15: { kit: 83, single: 8 },
-  SM15: { kit: 81, single: 8 },
-  RT10: { kit: 130, single: 13 },
   BC10: { kit: 70, single: 7 },
   BT5: { kit: 89, single: 9 },
   BB10: { kit: 117, single: 12 },
@@ -23,7 +20,6 @@ export const DEFAULT_PRODUCTION_COSTS: Record<string, ProductionCost> = {
   CU50: { kit: 33, single: 3 },
   GTT600: { kit: 59, single: 6 },
   ET10: { kit: 35, single: 4 },
-  WA3: { kit: 10, single: 1 },
 };
 
 export function productionCostFor(

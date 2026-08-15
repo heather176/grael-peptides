@@ -19,7 +19,7 @@ export const SUPPLIER_QUOTE: SupplierQuoteRow[] = [
   // Tirzepatide
   { sku: "TR5", name: "Tirzepatide", packLabel: "5mg × 10 vials", boxCost: 49 },
   { sku: "TR10", name: "Tirzepatide", packLabel: "10mg × 10 vials", boxCost: 67 },
-  { sku: "TR15", name: "Tirzepatide", packLabel: "15mg × 10 vials", boxCost: 83, catalogBaseSku: "TR15" },
+  { sku: "TR15", name: "Tirzepatide", packLabel: "15mg × 10 vials", boxCost: 83 },
   { sku: "TR20", name: "Tirzepatide", packLabel: "20mg × 10 vials", boxCost: 110 },
   { sku: "TR30", name: "Tirzepatide", packLabel: "30mg × 10 vials", boxCost: 155 },
   { sku: "TR40", name: "Tirzepatide", packLabel: "40mg × 10 vials", boxCost: 200 },
@@ -28,11 +28,11 @@ export const SUPPLIER_QUOTE: SupplierQuoteRow[] = [
   // Semaglutide
   { sku: "SM5", name: "Semaglutide", packLabel: "5mg × 10 vials", boxCost: 42 },
   { sku: "SM10", name: "Semaglutide", packLabel: "10mg × 10 vials", boxCost: 60 },
-  { sku: "SM15", name: "Semaglutide", packLabel: "15mg × 10 vials", boxCost: 81, catalogBaseSku: "SM15" },
+  { sku: "SM15", name: "Semaglutide", packLabel: "15mg × 10 vials", boxCost: 81 },
   { sku: "SM20", name: "Semaglutide", packLabel: "20mg × 10 vials", boxCost: 90 },
   // Retatrutide
   { sku: "RT5", name: "Retatrutide", packLabel: "5mg × 10 vials", boxCost: 91 },
-  { sku: "RT10", name: "Retatrutide", packLabel: "10mg × 10 vials", boxCost: 130, catalogBaseSku: "RT10" },
+  { sku: "RT10", name: "Retatrutide", packLabel: "10mg × 10 vials", boxCost: 130 },
   { sku: "RT15", name: "Retatrutide", packLabel: "15mg × 10 vials", boxCost: 160 },
   { sku: "RT20", name: "Retatrutide", packLabel: "20mg × 10 vials", boxCost: 207 },
   { sku: "RT30", name: "Retatrutide", packLabel: "30mg × 10 vials", boxCost: 270 },
@@ -81,7 +81,6 @@ export const SUPPLIER_QUOTE: SupplierQuoteRow[] = [
   { sku: "KP5", name: "KPV", packLabel: "5mg × 10 vials", boxCost: 54 },
   { sku: "KP10", name: "KPV", packLabel: "10mg × 10 vials", boxCost: 69 },
   // Water / acetic
-  { sku: "WA3", name: "Bacteriostatic water", packLabel: "3ml × 10 vials", boxCost: 10, catalogBaseSku: "WA3" },
   { sku: "WA10", name: "Bacteriostatic water", packLabel: "10ml × 10 vials", boxCost: 11 },
   { sku: "AA3", name: "Acetic acid solution", packLabel: "3ml × 10 vials", boxCost: 10 },
   { sku: "AA10", name: "Acetic acid solution", packLabel: "10ml × 10 vials", boxCost: 11 },
