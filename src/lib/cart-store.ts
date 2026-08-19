@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getProduct, products, type Product } from "@/lib/products";
+import { getProduct, isStorefrontSku, products, type Product } from "@/lib/products";
 
 export type CartLine = {
   sku: string;
@@ -21,6 +21,7 @@ type CartState = {
 };
 
 function resolveSellableSku(sku: string): string | null {
+  if (!isStorefrontSku(sku)) return null;
   const raw = products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
   return raw?.sku ?? null;
 }

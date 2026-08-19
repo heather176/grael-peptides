@@ -24,19 +24,21 @@ import { canBuyNow, stockForProduct } from "@/lib/inventory";
 import { formatUsd } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/products/$sku")({
+  loader: ({ params }) => {
+    const { sku } = params;
+    const product =
+      getProduct(sku) ?? kitPack(sku) ?? vialPack(sku) ?? getProduct(sku + "V");
+    if (!product) throw notFound();
+    return { product };
+  },
   component: ProductDetailPage,
 });
 
 function ProductDetailPage() {
-  const { sku } = Route.useParams();
-  const resolved =
-    getProduct(sku) ?? kitPack(sku) ?? vialPack(sku) ?? getProduct(sku + "V");
-  const product = resolved;
+  const { product } = Route.useLoaderData();
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
   const code = useDiscount((s) => s.activeDef()?.code ?? null);
-
-  if (!product) throw notFound();
 
   const packs = siblingPacks(product);
   const batch = requireBatch(product.baseSku);
