@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { SecurityDemo } from "@/components/security-demo";
 import { ShopProductsCard } from "@/components/shop-products-card";
+import { getProduct, kitPack } from "@/lib/products";
 import {
   recentlyTested,
   TRACEABL_SECURITY,
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/_app/transparency")({
 });
 
 function TraceablTestingPage() {
-  const recent = recentlyTested();
+  const recent = recentlyTested().filter((b) => getProduct(b.sku) ?? kitPack(b.sku));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">

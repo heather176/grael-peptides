@@ -215,57 +215,9 @@ export const products: Product[] = [
     vialLabel: "15 mg",
     badge: "Single",
   },
-  {
-    sku: "RT10",
-    baseSku: "RT10",
-    pack: "kit10",
-    packLabel: "10-vial pack",
-    name: "Retatrutide",
-    category: "metabolic",
-    strength: "10-vial × 10 mg",
-    vials: 10,
-    price: 850,
-    listPrice: 1000,
-    short: "Triple agonist metabolic research compound",
-    description:
-      "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
-    researchFocus: "Triple receptor metabolic cascade models",
-    researchNote: "Fastest-growing triple-agonist research requests",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_rt10",
-    stripePriceId: "price_1U2GXiDi3y8Lwmj8nCuiMTm8",
-    paymentLink: "https://buy.stripe.com/aFadR915Z6qG5qD0ZgfAc0U",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "10 mg",
-    featured: true,
-    badge: "Rising",
-  },
-  {
-    sku: "RT10V",
-    baseSku: "RT10",
-    pack: "vial",
-    packLabel: "Single vial",
-    name: "Retatrutide",
-    category: "metabolic",
-    strength: "1-vial × 10 mg",
-    vials: 1,
-    price: 100,
-    listPrice: 120,
-    short: "Triple agonist metabolic research compound",
-    description:
-      "Retatrutide (GLP-1 / GIP / glucagon) for advanced metabolic cascade research. High demand investigational research material.",
-    researchFocus: "Triple receptor metabolic cascade models",
-    researchNote: "Fastest-growing triple-agonist research requests",
-    purityClaim: "Medical-grade testing · Traceabl COA per batch",
-    stripeProductId: "grael_rt10",
-    stripePriceId: "price_1U2GXgDi3y8Lwmj80GcCWhu7",
-    paymentLink: "https://buy.stripe.com/eVqcN52a3g1gbP1bDUfAc0V",
-    form: "lyophilized-cream",
-    image: "/products/vial-bpc.jpg",
-    vialLabel: "10 mg",
-    badge: "Single",
-  },
+  // RT10 / RT10V Retatrutide unpublished from the public storefront for now.
+  // /products/RT10 and /products/RT10V 404 via getProduct(). Do not re-add
+  // without an explicit republish. Semaglutide, Tirzepatide, and other SKUs stay.
   {
     sku: "BC10",
     baseSku: "BC10",
@@ -713,7 +665,15 @@ export const products: Product[] = [
   }
 ];
 
+/** Public shop SKUs taken down for now. Product pages 404; cart/reserve reject. */
+export const UNPUBLISHED_STOREFRONT_SKUS = new Set(["RT10", "RT10V"]);
+
+export function isStorefrontSku(sku: string) {
+  return !UNPUBLISHED_STOREFRONT_SKUS.has(sku.toUpperCase());
+}
+
 export function getProduct(sku: string) {
+  if (!isStorefrontSku(sku)) return undefined;
   const found = products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
   if (!found) return undefined;
   // Singles not sold at launch — resolve to the 10-pack
@@ -725,16 +685,16 @@ export function getProduct(sku: string) {
 
 /** Primary catalog cards: one per compound (card price leads with single vial). */
 export function catalogProducts() {
-  return products.filter((p) => p.pack === "kit10");
+  return products.filter((p) => p.pack === "kit10" && isStorefrontSku(p.sku));
 }
 
 export function featuredProducts() {
-  return products.filter((p) => p.featured && p.pack === "kit10");
+  return products.filter((p) => p.featured && p.pack === "kit10" && isStorefrontSku(p.sku));
 }
 
 /** Pack options: single vial first, then 10-pack. */
 export function siblingPacks(product: Product) {
-  const sibs = products.filter((p) => p.baseSku === product.baseSku);
+  const sibs = products.filter((p) => p.baseSku === product.baseSku && isStorefrontSku(p.sku));
   const list = !SELL_SINGLES ? sibs.filter((p) => p.pack === "kit10") : sibs;
   return [...list].sort((a, b) => {
     if (a.pack === "vial" && b.pack !== "vial") return -1;
@@ -745,15 +705,18 @@ export function siblingPacks(product: Product) {
 
 export function vialPack(baseSku: string) {
   if (!SELL_SINGLES) return undefined;
-  return products.find((p) => p.baseSku === baseSku && p.pack === "vial");
+  if (!isStorefrontSku(baseSku)) return undefined;
+  return products.find((p) => p.baseSku === baseSku && p.pack === "vial" && isStorefrontSku(p.sku));
 }
 
 export function kitPack(baseSku: string) {
-  return products.find((p) => p.baseSku === baseSku && p.pack === "kit10");
+  if (!isStorefrontSku(baseSku)) return undefined;
+  return products.find((p) => p.baseSku === baseSku && p.pack === "kit10" && isStorefrontSku(p.sku));
 }
 
 export function sellableProducts() {
-  return SELL_SINGLES ? products : products.filter((p) => p.pack === "kit10");
+  const listed = products.filter((p) => isStorefrontSku(p.sku));
+  return SELL_SINGLES ? listed : listed.filter((p) => p.pack === "kit10");
 }
 
 export function packPurchaseLabel(product: Product) {

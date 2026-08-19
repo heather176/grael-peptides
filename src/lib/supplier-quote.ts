@@ -32,7 +32,7 @@ export const SUPPLIER_QUOTE: SupplierQuoteRow[] = [
   { sku: "SM20", name: "Semaglutide", packLabel: "20mg × 10 vials", boxCost: 90 },
   // Retatrutide
   { sku: "RT5", name: "Retatrutide", packLabel: "5mg × 10 vials", boxCost: 91 },
-  { sku: "RT10", name: "Retatrutide", packLabel: "10mg × 10 vials", boxCost: 130, catalogBaseSku: "RT10" },
+  { sku: "RT10", name: "Retatrutide", packLabel: "10mg × 10 vials", boxCost: 130 },
   { sku: "RT15", name: "Retatrutide", packLabel: "15mg × 10 vials", boxCost: 160 },
   { sku: "RT20", name: "Retatrutide", packLabel: "20mg × 10 vials", boxCost: 207 },
   { sku: "RT30", name: "Retatrutide", packLabel: "30mg × 10 vials", boxCost: 270 },
